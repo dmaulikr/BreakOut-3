@@ -54,10 +54,19 @@ static NSString * const playButtonName = @"play";
         self.rightOptionsBuffer = 100;
         
         SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
+        [background setSize:CGSizeMake(414, 736)];
         background.position       = CGPointZero;
         background.anchorPoint    = CGPointZero;
         background.name           = backgroundName;
-
+        
+        SKSpriteNode *blackBackground = [SKSpriteNode spriteNodeWithImageNamed:@"bgBlack.png"];
+        blackBackground.anchorPoint = CGPointZero;
+        blackBackground.position = CGPointMake(-300, -300);
+        blackBackground.zPosition = -10;
+        blackBackground.name = backgroundName;
+        //[self addChild:blackBackground];
+        
+        [[self childNodeWithName:backgroundNodeNameSearch] addChild:blackBackground];
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
         
         [self createScene];
@@ -188,7 +197,7 @@ static NSString * const playButtonName = @"play";
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     SKNode *node = [self.physicsWorld bodyAtPoint:[[touches anyObject] locationInNode:self]].node;
-    
+    NSLog(@"w: %f h: %f", self.frame.size.width, self.frame.size.height);
     if (![node.name containsString:blockName]) {
         //NSLog(@"cannont find block body");
         node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
@@ -277,15 +286,19 @@ static NSString * const playButtonName = @"play";
 -(void)adjustBackgroundWithTouches:(NSSet *) touches
 {
 
+    NSLog(@"nhh");
     UITouch *touch            = [touches anyObject];
     CGPoint touchLocation     = [touch locationInNode:self];
     CGPoint previousLocation  = [touch previousLocationInNode:self];
     
+    
     SKNode *background  = [self childNodeWithName:backgroundNodeNameSearch];
     float  backgroundY  = background.position.y;
     float  backgroundX  = background.position.x;
-    int screenWidth     = self.frame.size.width;
-    int screenHeight    = self.frame.size.height;
+    int    screenWidth     = self.frame.size.width;
+    int    screenHeight    = self.frame.size.height;
+    float  touchDistanceToBottom = touchLocation.y;
+    float touchDistanecToRight = screenWidth - touchLocation.x;
     
     float yAdjustment = touchLocation.y - previousLocation.y;
     float xAdjustment = touchLocation.x - previousLocation.x;
@@ -295,12 +308,16 @@ static NSString * const playButtonName = @"play";
     
     BOOL shouldMoveFromBottom  = false;
     BOOL shouldMoveFromRight   = false;
-    
+ 
+
     
     if (touchLocation.y < backgroundY + self.bottomOptionsBuffer) shouldMoveFromBottom = YES;
+    if (touchLocation.y > backgroundY - self.bottomOptionsBuffer) shouldMoveFromBottom = YES;
+
     // if touch is within desired range of bottom let it move
     
     if (touchLocation.x > screenWidth - self.rightOptionsBuffer) shouldMoveFromRight = YES;
+
     // if touch is within desired range of right let it move
     
     if (backgroundY <= 0 && shouldMoveFromBottom && yAdjustment < 0)  shouldMoveFromBottom = NO;
@@ -310,21 +327,24 @@ static NSString * const playButtonName = @"play";
     // if bottom is at top and should move and movement is up dont let it move
     
     if (backgroundX >= 0 && shouldMoveFromRight && xAdjustment > 0) shouldMoveFromRight = NO;
+
     // if right is at 0 and should move and movement is right dont let it move
     
-    if (backgroundX >= -self.rightOptionsWidth && shouldMoveFromRight && xAdjustment < 0) shouldMoveFromRight = NO;
+    if (backgroundX <= (-1 * self.rightOptionsWidth) && shouldMoveFromRight && xAdjustment < 0) shouldMoveFromRight = NO;
+
     // if right is at width and should move and movement is left dont let it move
 
-    if (shouldMoveFromBottom) {
-        NSLog(@"should move botom");
-        [background runAction:moveBackgroundBottom];
-
+    if (touchDistanceToBottom < touchDistanecToRight) {
+        shouldMoveFromRight = NO;
+    } else if (touchDistanecToRight < touchDistanceToBottom) {
+        shouldMoveFromBottom = NO;
     }
     
-    if (shouldMoveFromRight) {
-        NSLog(@"move right");
-        [background runAction:moveBackgroundRight];
-    }
+    if (shouldMoveFromBottom) [background runAction:moveBackgroundBottom];
+    
+    
+    if (shouldMoveFromRight) [background runAction:moveBackgroundRight];
+    
     
 }
 
