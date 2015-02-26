@@ -65,18 +65,10 @@ static NSString * const playButtonName = @"play";
         background.position       = CGPointZero;
         background.anchorPoint    = CGPointZero;
         background.name           = backgroundName;
-        
-        SKSpriteNode *bottom = [SKSpriteNode spriteNodeWithImageNamed:@"bgBlack.png"];
-        blackBackground.anchorPoint = CGPointZero;
-        blackBackground.position = CGPointZero;
-        [blackBackground setSize:CGSizeMake(self.size.width, 120)];
-        blackBackground.name = backgroundName;
-        //[self addChild:blackBackground];
-        
-        [[self childNodeWithName:backgroundNodeNameSearch] addChild:blackBackground];
+
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
         
-        [self createScene];
+        [self createOptionMenus];
     }
     
     return self;
@@ -177,16 +169,32 @@ static NSString * const playButtonName = @"play";
 }
 
 
--(void)createScene
+-(void)createOptionMenus
 {
-    BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/4,  -50)
+    
+    SKSpriteNode *blackBackground = [SKSpriteNode spriteNodeWithImageNamed:@"bgBlack.png"];
+    blackBackground.anchorPoint = CGPointZero;
+    blackBackground.position = CGPointZero;
+    [blackBackground setSize:CGSizeMake(self.size.width, 120)];
+    blackBackground.name = backgroundName;
+    
+    SKSpriteNode *bottomOptions = [SKSpriteNode spriteNodeWithImageNamed:@"bgBlack.png"];
+    bottomOptions.anchorPoint = CGPointZero;
+    bottomOptions.position = CGPointZero;
+    [bottomOptions setSize:CGSizeMake(self.size.width, 120)];
+    bottomOptions.name = bottomOptionsName;
+    
+    
+    [[self childNodeWithName:optionsNodeNameSearch] addChild:bottomOptions];
+    
+    BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake(bottomOptions.size.width/4,  bottomOptions.size.height/2)
                                                      hitPoints:1
                                                           name:overlayBlockName
                                                     hasPowerup:NO
                                                    currentSize:@"normal"
                                                    canBeEdited:NO];
 
-    [[self childNodeWithName:backgroundNodeNameSearch] addChild:block];
+    [[[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:bottomOptionsName]  addChild:block];
     
 
     SKLabelNode *play        = [SKLabelNode labelNodeWithFontNamed:@"arial"];

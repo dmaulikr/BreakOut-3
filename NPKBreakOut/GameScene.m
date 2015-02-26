@@ -21,6 +21,7 @@
     SKNode *contentNode    = [[SKNode alloc] init];
     SKNode *overlayNode    = [[SKNode alloc] init];
     SKNode *backgroundNode = [[SKNode alloc] init];
+    SKNode *optionsNode    = [[SKNode alloc] init];
     
     mainNode.name       = mainNodeName;
     blockNode.name      = blockNodeName;
@@ -29,6 +30,7 @@
     overlayNode.name    = overlayNodeName;
     contentNode.name    = contentNodeName;
     backgroundNode.name = backgroundNodeName;
+    optionsNode.name    = optionsNodeName;
     
     CGPoint origin = CGPointZero;
     mainNode.position       = origin;
@@ -38,6 +40,7 @@
     overlayNode.position    = origin;
     contentNode.position    = origin;
     backgroundNode.position = origin;
+    optionsNode.position    = origin;
     
     overlayNode.zPosition    = 1.0;
     
@@ -47,6 +50,7 @@
     [mainNode    addChild:contentNode];
     [mainNode    addChild:overlayNode];
     [mainNode    addChild:backgroundNode];
+    [mainNode    addChild:optionsNode];
 
     return mainNode;
     
