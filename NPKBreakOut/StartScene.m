@@ -15,7 +15,7 @@
 -(instancetype)initWithSize:(CGSize)size
 {
     if (self = [super initWithSize:size]) {
-        
+
         self.backgroundColor = [SKColor blueColor];
 
         [self createSceneContents];
@@ -32,7 +32,6 @@
     [self createTitle];
     [self createPlayButton];
     [self createEditButton];
-    
     //[super view];
     
 }
@@ -104,6 +103,7 @@
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    
     
     SKPhysicsBody *body = [self.physicsWorld bodyAtPoint:[[touches anyObject] locationInNode:self]];
     if (body && [body.node.name isEqualToString:@"title"]) {
