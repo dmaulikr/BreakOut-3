@@ -66,10 +66,10 @@ static NSString * const playButtonName = @"play";
         background.anchorPoint    = CGPointZero;
         background.name           = backgroundName;
         
-        SKSpriteNode *blackBackground = [SKSpriteNode spriteNodeWithImageNamed:@"bgBlack.png"];
+        SKSpriteNode *bottom = [SKSpriteNode spriteNodeWithImageNamed:@"bgBlack.png"];
         blackBackground.anchorPoint = CGPointZero;
-        blackBackground.position = CGPointMake(-300, -300);
-        blackBackground.zPosition = -10;
+        blackBackground.position = CGPointZero;
+        [blackBackground setSize:CGSizeMake(self.size.width, 120)];
         blackBackground.name = backgroundName;
         //[self addChild:blackBackground];
         
