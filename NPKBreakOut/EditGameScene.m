@@ -50,6 +50,8 @@ static NSString * const playButtonName = @"play";
         background.position       = CGPointZero;
         background.anchorPoint    = CGPointZero;
         background.name           = backgroundName;
+        
+        SKSpriteNode *bottomOptions = [SKSpriteNode spriteNodeWithImageNamed:@"blackbg.png"];
 
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
         

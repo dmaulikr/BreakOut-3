@@ -8,11 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-NSString * const blockName      = @"block";
-NSString * const ballName       = @"ball";
-NSString * const paddleName     = @"paddle";
-NSString * const powerUpName    = @"powerUp";
-NSString * const backgroundName = @"background";
+NSString * const blockName          = @"block";
+NSString * const ballName           = @"ball";
+NSString * const paddleName         = @"paddle";
+NSString * const powerUpName        = @"powerUp";
+NSString * const backgroundName     = @"background";
+NSString * const optionsBottomName  = @"optionsBottom";
+NSString * const optionsRightName   = @"optionsRight";
 
 NSString * const mainNodeName       = @"mainNode";
 NSString * const overlayNodeName    = @"overlayNode";
@@ -21,6 +23,7 @@ NSString * const contentNodeName    = @"contentNode";
 NSString * const blockNodeName      = @"blockNode";
 NSString * const ballNodeName       = @"ballNode";
 NSString * const paddleNodeName     = @"paddleNode";
+NSString * const optionsNodeName    = @"optionsNode";
 
 NSString * const mainNodeNameSearch       = @"//mainNode";
 NSString * const overlayNodeNameSearch    = @"//overlayNode";
@@ -29,3 +32,4 @@ NSString * const contentNodeNameSearch    = @"//contentNode";
 NSString * const blockNodeNameSearch      = @"//blockNode";
 NSString * const ballNodeNameSearch       = @"//ballNode";
 NSString * const paddleNodeNameSearch     = @"//paddleNode";
+NSString * const optionsNodeNameSearch    = @"//optionsNode";
