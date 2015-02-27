@@ -25,14 +25,16 @@ static NSString * const playButtonName = @"play";
 
 @property (nonatomic) int bottomOptionsHeight;
 @property (nonatomic) int rightOptionsWidth;
-@property (nonatomic) int bottomOptionsBuffer;
-@property (nonatomic) int rightOptionsBuffer;
+@property (nonatomic) float bottomOptionsBuffer;
+@property (nonatomic) float rightOptionsBuffer;
+@property (nonatomic) float bottomOptionsHeightLimit;
+@property (nonatomic) float rightOptionsWidthLimit;
 
 @property (nonatomic) BOOL isAdjustingSize;
 @property (nonatomic) BOOL isObjectRotating;
 @property (nonatomic) BOOL isAdjustingBackground;
-@property (nonatomic) BOOL shouldMoveFromBottom;
-@property (nonatomic) BOOL shouldMoveFromRight;
+@property (nonatomic) BOOL shouldMoveBottomOptions;
+@property (nonatomic) BOOL shouldMoveRightOptions;
 @property (nonatomic) BOOL shouldMoveFromLeft;
 @property (nonatomic) BOOL shouldMoveFromUp;
 
@@ -54,21 +56,21 @@ static NSString * const playButtonName = @"play";
         self.physicsWorld.contactDelegate = self;
         self.name                         = @"world";
         self.anchorPoint                 = CGPointZero;
+        NSLog(@"%f", self.frame.size.width);
 
-        self.bottomOptionsHeight   = 100;
-        self.rightOptionsWidth     = 100;
-        self.bottomOptionsBuffer   = 100;
-        self.rightOptionsBuffer    = 100;
 
-        SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
-        [background setSize:CGSizeMake(414, 736)];
-        background.position       = CGPointZero;
-        background.anchorPoint    = CGPointZero;
-        background.name           = backgroundName;
+        self.bottomOptionsHeight   = 150.0;
+        self.rightOptionsWidth     = 150.0;
+        self.bottomOptionsHeightLimit = 120.0;
+        self.rightOptionsWidthLimit = 120.0;
+        self.bottomOptionsBuffer = 100;
+        self.rightOptionsBuffer = 100;
 
-        [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
-        
-        [self createOptionMenus];
+       
+
+        [self createBackground];
+        [self createBottomOptions];
+        [self createRightOptions];
     }
     
     return self;
@@ -169,20 +171,44 @@ static NSString * const playButtonName = @"play";
 }
 
 
--(void)createOptionMenus
+-(void)createBackground
 {
+    SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
+    [background setSize:CGSizeMake(414, 736)];
+    background.position       = CGPointZero;
+    background.anchorPoint    = CGPointZero;
+    background.name           = backgroundName;
     
-    SKSpriteNode *blackBackground = [SKSpriteNode spriteNodeWithImageNamed:@"bgBlack.png"];
-    blackBackground.anchorPoint = CGPointZero;
-    blackBackground.position = CGPointZero;
-    [blackBackground setSize:CGSizeMake(self.size.width, 120)];
-    blackBackground.name = backgroundName;
+    [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
+}
+
+-(void)createRightOptions
+{
+    SKSpriteNode *rightOptions = [SKSpriteNode spriteNodeWithImageNamed:@"rightOptions"];
+    rightOptions.anchorPoint = CGPointZero;
+    rightOptions.position = CGPointMake(self.frame.size.width, 0);
+    rightOptions.name = rightOptionsName;
     
-    SKSpriteNode *bottomOptions = [SKSpriteNode spriteNodeWithImageNamed:@"bgBlack.png"];
-    bottomOptions.anchorPoint = CGPointZero;
-    bottomOptions.position = CGPointZero;
-    [bottomOptions setSize:CGSizeMake(self.size.width, 120)];
+    [[self childNodeWithName: optionsNodeNameSearch] addChild:rightOptions];
+    
+    SKLabelNode *play        = [SKLabelNode labelNodeWithFontNamed:@"arial"];
+    play.text                = @"play";
+    play.name                = playButtonName;
+    play.physicsBody         = [SKPhysicsBody bodyWithRectangleOfSize:play.frame.size];
+    play.position            = CGPointMake(rightOptions.frame.size.width/2, rightOptions.frame.size.height/10);
+    play.fontSize            = 30;
+    play.physicsBody.dynamic = NO;
+    [rightOptions addChild:play];
+}
+
+-(void)createBottomOptions
+{
+    SKSpriteNode *bottomOptions = [SKSpriteNode spriteNodeWithImageNamed:@"bottomOptions"];
+    bottomOptions.anchorPoint = CGPointMake(0,0);
+    //CGPointMake((bottomOptions.frame.size.width/2) * -1, (bottomOptions.frame.size.height/2));
+    bottomOptions.position = CGPointMake(0,0);
     bottomOptions.name = bottomOptionsName;
+    NSLog(@"%f, %f", bottomOptions.position.y, bottomOptions.position.x);
     
     
     [[self childNodeWithName:optionsNodeNameSearch] addChild:bottomOptions];
@@ -193,28 +219,17 @@ static NSString * const playButtonName = @"play";
                                                     hasPowerup:NO
                                                    currentSize:@"normal"
                                                    canBeEdited:NO];
-
-    [[[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:bottomOptionsName]  addChild:block];
     
-
-    SKLabelNode *play        = [SKLabelNode labelNodeWithFontNamed:@"arial"];
-    play.text                = @"play";
-    play.name                = playButtonName;
-    play.physicsBody         = [SKPhysicsBody bodyWithRectangleOfSize:play.frame.size];
-    play.position            = CGPointMake(self.frame.size.width/2, 40);
-    play.fontSize            = 20;
-    play.physicsBody.dynamic = NO;
-    [[self childNodeWithName:overlayNodeNameSearch] addChild:play];
-    
+    [bottomOptions  addChild:block];
 }
 
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    
     SKNode *node = [self.physicsWorld bodyAtPoint:[[touches anyObject] locationInNode:self]].node;
-    NSLog(@"w: %f h: %f", self.frame.size.width, self.frame.size.height);
+    
     if (![node.name containsString:blockName]) {
-        //NSLog(@"cannont find block body");
         node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
     }
     
@@ -233,10 +248,7 @@ static NSString * const playButtonName = @"play";
 {
     UITouch *touch            = [touches anyObject];
     CGPoint touchLocation     = [touch locationInNode:self];
-    CGPoint previousLocation  = [touch previousLocationInNode:self];
     SKNode  *nodeAtTouch      = [self.physicsWorld bodyAtPoint:touchLocation].node;
-    SKNode *test = [self nodeAtPoint:touchLocation];
-    //NSLog(@"node %@", test.name);
  
     
     if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayBlockName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
@@ -264,9 +276,10 @@ static NSString * const playButtonName = @"play";
         BlockSprite *block = (BlockSprite *)self.nodePressedAtTouchBegins.parent;
         [block adjustSizeWithTouches:touches];
         
-    } else if ([self.nodePressedAtTouchBegins.name isEqualToString:backgroundName]){
-        
-        [self adjustBackgroundWithTouches:touches];
+    } else if ([self.nodePressedAtTouchBegins.name isEqualToString:backgroundName] ||
+            [self.nodePressedAtTouchBegins.name isEqualToString:bottomOptionsName] ||
+             [self.nodePressedAtTouchBegins.name isEqualToString:rightOptionsName]){
+        [self adjustOptionMenusWithTouches:touches];
 
     }
     
@@ -276,22 +289,22 @@ static NSString * const playButtonName = @"play";
 {
     
     if (self.isAdjustingBackground) {
-        [self adjustBackgroundToRestPosition];
+        [self adjustOptionMenusToRest];
     }
 
     self.nodePressedAtTouchBegins = 0;
     self.isObjectRotating         = NO;
     self.isAdjustingSize          = NO;
     self.isAdjustingBackground    = NO;
-    self.shouldMoveFromBottom     = NO;
-    self.shouldMoveFromRight      = NO;
+    self.shouldMoveBottomOptions    = NO;
+    //self.shouldMoveFromRight      = NO;
     self.shouldMoveFromLeft       = NO;
     self.shouldMoveFromUp         = NO;
 
     
 }
 
--(void)adjustBackgroundToRestPosition
+-(void)adjustOptionMenusToRest
 {
     SKNode *background = [self childNodeWithName:backgroundNodeNameSearch];
     
@@ -303,7 +316,7 @@ static NSString * const playButtonName = @"play";
     SKAction *slideBackgroundUpToBottomMenuHeight = [SKAction moveTo:CGPointMake(0.0, self.bottomOptionsHeight) duration:0.5];
     SKAction *slideBackgroundLeftToRightMenuWidth = [SKAction moveTo:CGPointMake(self.rightOptionsWidth, 0.0) duration:0.5];
     
-    if (self.shouldMoveFromBottom) {
+    if (self.shouldMoveBottomOptions) {
         NSLog(@"auto move botom");
         if (backgroundY > -60 && backgroundY <= (bottomHeightLimit/2)) {
             [background runAction:slideBackgroundToDefault];
@@ -324,20 +337,20 @@ static NSString * const playButtonName = @"play";
     
 }
 
--(void)adjustBackgroundWithTouches:(NSSet *) touches
+-(void)adjustOptionMenusWithTouches:(NSSet *) touches
 {
-    SKNode *background  = [self childNodeWithName:backgroundNodeNameSearch];
+    SKNode *bottomOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:bottomOptionsName];
+    SKNode *rightOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:rightOptionsName];
 
     UITouch *touch            = [touches anyObject];
     CGPoint touchLocation     = [touch locationInNode:self];
     CGPoint previousLocation  = [touch previousLocationInNode:self];
-    CGPoint touchLocationInBackground = [touch locationInNode:background];
     
-    float  backgroundY  = background.position.y;
-    float  backgroundX  = background.position.x;
+    float bottomOptionsY  = bottomOptions.position.y;
+    float rightOptionsX   = rightOptions.position.x;
     
-    int    screenWidth     = self.frame.size.width;
-    int    screenHeight    = self.frame.size.height;
+    int screenWidth  = self.frame.size.width;
+    int screenHeight = self.frame.size.height;
     
     float touchDistanceToBottom = touchLocation.y;
     float touchDistanecToRight  = screenWidth - touchLocation.x;
@@ -347,72 +360,69 @@ static NSString * const playButtonName = @"play";
     
     SKAction *moveBackgroundBottom = [SKAction moveByX:0 y:yAdjustment duration:0];
     SKAction *moveBackgroundRight  = [SKAction moveByX:xAdjustment y:0 duration:0];
-    
+
 
  
     if (!self.isAdjustingBackground) {
         NSLog(@"non adjust");
-        
         // this runs on the first time here
         // if the touch is within a boundary to move it turns adjusting on and figures out what should move
-        
-        if (touchLocation.y < backgroundY + self.bottomOptionsBuffer && backgroundX == 0) {
+        if (touchLocation.y < bottomOptionsY + self.bottomOptionsBuffer) {
             
-            self.shouldMoveFromBottom = YES;
+            self.shouldMoveBottomOptions = YES;
             self.isAdjustingBackground = YES;
             NSLog(@"move botom");
             
         }
-        //if (touchLocation.y > backgroundY - self.bottomOptionsBuffer) shouldMoveFromBottom = YES; self.isAdjustingBackground = YES;
         
-        if (touchLocation.x > screenWidth - self.rightOptionsBuffer && backgroundY == 0) {
+        
+       if (touchLocation.x > rightOptionsX - self.rightOptionsBuffer) {
             
-            self.shouldMoveFromRight = YES;
+            self.shouldMoveRightOptions = YES;
             self.isAdjustingBackground = YES;
             NSLog(@"move right ");
             
         }
         
-        if (touchDistanceToBottom < touchDistanecToRight)      self.shouldMoveFromRight = NO;
-        else if (touchDistanecToRight < touchDistanceToBottom) self.shouldMoveFromBottom = NO;
+        //if (touchDistanceToBottom < touchDistanecToRight)      self.shouldMoveFromRight = NO;
+        //else if (touchDistanecToRight < touchDistanceToBottom) self.shouldMoveFromBottom = NO;
         
         
 
     } else {
-        NSLog(@"moving");
         //this runs if the tap was within range of boundary to move
         //makes sure that the background dosnt move in the wrong direction
 
-
-        if (backgroundY <= 0 && yAdjustment < 0 && self.shouldMoveFromBottom) {
+        
+        if (bottomOptionsY <= 0 && yAdjustment < 0 && self.shouldMoveBottomOptions) {
             
-            self.shouldMoveFromBottom = NO;
+            self.shouldMoveBottomOptions = NO;
         }
         // if bottom is at 0 and should move and movement is down dont let it move
 
-        if (backgroundY >= self.bottomOptionsHeight && yAdjustment > 0 && self.shouldMoveFromBottom) {
+        if (bottomOptionsY >= self.bottomOptionsHeightLimit && yAdjustment > 0 && self.shouldMoveBottomOptions) {
 
-            self.shouldMoveFromBottom = NO;
+            self.shouldMoveBottomOptions = NO;
         }
         
         // if bottom is at top and should move and movement is up dont let it move
         
-        if (backgroundX >= 0 && xAdjustment > 0 && self.shouldMoveFromRight) self.shouldMoveFromRight = NO;
+        if (rightOptionsX >= 0 && xAdjustment > 0 && self.shouldMoveRightOptions) self.shouldMoveRightOptions = NO;
 
         // if right is at 0 and should move and movement is right dont let it move
         
-        if (backgroundX <= (-1 * self.rightOptionsWidth) && xAdjustment < 0 && self.shouldMoveFromRight) self.shouldMoveFromRight = NO;
+        if (rightOptionsX <= (-1 * self.rightOptionsWidth) && xAdjustment < 0 && self.shouldMoveRightOptions) self.shouldMoveRightOptions = NO;
 
         // if right is at width and should move and movement is left dont let it move
 
 
-        if (self.shouldMoveFromBottom) {
-            [background runAction:moveBackgroundBottom];
+        if (self.shouldMoveBottomOptions) {
+            [bottomOptions runAction:moveBackgroundBottom];
             
             NSLog(@"action bottom");
         }
-        if (self.shouldMoveFromRight)  {
-            [background runAction:moveBackgroundRight];
+        if (self.shouldMoveRightOptions)  {
+            [rightOptions runAction:moveBackgroundRight];
             NSLog(@"action right");
         }
     }

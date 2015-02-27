@@ -14,6 +14,7 @@ NSString * const paddleName        = @"paddle";
 NSString * const powerUpName       = @"powerUp";
 NSString * const backgroundName    = @"background";
 NSString * const bottomOptionsName = @"bottomOptions";
+NSString * const rightOptionsName  = @"rightOptions";
 
 NSString * const mainNodeName       = @"mainNode";
 NSString * const overlayNodeName    = @"overlayNode";

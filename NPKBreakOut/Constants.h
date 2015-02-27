@@ -15,6 +15,7 @@ extern NSString * const paddleName;
 extern NSString * const powerUpName;
 extern NSString * const backgroundName;
 extern NSString * const bottomOptionsName;
+extern NSString * const rightOptionsName;
 
 extern NSString * const mainNodeName;
 extern NSString * const overlayNodeName;
