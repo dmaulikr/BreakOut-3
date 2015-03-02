@@ -8,6 +8,7 @@
 
 #import "EditGameScene.h"
 #import "BlockSprite.h"
+#import "BallSprite.h"
 #import "MainScene.h"
 #import "Constants.h"
 #import "GameScene.h"
@@ -15,6 +16,9 @@
 
 
 static NSString * const overlayBlockName = @"first";
+static NSString * const overlayBallName = @"second";
+static NSString * const rotatePointName = @"rotatePoint";
+static NSString * const editPointTopLeftName =  @"editPointTopLeft";
 static NSString * const playButtonName = @"play";
 
 
@@ -23,20 +27,20 @@ static NSString * const playButtonName = @"play";
 @property (nonatomic) SKNode *nodePressedAtTouchBegins;
 @property (nonatomic) BlockSprite* rotatingBlock;
 
-@property (nonatomic) int bottomOptionsHeight;
-@property (nonatomic) int rightOptionsWidth;
 @property (nonatomic) float bottomOptionsBuffer;
 @property (nonatomic) float rightOptionsBuffer;
 @property (nonatomic) float bottomOptionsHeightLimit;
 @property (nonatomic) float rightOptionsWidthLimit;
+@property (nonatomic) float blockHeight;
+@property (nonatomic) float bottomOptionsHeight;
 
 @property (nonatomic) BOOL isAdjustingSize;
 @property (nonatomic) BOOL isObjectRotating;
 @property (nonatomic) BOOL isAdjustingBackground;
 @property (nonatomic) BOOL shouldMoveBottomOptions;
 @property (nonatomic) BOOL shouldMoveRightOptions;
-@property (nonatomic) BOOL shouldMoveFromLeft;
-@property (nonatomic) BOOL shouldMoveFromUp;
+@property (nonatomic) BOOL shouldMoveLeftOptions;
+@property (nonatomic) BOOL shouldMoveUpOptions;
 
 @end
 
@@ -59,13 +63,12 @@ static NSString * const playButtonName = @"play";
         NSLog(@"%f", self.frame.size.width);
 
 
-        self.bottomOptionsHeight   = 150.0;
-        self.rightOptionsWidth     = 150.0;
-        self.bottomOptionsHeightLimit = 120.0;
-        self.rightOptionsWidthLimit = 120.0;
+        self.bottomOptionsHeightLimit = 90.0;
+        self.rightOptionsWidthLimit = self.frame.size.width - 90.0;
         self.bottomOptionsBuffer = 100;
         self.rightOptionsBuffer = 100;
-
+        self.blockHeight = [[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height;
+        self.bottomOptionsHeight = [[SKSpriteNode alloc] initWithImageNamed:@"bottomOptions.png"].frame.size.height;
        
 
         [self createBackground];
@@ -203,23 +206,32 @@ static NSString * const playButtonName = @"play";
 
 -(void)createBottomOptions
 {
+    
     SKSpriteNode *bottomOptions = [SKSpriteNode spriteNodeWithImageNamed:@"bottomOptions"];
+    
     bottomOptions.anchorPoint = CGPointMake(0,0);
     //CGPointMake((bottomOptions.frame.size.width/2) * -1, (bottomOptions.frame.size.height/2));
-    bottomOptions.position = CGPointMake(0,0);
+    bottomOptions.position = CGPointMake(0,bottomOptions.frame.size.height * -1);
     bottomOptions.name = bottomOptionsName;
     NSLog(@"%f, %f", bottomOptions.position.y, bottomOptions.position.x);
     
     
     [[self childNodeWithName:optionsNodeNameSearch] addChild:bottomOptions];
     
-    BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake(bottomOptions.size.width/4,  bottomOptions.size.height/2)
+    BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake(bottomOptions.size.width/4, 100)
                                                      hitPoints:1
                                                           name:overlayBlockName
                                                     hasPowerup:NO
                                                    currentSize:@"normal"
                                                    canBeEdited:NO];
     
+    BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(bottomOptions.size.width/2, 100)
+                                                currentSize:@"normal"
+                                                     status:@"normal"
+                                                       name:overlayBallName];
+    ball.physicsBody.dynamic = NO;
+    
+    [bottomOptions addChild:ball];
     [bottomOptions  addChild:block];
 }
 
@@ -229,7 +241,10 @@ static NSString * const playButtonName = @"play";
     
     SKNode *node = [self.physicsWorld bodyAtPoint:[[touches anyObject] locationInNode:self]].node;
     
-    if (![node.name containsString:blockName]) {
+    
+    NSLog(@"touch begins pressed %@", node.name);
+    
+    if (![node.name containsString:blockName] && ![node.name containsString:ballName]) {
         node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
     }
     
@@ -261,17 +276,34 @@ static NSString * const playButtonName = @"play";
         self.nodePressedAtTouchBegins = block;
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
     }
+    
+    if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayBallName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
+        BallSprite *ball = [[BallSprite alloc] initWithLocation:touchLocation
+                                                    currentSize:@"normal"
+                                                         status:@"normal"
+                                                           name:ballName];
+        ball.physicsBody.dynamic = NO;
+        self.nodePressedAtTouchBegins = ball;
+        [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
+        
+    }
 
-    if ([self.nodePressedAtTouchBegins.name containsString:@"block"]) {
+    if ([self.nodePressedAtTouchBegins.name containsString:ballName]) {
+        NSLog(@"ball touched");
+        self.nodePressedAtTouchBegins.position = touchLocation;
+    }
+    
+    
+    if ([self.nodePressedAtTouchBegins.name containsString:blockName]) {
         
         [self moveBlockWithTouchLocation:touchLocation];
     
-    }else if ([self.nodePressedAtTouchBegins.name isEqualToString:@"rotatePoint"]) {
+    }else if ([self.nodePressedAtTouchBegins.name isEqualToString:rotatePointName]) {
         
         BlockSprite *block = (BlockSprite *)self.nodePressedAtTouchBegins.parent;
         [block adjustRotationWithTouches:touches];
         
-    } else if ([self.nodePressedAtTouchBegins.name isEqualToString:@"editPointTopLeft"]) {
+    } else if ([self.nodePressedAtTouchBegins.name isEqualToString:editPointTopLeftName]) {
         
         BlockSprite *block = (BlockSprite *)self.nodePressedAtTouchBegins.parent;
         [block adjustSizeWithTouches:touches];
@@ -280,7 +312,6 @@ static NSString * const playButtonName = @"play";
             [self.nodePressedAtTouchBegins.name isEqualToString:bottomOptionsName] ||
              [self.nodePressedAtTouchBegins.name isEqualToString:rightOptionsName]){
         [self adjustOptionMenusWithTouches:touches];
-
     }
     
 }
@@ -289,6 +320,7 @@ static NSString * const playButtonName = @"play";
 {
     
     if (self.isAdjustingBackground) {
+        NSLog(@"hello");
         [self adjustOptionMenusToRest];
     }
 
@@ -296,33 +328,38 @@ static NSString * const playButtonName = @"play";
     self.isObjectRotating         = NO;
     self.isAdjustingSize          = NO;
     self.isAdjustingBackground    = NO;
-    self.shouldMoveBottomOptions    = NO;
-    //self.shouldMoveFromRight      = NO;
-    self.shouldMoveFromLeft       = NO;
-    self.shouldMoveFromUp         = NO;
+    self.shouldMoveBottomOptions  = NO;
+    self.shouldMoveRightOptions   = NO;
+    self.shouldMoveLeftOptions    = NO;
+    self.shouldMoveUpOptions      = NO;
 
     
 }
 
 -(void)adjustOptionMenusToRest
 {
-    SKNode *background = [self childNodeWithName:backgroundNodeNameSearch];
+
+    SKNode *bottomOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:bottomOptionsName];
+    SKNode *rightOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:rightOptionsName];
     
-    float backgroundY       = background.position.y;
-    float backgroundX        = background.position.x;
-    float bottomHeightLimit = self.bottomOptionsHeight;
+    float bottomOptionsY  = bottomOptions.position.y + bottomOptions.frame.size.height;
+    float rightOptionsX   = rightOptions.position.x;
     
-    SKAction *slideBackgroundToDefault            = [SKAction moveTo:CGPointZero duration:0.5];
-    SKAction *slideBackgroundUpToBottomMenuHeight = [SKAction moveTo:CGPointMake(0.0, self.bottomOptionsHeight) duration:0.5];
-    SKAction *slideBackgroundLeftToRightMenuWidth = [SKAction moveTo:CGPointMake(self.rightOptionsWidth, 0.0) duration:0.5];
+    float bottomOptionsHeight = bottomOptions.frame.size.height;
+    float rightOptionsWidth = rightOptions.frame.size.width;
+    
+    SKAction *slideBottomOptionsUp           = [SKAction moveTo: CGPointMake(0, (self.bottomOptionsHeightLimit - bottomOptionsHeight)) duration:0.5];
+    SKAction *slideBottomOptionsDown = [SKAction moveTo:CGPointMake(0.0, -bottomOptionsHeight) duration:0.5];
+    SKAction *slideBackgroundLeftToRightMenuWidth = [SKAction moveTo:CGPointMake(self.rightOptionsWidthLimit, 0.0) duration:0.5];
     
     if (self.shouldMoveBottomOptions) {
-        NSLog(@"auto move botom");
-        if (backgroundY > -60 && backgroundY <= (bottomHeightLimit/2)) {
-            [background runAction:slideBackgroundToDefault];
+        NSLog(@"auto move botom bottom y :%f, buffer %f", bottomOptionsY, bottomOptionsHeight );
+        
+        if (bottomOptionsY <= self.bottomOptionsHeightLimit/2) {
+            [bottomOptions runAction:slideBottomOptionsDown];
             NSLog(@"lower ");
-        } else if (backgroundY < (bottomHeightLimit + 60) && backgroundY > (bottomHeightLimit/2)) {
-            [background runAction:slideBackgroundUpToBottomMenuHeight];
+        } else if (bottomOptionsY < (self.bottomOptionsHeightLimit + 60) && bottomOptionsY > (self.bottomOptionsHeightLimit/2)) {
+            [bottomOptions runAction:slideBottomOptionsUp];
             NSLog(@"upper");
         }
         
@@ -331,9 +368,9 @@ static NSString * const playButtonName = @"play";
     
 
     
-    if (backgroundX > 0 - self.rightOptionsWidth &&  backgroundX <= (self.rightOptionsWidth/3)*2) {
+    //if (backgroundX > 0 - self.rightOptionsWidth &&  backgroundX <= (self.rightOptionsWidth/3)*2) {
         //[background runAction:slideBackgroundLeftToRightMenuWidth];
-    }
+    //}
     
 }
 
@@ -346,8 +383,10 @@ static NSString * const playButtonName = @"play";
     CGPoint touchLocation     = [touch locationInNode:self];
     CGPoint previousLocation  = [touch previousLocationInNode:self];
     
-    float bottomOptionsY  = bottomOptions.position.y;
+    float bottomOptionsY  = bottomOptions.position.y + bottomOptions.frame.size.height;
     float rightOptionsX   = rightOptions.position.x;
+    float bottomOptionsHeight = bottomOptions.frame.size.height;
+    float rightOptionsWidth = rightOptions.frame.size.width;
     
     int screenWidth  = self.frame.size.width;
     int screenHeight = self.frame.size.height;
@@ -367,7 +406,7 @@ static NSString * const playButtonName = @"play";
         NSLog(@"non adjust");
         // this runs on the first time here
         // if the touch is within a boundary to move it turns adjusting on and figures out what should move
-        if (touchLocation.y < bottomOptionsY + self.bottomOptionsBuffer) {
+        if (touchLocation.y < bottomOptionsY + self.bottomOptionsBuffer && rightOptionsX == screenWidth) {
             
             self.shouldMoveBottomOptions = YES;
             self.isAdjustingBackground = YES;
@@ -375,8 +414,9 @@ static NSString * const playButtonName = @"play";
             
         }
         
+       //NSLog(@"touch location %f buffer position %f", touchLocation.x, rightOptionsX - self.rightOptionsBuffer);
         
-       if (touchLocation.x > rightOptionsX - self.rightOptionsBuffer) {
+       if (touchLocation.x > rightOptionsX - self.rightOptionsBuffer && bottomOptionsY == 0) {
             
             self.shouldMoveRightOptions = YES;
             self.isAdjustingBackground = YES;
@@ -384,8 +424,8 @@ static NSString * const playButtonName = @"play";
             
         }
         
-        //if (touchDistanceToBottom < touchDistanecToRight)      self.shouldMoveFromRight = NO;
-        //else if (touchDistanecToRight < touchDistanceToBottom) self.shouldMoveFromBottom = NO;
+        if (touchDistanceToBottom < touchDistanecToRight)      self.shouldMoveRightOptions = NO;
+        else if (touchDistanecToRight < touchDistanceToBottom) self.shouldMoveBottomOptions = NO;
         
         
 
@@ -407,11 +447,17 @@ static NSString * const playButtonName = @"play";
         
         // if bottom is at top and should move and movement is up dont let it move
         
-        if (rightOptionsX >= 0 && xAdjustment > 0 && self.shouldMoveRightOptions) self.shouldMoveRightOptions = NO;
+        if (rightOptionsX >= screenWidth && xAdjustment > 0 && self.shouldMoveRightOptions) {
+            NSLog(@"no 1");
+            self.shouldMoveRightOptions = NO;
 
+        }
         // if right is at 0 and should move and movement is right dont let it move
         
-        if (rightOptionsX <= (-1 * self.rightOptionsWidth) && xAdjustment < 0 && self.shouldMoveRightOptions) self.shouldMoveRightOptions = NO;
+        if (rightOptionsX <= (self.rightOptionsWidthLimit) && xAdjustment < 0 && self.shouldMoveRightOptions) {
+            NSLog(@"no 2");
+            self.shouldMoveRightOptions = NO;
+        }
 
         // if right is at width and should move and movement is left dont let it move
 
@@ -579,6 +625,7 @@ static NSString * const playButtonName = @"play";
 -(void)switchToMainScene
 {
     NSMutableArray *blocks = [[NSMutableArray alloc] init];
+    NSMutableArray *balls = [[NSMutableArray alloc] init];
     
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
         NSLog(@"block enum %@", node.name);
@@ -590,7 +637,14 @@ static NSString * const playButtonName = @"play";
         [block removeFromParent];
     }];
     
-    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size andBlocks:blocks];
+    [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+        NSLog(@"ball enum %@", node.name);
+        BallSprite *ball = (BallSprite * )node;
+        [balls addObject:ball];
+        [ball removeFromParent];
+    }];
+    
+    MainScene *mainScene = [[MainScene alloc] initWithSize:self.size Blocks:blocks Balls:balls AndPaddles:<#(NSArray *)#>];
     
     if ([self.view gestureRecognizers]) {
         [self.view removeGestureRecognizer:[self.view.gestureRecognizers lastObject]];

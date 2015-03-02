@@ -32,7 +32,7 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 @implementation MainScene
 
 
--(instancetype)initWithSize:(CGSize)size andBlocks:(NSArray*)blocks
+-(instancetype)initWithSize:(CGSize)size Blocks:(NSArray*)blocks Balls:(NSArray*)balls AndPaddles:(NSArray*)paddles
 {
     if (self = [super initWithSize:size]) {
         

@@ -14,7 +14,7 @@
 		5058D6B91A9D387A00025597 /* EditGameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 5058D6B81A9D387A00025597 /* EditGameScene.m */; };
 		5058D6BB1A9D5DBB00025597 /* bgBlack.png in Resources */ = {isa = PBXBuildFile; fileRef = 5058D6BA1A9D5DBB00025597 /* bgBlack.png */; };
 		5058D6C01A9EE63400025597 /* rightOptions.png in Resources */ = {isa = PBXBuildFile; fileRef = 5058D6BF1A9EE63400025597 /* rightOptions.png */; };
-		5058D6C21A9EE6BD00025597 /* bottomOptions.png in Resources */ = {isa = PBXBuildFile; fileRef = 5058D6C11A9EE6BD00025597 /* bottomOptions.png */; };
+		5058D6C41AA1102B00025597 /* bottomOptions.png in Resources */ = {isa = PBXBuildFile; fileRef = 5058D6C31AA1102B00025597 /* bottomOptions.png */; };
 		50813E6C1A648F8000FCB418 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813E6B1A648F8000FCB418 /* main.m */; };
 		50813E6F1A648F8000FCB418 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813E6E1A648F8000FCB418 /* AppDelegate.m */; };
 		50813E721A648F8000FCB418 /* NPKBreakOut.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 50813E701A648F8000FCB418 /* NPKBreakOut.xcdatamodeld */; };
@@ -61,7 +61,7 @@
 		5058D6B81A9D387A00025597 /* EditGameScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditGameScene.m; sourceTree = "<group>"; };
 		5058D6BA1A9D5DBB00025597 /* bgBlack.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgBlack.png; sourceTree = "<group>"; };
 		5058D6BF1A9EE63400025597 /* rightOptions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rightOptions.png; sourceTree = "<group>"; };
-		5058D6C11A9EE6BD00025597 /* bottomOptions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bottomOptions.png; sourceTree = "<group>"; };
+		5058D6C31AA1102B00025597 /* bottomOptions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bottomOptions.png; sourceTree = "<group>"; };
 		50813E661A648F8000FCB418 /* NPKBreakOut.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NPKBreakOut.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50813E6A1A648F8000FCB418 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50813E6B1A648F8000FCB418 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -181,7 +181,7 @@
 				50813EA01A6DB7AB00FCB418 /* block.png */,
 				50813EBD1A6E075200FCB418 /* powerUpCircle.png */,
 				50813EE01A709B9F00FCB418 /* powerUpP.png */,
-				5058D6C11A9EE6BD00025597 /* bottomOptions.png */,
+				5058D6C31AA1102B00025597 /* bottomOptions.png */,
 				5058D6BF1A9EE63400025597 /* rightOptions.png */,
 				50813E991A64AC7000FCB418 /* ball.png */,
 				5058D6BA1A9D5DBB00025597 /* bgBlack.png */,
@@ -297,7 +297,7 @@
 				5058D6BB1A9D5DBB00025597 /* bgBlack.png in Resources */,
 				50813EA11A6DB7AB00FCB418 /* block.png in Resources */,
 				5058D6C01A9EE63400025597 /* rightOptions.png in Resources */,
-				5058D6C21A9EE6BD00025597 /* bottomOptions.png in Resources */,
+				5058D6C41AA1102B00025597 /* bottomOptions.png in Resources */,
 				50813E9A1A64AC7000FCB418 /* ball.png in Resources */,
 				50813E7D1A648F8000FCB418 /* LaunchScreen.xib in Resources */,
 				50813EA91A6DC75B00FCB418 /* paddle.png in Resources */,

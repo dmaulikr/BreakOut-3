@@ -12,9 +12,9 @@
 
 @property (nonatomic) NSString *currentSize;
 @property (nonatomic) NSString *status;
+@property (nonatomic) CGVector *direction;
 
-
--(BallSprite*)initWithLocation:(CGPoint)location currentSize:(NSString*)currentSize status:(NSString*)status name:(NSString*)name;
+-(BallSprite*)initWithLocation:(CGPoint)location currentSize:(NSString*)currentSize status:(NSString*)status name:(NSString*)name AndVector:();
 -(void)updateSelf;
 
 @end

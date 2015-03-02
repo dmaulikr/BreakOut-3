@@ -14,6 +14,6 @@
 
 @interface MainScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate>
 
--(instancetype)initWithSize:(CGSize)size andBlocks:(NSArray*)blocks;
+-(instancetype)initWithSize:(CGSize)size Blocks:(NSArray*)blocks Balls:(NSArray*)balls AndPaddles:(NSArray*)paddles;
 
 @end
