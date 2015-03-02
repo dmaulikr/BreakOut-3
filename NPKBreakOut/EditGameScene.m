@@ -644,7 +644,7 @@ static NSString * const playButtonName = @"play";
         [ball removeFromParent];
     }];
     
-    MainScene *mainScene = [[MainScene alloc] initWithSize:self.size Blocks:blocks Balls:balls AndPaddles:<#(NSArray *)#>];
+    MainScene *mainScene = [[MainScene alloc] initWithSize:self.size Blocks:blocks Balls:balls AndPaddles:balls];
     
     if ([self.view gestureRecognizers]) {
         [self.view removeGestureRecognizer:[self.view.gestureRecognizers lastObject]];

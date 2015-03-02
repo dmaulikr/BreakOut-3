@@ -110,7 +110,8 @@
         
     } else if (body && [body.node.name isEqualToString:@"play"]) {
         NSLog(@"play");
-        MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size andBlocks:[[NSArray alloc] init]];
+        NSArray *array = [[NSArray alloc] init];
+        MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size Blocks:array Balls:array AndPaddles:array];
         [self.view presentScene:mainScene];
     } else if (body && [body.node.name isEqualToString:@"edit"]) {
         NSLog(@"Edit");
