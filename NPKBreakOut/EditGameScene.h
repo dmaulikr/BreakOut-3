@@ -9,6 +9,6 @@
 #import <SpriteKit/SpriteKit.h>
 #import "GameScene.h"
 
-@interface EditGameScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate>
+@interface EditGameScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate>
 
 @end

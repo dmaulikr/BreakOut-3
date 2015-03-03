@@ -62,16 +62,13 @@ static NSString * const playButtonName = @"play";
         self.physicsWorld.contactDelegate = self;
         self.name                         = @"world";
         self.anchorPoint                 = CGPointZero;
-        NSLog(@"%f", self.frame.size.width);
-
 
         self.bottomOptionsHeightLimit = 110.0;
-        self.rightOptionsWidthLimit = self.frame.size.width - 90.0;
-        self.bottomOptionsBuffer = 100;
-        self.rightOptionsBuffer = 100;
-        self.blockHeight = [[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height;
-        self.bottomOptionsHeight = [[SKSpriteNode alloc] initWithImageNamed:@"bottomOptions.png"].frame.size.height;
-       
+        self.rightOptionsWidthLimit   = self.frame.size.width - 90.0;
+        self.bottomOptionsBuffer      = 100;
+        self.rightOptionsBuffer       = 100;
+        self.blockHeight              = [[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height;
+        self.bottomOptionsHeight      = [[SKSpriteNode alloc] initWithImageNamed:@"bottomOptions.png"].frame.size.height;
 
         [self createBackground];
         [self createBottomOptions];
@@ -94,84 +91,6 @@ static NSString * const playButtonName = @"play";
     
     [[self view] addGestureRecognizer:tapRecognizer];
     [[self view] addGestureRecognizer:longPressRecognizer];
-}
-
--(void)handleLongPress:(UILongPressGestureRecognizer *)sender
-{
-    CGPoint touch         = [sender locationInView:self.view];
-    touch.y               = self.frame.size.height - touch.y ;
-    SKNode  *nodePressed  = [[self.physicsWorld bodyAtPoint:touch] node];
-    
-    float halfBlockWidth  = self.nodePressedAtTouchBegins.frame.size.width/2;
-    float halfBlockHeight = self.nodePressedAtTouchBegins.frame.size.height/2;
-    float blockWidth  = self.nodePressedAtTouchBegins.frame.size.width;
-    float blockHeight = self.nodePressedAtTouchBegins.frame.size.height;
- 
-    if ([self.nodePressedAtTouchBegins.name containsString:blockName]) {
-        
-        if (nodePressed != self.nodePressedAtTouchBegins) {
-            
-            CGPoint previousNodeLocation  = self.nodePressedAtTouchBegins.position;
-            CGPoint locationForNewBlock   = CGPointMake(self.nodePressedAtTouchBegins.position.x, self.nodePressedAtTouchBegins.position.y);
-
-            
-            if (previousNodeLocation.x + halfBlockWidth < touch.x) {
-                
-                locationForNewBlock.x += blockWidth;
-                
-            } else if (previousNodeLocation.x - halfBlockWidth > touch.x) {
-
-                locationForNewBlock.x -= blockWidth;
-
-                
-            } else if (previousNodeLocation.y + halfBlockHeight < touch.y) {
-                
-                locationForNewBlock.y += blockHeight;
-
-            } else if (previousNodeLocation.y - halfBlockHeight > touch.y) {
-                
-                locationForNewBlock.y -= blockHeight;
-                
-            }
-            
-            BlockSprite *block            = [[BlockSprite alloc] initWithLocation:locationForNewBlock
-                                                                        hitPoints:1
-                                                                             name:[self nameBlock]
-                                                                       hasPowerup:NO
-                                                                      currentSize:@"normal"
-                                                                      canBeEdited:YES];
-            self.nodePressedAtTouchBegins = block;
-            [[self childNodeWithName:blockNodeNameSearch] addChild:block];
-        }
-    }
-    
-}
-
-
-- (void)handleDoubleTap:(UITapGestureRecognizer *)sender
-{
-    CGPoint reversedPoint = [sender locationInView:[self view]];
-    reversedPoint.y       = self.frame.size.height - reversedPoint.y ;
-    SKNode  *nodePressed = [[self.physicsWorld bodyAtPoint:reversedPoint] node];
-    
- 
-    if ([nodePressed.name containsString:blockName]) {
-        BlockSprite *block = (BlockSprite *)nodePressed;
-        
-        if (block.isEditable) block.isEditable = NO;
-        else if (!block.isEditable) block.isEditable = YES;
-
-        [block updateSelf];
-
-    } else {
-        [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-            
-            BlockSprite * block = (BlockSprite *)node;
-            block.isEditable    = NO;
-            
-            [block updateSelf];
-        }];
-    }
 }
 
 
@@ -244,6 +163,7 @@ static NSString * const playButtonName = @"play";
 }
 
 
+
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
@@ -262,9 +182,15 @@ static NSString * const playButtonName = @"play";
 
     self.nodePressedAtTouchBegins = node;
  
-    if ([node.name isEqualToString:playButtonName]) [self switchToMainScene];
+    if ([node.name isEqualToString:playButtonName]) {
+        
+        if (![self checkSceneForMissingSprites]) {
+            [self switchToMainScene];
+        }
+    }
 
 }
+
 
 
 
@@ -648,6 +574,7 @@ static NSString * const playButtonName = @"play";
 {
     NSMutableArray *blocks = [[NSMutableArray alloc] init];
     NSMutableArray *balls = [[NSMutableArray alloc] init];
+    NSMutableArray *paddles = [[NSMutableArray alloc] init];
     
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
         BlockSprite *block = (BlockSprite *)node;
@@ -718,5 +645,146 @@ static NSString * const playButtonName = @"play";
     [self addChild:mainNode];
 
 }
+
+-(void)handleLongPress:(UILongPressGestureRecognizer *)sender
+{
+    CGPoint touch         = [sender locationInView:self.view];
+    touch.y               = self.frame.size.height - touch.y ;
+    SKNode  *nodePressed  = [[self.physicsWorld bodyAtPoint:touch] node];
+    
+    float halfBlockWidth  = self.nodePressedAtTouchBegins.frame.size.width/2;
+    float halfBlockHeight = self.nodePressedAtTouchBegins.frame.size.height/2;
+    float blockWidth  = self.nodePressedAtTouchBegins.frame.size.width;
+    float blockHeight = self.nodePressedAtTouchBegins.frame.size.height;
+    
+    if ([self.nodePressedAtTouchBegins.name containsString:blockName]) {
+        
+        if (nodePressed != self.nodePressedAtTouchBegins) {
+            
+            CGPoint previousNodeLocation  = self.nodePressedAtTouchBegins.position;
+            CGPoint locationForNewBlock   = CGPointMake(self.nodePressedAtTouchBegins.position.x, self.nodePressedAtTouchBegins.position.y);
+            
+            
+            if (previousNodeLocation.x + halfBlockWidth < touch.x) {
+                
+                locationForNewBlock.x += blockWidth;
+                
+            } else if (previousNodeLocation.x - halfBlockWidth > touch.x) {
+                
+                locationForNewBlock.x -= blockWidth;
+                
+                
+            } else if (previousNodeLocation.y + halfBlockHeight < touch.y) {
+                
+                locationForNewBlock.y += blockHeight;
+                
+            } else if (previousNodeLocation.y - halfBlockHeight > touch.y) {
+                
+                locationForNewBlock.y -= blockHeight;
+                
+            }
+            
+            BlockSprite *block            = [[BlockSprite alloc] initWithLocation:locationForNewBlock
+                                                                        hitPoints:1
+                                                                             name:[self nameBlock]
+                                                                       hasPowerup:NO
+                                                                      currentSize:@"normal"
+                                                                      canBeEdited:YES];
+            self.nodePressedAtTouchBegins = block;
+            [[self childNodeWithName:blockNodeNameSearch] addChild:block];
+        }
+    }
+    
+}
+
+- (void)handleDoubleTap:(UITapGestureRecognizer *)sender
+{
+    CGPoint reversedPoint = [sender locationInView:[self view]];
+    reversedPoint.y       = self.frame.size.height - reversedPoint.y ;
+    SKNode  *nodePressed = [[self.physicsWorld bodyAtPoint:reversedPoint] node];
+    
+    
+    if ([nodePressed.name containsString:blockName]) {
+        BlockSprite *block = (BlockSprite *)nodePressed;
+        
+        if (block.isEditable) block.isEditable = NO;
+        else if (!block.isEditable) block.isEditable = YES;
+        
+        [block updateSelf];
+        
+    } else {
+        [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+            
+            BlockSprite * block = (BlockSprite *)node;
+            block.isEditable    = NO;
+            
+            [block updateSelf];
+        }];
+    }
+}
+
+
+-(void)makeAlertWithMessage:(NSString *) message
+{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Warning"
+                                                    message:message
+                                                   delegate:self
+                                          cancelButtonTitle:@"No"
+                                          otherButtonTitles:@"Yes", nil];
+    [alert show];
+    
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    switch(buttonIndex) {
+        case 0:
+            //NSLog(@"no");
+            break;
+        case 1:
+            //NSLog(@"yes");
+            
+            [self switchToMainScene];
+            break;
+    }
+}
+
+
+-(BOOL)checkSceneForMissingSprites
+{
+    NSString *alert = @"Missing: ";
+    BOOL missingObject = NO;
+    BOOL blocks = [self childNodeWithName:blockNodeNameSearch].children.count;
+    BOOL balls =  [self childNodeWithName:ballNodeNameSearch].children.count;
+    BOOL paddles = [self childNodeWithName:paddleNodeNameSearch].children.count;
+    
+    if (!blocks) {
+        missingObject = YES;
+        alert = [alert stringByAppendingString:@"Blocks "];
+    }
+    
+    if (!balls) {
+        missingObject = YES;
+        alert = [alert stringByAppendingString:@"Ball "];
+    }
+    
+    if (!paddles) {
+        missingObject = YES;
+        alert = [alert stringByAppendingString:@"paddle "];
+    }
+    alert = [alert stringByAppendingString:@" do you want to continue?"];
+    
+    if (missingObject) {
+        [self makeAlertWithMessage:alert];
+    }
+    
+    return missingObject;
+    
+    
+}
+
+
+
+
 
 @end
