@@ -13,7 +13,7 @@
 @property (nonatomic) NSString *currentSize;
 @property (nonatomic) NSString *status;
 
--(PaddleSprite*)initWithCurrentSize:(NSString*)currentSize status:(NSString*)status name:(NSString*)name;
+-(PaddleSprite *)initWithCurrentSize:(NSString *)currentSize position:(CGPoint)position status:(NSString *)status name:(NSString *)name;
 -(void)updateSelf;
 
 

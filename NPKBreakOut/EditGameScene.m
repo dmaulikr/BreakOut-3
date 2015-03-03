@@ -9,6 +9,7 @@
 #import "EditGameScene.h"
 #import "BlockSprite.h"
 #import "BallSprite.h"
+#import "PaddleSprite.h"
 #import "MainScene.h"
 #import "Constants.h"
 #import "GameScene.h"
@@ -17,6 +18,7 @@
 
 static NSString * const overlayBlockName = @"first";
 static NSString * const overlayBallName = @"second";
+static NSString * const overlayPaddleName = @"third";
 static NSString * const rotatePointName = @"rotatePoint";
 static NSString * const editPointTopLeftName =  @"editPointTopLeft";
 static NSString * const playButtonName = @"play";
@@ -63,7 +65,7 @@ static NSString * const playButtonName = @"play";
         NSLog(@"%f", self.frame.size.width);
 
 
-        self.bottomOptionsHeightLimit = 90.0;
+        self.bottomOptionsHeightLimit = 110.0;
         self.rightOptionsWidthLimit = self.frame.size.width - 90.0;
         self.bottomOptionsBuffer = 100;
         self.rightOptionsBuffer = 100;
@@ -176,7 +178,8 @@ static NSString * const playButtonName = @"play";
 -(void)createBackground
 {
     SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
-    [background setSize:CGSizeMake(414, 736)];
+    background.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:background.frame.size];
+    background.physicsBody.dynamic = NO;
     background.position       = CGPointZero;
     background.anchorPoint    = CGPointZero;
     background.name           = backgroundName;
@@ -230,6 +233,12 @@ static NSString * const playButtonName = @"play";
                                                        name:overlayBallName];
     ball.physicsBody.dynamic = NO;
     
+    PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
+                                                            position:CGPointMake(bottomOptions.size.width * 3/4, 100)
+                                                              status:@"normal"
+                                                                name:overlayPaddleName];
+    
+    [bottomOptions addChild:paddle];
     [bottomOptions addChild:ball];
     [bottomOptions  addChild:block];
 }
@@ -243,7 +252,8 @@ static NSString * const playButtonName = @"play";
     
     NSLog(@"touch begins pressed %@", node.name);
     
-    if (![node.name containsString:blockName] && ![node.name containsString:ballName]) {
+    if (![node.name containsString:blockName] && ![node.name containsString:ballName] &&
+        ![node.name containsString:paddleName]) {
         node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
     }
     
@@ -286,9 +296,22 @@ static NSString * const playButtonName = @"play";
         [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
         
     }
+    
+    if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayPaddleName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
+        PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
+                                                                position:touchLocation
+                                                                  status:@"normal"
+                                                                    name:paddleName];
+        self.nodePressedAtTouchBegins = paddle;
+        [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
+    
+    }
 
     if ([self.nodePressedAtTouchBegins.name containsString:ballName]) {
-        NSLog(@"ball touched");
+        self.nodePressedAtTouchBegins.position = touchLocation;
+    }
+    
+    if ([self.nodePressedAtTouchBegins.name containsString:paddleName]) {
         self.nodePressedAtTouchBegins.position = touchLocation;
     }
     

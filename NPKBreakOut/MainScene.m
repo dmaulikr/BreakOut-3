@@ -166,7 +166,9 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 
 -(void)createPaddle
 {
+    //CGPointMake(CGRectGetMidX([[UIScreen mainScreen] bounds]), [[UIScreen mainScreen] bounds].size.height * .05)
     PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
+                                                            position:CGPointMake(self.frame.size.width/2, self.frame.size.height * 0.05)
                                                               status:@"normal"
                                                                 name:paddleName];
     

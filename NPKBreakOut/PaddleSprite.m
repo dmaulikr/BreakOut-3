@@ -21,12 +21,12 @@ static NSString* blockNodeCategoryName = @"blockNode";
 
 @implementation PaddleSprite
 
--(PaddleSprite *)initWithCurrentSize:(NSString *)currentSize status:(NSString *)status name:(NSString *)name
+-(PaddleSprite *)initWithCurrentSize:(NSString *)currentSize position:(CGPoint)position status:(NSString *)status name:(NSString *)name
 {
     if (self = [super initWithImageNamed:@"paddle.png"]) {
         
         self.name        = name;
-        self.position    = CGPointMake(CGRectGetMidX([[UIScreen mainScreen] bounds]), [[UIScreen mainScreen] bounds].size.height * .05);
+        self.position    = position;
         self.currentSize = currentSize;
         self.status      = status;
         
