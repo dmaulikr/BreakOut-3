@@ -23,8 +23,8 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 
 @interface MainScene ()
 
-@property (nonatomic) BOOL isFingerOnPaddle;
 @property (nonatomic) BOOL isGamePlaying;
+@property (nonatomic) SKNode *nodePressedAtTouchBegins;
 
 
 @end
@@ -77,11 +77,9 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 
 -(void)createContentsWithSprites:(NSArray *)sprites
 {
-    
     NSArray *blocks;
     NSArray *balls;
     NSArray *paddles;
-    
 
     for (int i = 0; i <= 2; i++) {
         if (i == 0) {
@@ -93,18 +91,16 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         }
     }
     
-    [self createPaddle];
-
     self.isGamePlaying  = NO;
     
     if (balls.count == 0) [self createBall];
     else                  [self createCustomBalls:balls];
     
-    
-    
     if (blocks.count == 0) [self createBlocks];
     else                   [self createCustomBlocks:blocks];
     
+    if (paddles.count == 0) [self createPaddle];
+    else                    [self createCustomPaddles:paddles];
     
     [self startGame];
     
@@ -132,6 +128,21 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
     }
 }
+
+
+-(void)createCustomPaddles:(NSArray *)paddles
+{
+    NSLog(@"make paddles");
+    for (PaddleSprite *paddle in paddles) {
+
+        paddle.physicsBody.categoryBitMask    = paddleCategory;
+        paddle.physicsBody.contactTestBitMask = powerUpCategory;
+        
+        [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
+    }
+    
+}
+
 
 -(void)createBlocks
 {
@@ -166,7 +177,6 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 
 -(void)createPaddle
 {
-    //CGPointMake(CGRectGetMidX([[UIScreen mainScreen] bounds]), [[UIScreen mainScreen] bounds].size.height * .05)
     PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
                                                             position:CGPointMake(self.frame.size.width/2, self.frame.size.height * 0.05)
                                                               status:@"normal"
@@ -266,22 +276,19 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
-    UITouch *touch        = [touches anyObject];
-    CGPoint touchLocation = [touch locationInNode:self];
+    CGPoint touchLocation = [[touches anyObject] locationInNode:self];
     SKNode *node          = [self.physicsWorld bodyAtPoint:touchLocation].node;
-    
-    if ([node.name isEqualToString: paddleName]) {
-        self.isFingerOnPaddle = YES;
-    }
+    self.nodePressedAtTouchBegins = node;
     
 }
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (self.isFingerOnPaddle) {
-        UITouch *touch           = [touches anyObject];
-        CGPoint touchLocation    = [touch locationInNode:self];
-        CGPoint previousLocation = [touch previousLocationInNode:self];
-        PaddleSprite *paddle     = (PaddleSprite *)[[self childNodeWithName:paddleNodeNameSearch] childNodeWithName:paddleName];
+    CGPoint touchLocation    = [[touches anyObject] locationInNode:self];
+    CGPoint previousLocation = [[touches anyObject] previousLocationInNode:self];
+    
+    if ([self.nodePressedAtTouchBegins.name containsString:paddleName]) {
+
+        PaddleSprite *paddle     = (PaddleSprite *) self.nodePressedAtTouchBegins;
         int paddleX              = paddle.position.x + (touchLocation.x - previousLocation.x);
         
         paddleX = MAX(paddleX, paddle.size.width/2);
@@ -293,14 +300,12 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    self.isFingerOnPaddle = NO;
+    self.nodePressedAtTouchBegins = [[SKNode alloc] init];
     
 }
 
 -(void)didBeginContact:(SKPhysicsContact *)contact
 {
-    
-    
     SKPhysicsBody *firstBody;
     SKPhysicsBody *secondBody;
     

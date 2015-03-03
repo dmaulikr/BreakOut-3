@@ -217,7 +217,7 @@ static NSString * const playButtonName = @"play";
         BallSprite *ball = [[BallSprite alloc] initWithLocation:touchLocation
                                                     currentSize:@"normal"
                                                          status:@"normal"
-                                                           name:ballName];
+                                                           name:[self nameBall]];
         ball.physicsBody.dynamic = NO;
         self.nodePressedAtTouchBegins = ball;
         [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
@@ -228,7 +228,7 @@ static NSString * const playButtonName = @"play";
         PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
                                                                 position:touchLocation
                                                                   status:@"normal"
-                                                                    name:paddleName];
+                                                                    name:[self namePaddle]];
         self.nodePressedAtTouchBegins = paddle;
         [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
     
@@ -591,6 +591,17 @@ static NSString * const playButtonName = @"play";
     
 }
 
+-(NSString *)nameBall
+{
+    int count = (int)[self childNodeWithName:ballNodeNameSearch].children.count;
+    return [NSString stringWithFormat:@"ball%d",count];
+}
+
+-(NSString *)namePaddle
+{
+    int count = (int)[self childNodeWithName:paddleNodeNameSearch].children.count;
+    return [NSString stringWithFormat:@"paddle%d",count];
+}
 -(void)switchToMainScene
 {
     NSMutableArray *blocks = [[NSMutableArray alloc] init];
@@ -612,7 +623,13 @@ static NSString * const playButtonName = @"play";
         [ball removeFromParent];
     }];
     
-    NSArray *sprites = [[NSArray alloc] initWithObjects:blocks,balls,[[NSArray alloc] init], nil];
+    [[self childNodeWithName:paddleNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+        PaddleSprite *paddle = (PaddleSprite *)node;
+        [paddles addObject:paddle];
+        [paddle removeFromParent];
+    }];
+    
+    NSArray *sprites = [[NSArray alloc] initWithObjects:blocks,balls,paddles, nil];
     
     MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size sprites:sprites];
     
@@ -625,47 +642,6 @@ static NSString * const playButtonName = @"play";
     [self.view presentScene:mainScene];
 }
 
-
--(void)createNodeTree
-{
-    SKNode *mainNode       = [[SKNode alloc] init];
-    SKNode *blockNode      = [[SKNode alloc] init];
-    SKNode *ballNode       = [[SKNode alloc] init];
-    SKNode *paddleNode     = [[SKNode alloc] init];
-    SKNode *contentNode    = [[SKNode alloc] init];
-    SKNode *overlayNode    = [[SKNode alloc] init];
-    SKNode *backgroundNode = [[SKNode alloc] init];
-    
-    mainNode.name       = mainNodeName;
-    blockNode.name      = blockNodeName;
-    ballNode.name       = ballNodeName;
-    paddleNode.name     = paddleNodeName;
-    overlayNode.name    = overlayNodeName;
-    contentNode.name    = contentNodeName;
-    backgroundNode.name = backgroundNodeName;
-    
-    CGPoint origin = CGPointMake(self.frame.origin.x,self.frame.origin.y);
-    mainNode.position       = origin;
-    blockNode.position      = origin;
-    ballNode.position       = origin;
-    paddleNode.position     = origin;
-    overlayNode.position    = origin;
-    contentNode.position    = origin;
-    backgroundNode.position = origin;
-    
-    backgroundNode.zPosition = -1.0;
-    overlayNode.zPosition    = 1.0;
-    
-    
-    [contentNode     addChild:blockNode];
-    [contentNode     addChild:ballNode];
-    [contentNode     addChild:paddleNode];
-    [mainNode        addChild:contentNode];
-    [mainNode        addChild:overlayNode];
-    [mainNode        addChild:backgroundNode];
-    [self addChild:mainNode];
-
-}
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)sender
 {
