@@ -87,8 +87,7 @@ static NSString * const playButtonName = @"play";
                                                                                                        action:@selector(handleLongPress:)];
     tapRecognizer.delegate                   = self;
     tapRecognizer.numberOfTapsRequired       = 2;
-    longPressRecognizer.minimumPressDuration = 1.0;
-    longPressRecognizer.allowableMovement = NO;
+    longPressRecognizer.minimumPressDuration = 0.5;
     
     
     [[self view] addGestureRecognizer:tapRecognizer];
