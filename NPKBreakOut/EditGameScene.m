@@ -628,7 +628,6 @@ static NSString * const playButtonName = @"play";
     NSMutableArray *balls = [[NSMutableArray alloc] init];
     
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        NSLog(@"block enum %@", node.name);
         BlockSprite *block = (BlockSprite *)node;
         block.isEditable = NO;
         [block updateSelf];
@@ -638,13 +637,14 @@ static NSString * const playButtonName = @"play";
     }];
     
     [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        NSLog(@"ball enum %@", node.name);
         BallSprite *ball = (BallSprite * )node;
         [balls addObject:ball];
         [ball removeFromParent];
     }];
     
-    MainScene *mainScene = [[MainScene alloc] initWithSize:self.size Blocks:blocks Balls:balls AndPaddles:balls];
+    NSArray *sprites = [[NSArray alloc] initWithObjects:blocks,balls,[[NSArray alloc] init], nil];
+    
+    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size sprites:sprites];
     
     if ([self.view gestureRecognizers]) {
         [self.view removeGestureRecognizer:[self.view.gestureRecognizers lastObject]];

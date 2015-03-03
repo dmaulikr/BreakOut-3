@@ -31,8 +31,7 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 
 @implementation MainScene
 
-
--(instancetype)initWithSize:(CGSize)size Blocks:(NSArray*)blocks Balls:(NSArray*)balls AndPaddles:(NSArray*)paddles
+-(instancetype)initWithSize:(CGSize)size sprites:(NSArray *)sprites
 {
     if (self = [super initWithSize:size]) {
         
@@ -55,8 +54,13 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         
         [[self childNodeWithName:overlayNodeNameSearch] addChild:bottom];
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
-        [self  createContentsWithBlocks:blocks];
+        NSLog(@"sprites count %lu", self.view.gestureRecognizers.count);
+        
+        
+        [self createContentsWithSprites:sprites];
+        
     }
+    
     return self;
 }
 
@@ -70,28 +74,43 @@ static const uint32_t powerUpCategory = 0x1 << 4;
     [[self view] addGestureRecognizer:recognizer];
 }
 
--(void)createContentsWithBlocks:(NSArray *)blocks
+
+-(void)createContentsWithSprites:(NSArray *)sprites
 {
     
+    NSArray *blocks;
+    NSArray *balls;
+    NSArray *paddles;
+    
+
+    for (int i = 0; i <= 2; i++) {
+        if (i == 0) {
+            blocks  = [sprites objectAtIndex:i];
+        }else if (i == 1) {
+            balls   = [sprites objectAtIndex:i];
+        }else if (i == 2) {
+            paddles = [sprites objectAtIndex:i];
+        }
+    }
+    
+    [self createPaddle];
+
     self.isGamePlaying  = NO;
     
-    [self createBall];
-    [self createPaddle];
+    if (balls.count == 0) [self createBall];
+    else                  [self createCustomBalls:balls];
     
-    if (blocks.count == 0) {
-        [self createBlocks];
-        NSLog(@"0 blocks");
-    } else {
-        NSLog(@"blocks");
-        [self createCustomBlocksFromArray:blocks];
-    }
+    
+    
+    if (blocks.count == 0) [self createBlocks];
+    else                   [self createCustomBlocks:blocks];
     
     
     [self startGame];
     
 }
 
--(void)createCustomBlocksFromArray:(NSArray *)blocks
+-(void)createCustomBlocks:(NSArray *)blocks
 {
     for (BlockSprite *block in blocks) {
         
@@ -99,6 +118,18 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         block.physicsBody.categoryBitMask = blockCategory;
         //block.zPosition = 1.0;
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
+    }
+}
+
+-(void)createCustomBalls:(NSArray *)balls
+{
+    for (BallSprite *ball in balls) {
+        ball.physicsBody.dynamic         = YES;
+        ball.physicsBody.categoryBitMask    = ballCategory;
+        ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
+        ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
+        
+        [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
     }
 }
 
@@ -114,6 +145,35 @@ static const uint32_t powerUpCategory = 0x1 << 4;
                                numberOfBlocks:4];
         currentLocationY = currentLocationY - (blockHeight) - padding;
     }
+    
+}
+
+
+
+-(void)createBall
+{
+    BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
+                                                currentSize:@"normal"
+                                                     status:@"normal"
+                                                       name:ballName];
+    
+    ball.physicsBody.categoryBitMask    = ballCategory;
+    ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
+    ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory;
+    
+    [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
+}
+
+-(void)createPaddle
+{
+    PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
+                                                              status:@"normal"
+                                                                name:paddleName];
+    
+    paddle.physicsBody.categoryBitMask    = paddleCategory;
+    paddle.physicsBody.contactTestBitMask = powerUpCategory;
+    
+    [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
     
 }
 
@@ -190,46 +250,14 @@ static const uint32_t powerUpCategory = 0x1 << 4;
                 timer.text = @"GO!";
                 [timer runAction:runAnimation completion:^{
                     [timer removeFromParent];
-                    [[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:ballName].physicsBody applyImpulse:CGVectorMake(-10.0, 10.0) ];
+                    [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                        [node.physicsBody applyImpulse:CGVectorMake(-10.0, 10.0)];
+                    }];
                     self.isGamePlaying = YES;
                 }];
             }];
         }];
     }];
-    
-}
-
-- (void)handleTap:(UITapGestureRecognizer *)sender
-{
-    NSLog(@"hi");
-}
-
-
-
--(void)createBall
-{
-    BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
-                                                currentSize:@"normal"
-                                                     status:@"normal"
-                                                       name:ballName];
-    
-    ball.physicsBody.categoryBitMask    = ballCategory;
-    ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
-    ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory;
-    
-    [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
-}
-
--(void)createPaddle
-{
-    PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
-                                                              status:@"normal"
-                                                                name:paddleName];
-    
-    paddle.physicsBody.categoryBitMask    = paddleCategory;
-    paddle.physicsBody.contactTestBitMask = powerUpCategory;
-    
-    [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
     
 }
 
@@ -344,18 +372,18 @@ static const uint32_t powerUpCategory = 0x1 << 4;
                        ball.physicsBody.velocity.dy * ball.physicsBody.velocity.dy);
     
     if (abs(ball.physicsBody.velocity.dx) < 60 && self.isGamePlaying) {
-        NSLog(@"x is slow %f", ball.physicsBody.velocity.dx);
+        //NSLog(@"x is slow %f", ball.physicsBody.velocity.dx);
         
         [ball.physicsBody applyImpulse:CGVectorMake(3, 0)];
-        NSLog(@"x speed increease %f", ball.physicsBody.velocity.dx * .001);
+        //NSLog(@"x speed increease %f", ball.physicsBody.velocity.dx * .001);
         
     }
     
     if (abs(ball.physicsBody.velocity.dy) < 75 && self.isGamePlaying) {
-        NSLog(@"y is slow %f", ball.physicsBody.velocity.dy);
+        //NSLog(@"y is slow %f", ball.physicsBody.velocity.dy);
         
         [ball.physicsBody applyImpulse:CGVectorMake(0, 3)];
-        NSLog(@"y speed increease %f", ball.physicsBody.velocity.dy * .001);
+        //NSLog(@"y speed increease %f", ball.physicsBody.velocity.dy * .001);
         
     }
     
@@ -404,4 +432,5 @@ static const uint32_t powerUpCategory = 0x1 << 4;
     return tempNumbers;
     
 }
+    
 @end
