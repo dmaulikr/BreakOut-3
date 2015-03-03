@@ -112,6 +112,7 @@ static NSString * const playButtonName = @"play";
     rightOptions.anchorPoint = CGPointZero;
     rightOptions.position = CGPointMake(self.frame.size.width, 0);
     rightOptions.name = rightOptionsName;
+    NSLog(@"screen %f x %f", self.frame.size.width, rightOptions.position.x);
     
     [[self childNodeWithName: optionsNodeNameSearch] addChild:rightOptions];
     
@@ -119,7 +120,7 @@ static NSString * const playButtonName = @"play";
     play.text                = @"play";
     play.name                = playButtonName;
     play.physicsBody         = [SKPhysicsBody bodyWithRectangleOfSize:play.frame.size];
-    play.position            = CGPointMake(rightOptions.frame.size.width/2, rightOptions.frame.size.height/10);
+    play.position            = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height/10);
     play.fontSize            = 30;
     play.physicsBody.dynamic = NO;
     [rightOptions addChild:play];
@@ -266,9 +267,8 @@ static NSString * const playButtonName = @"play";
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    
+    NSLog(@"ended");
     if (self.isAdjustingBackground) {
-        NSLog(@"hello");
         [self adjustOptionMenusToRest];
     }
 
@@ -286,9 +286,12 @@ static NSString * const playButtonName = @"play";
 
 -(void)adjustOptionMenusToRest
 {
-
+    NSLog(@"rest");
     SKNode *bottomOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:bottomOptionsName];
     SKNode *rightOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:rightOptionsName];
+    
+    BOOL isBottomOptionsHidden;
+    BOOL isRightOptionsHIdden;
     
     float bottomOptionsY  = bottomOptions.position.y + bottomOptions.frame.size.height;
     float rightOptionsX   = rightOptions.position.x;
@@ -296,12 +299,18 @@ static NSString * const playButtonName = @"play";
     float bottomOptionsHeight = bottomOptions.frame.size.height;
     float rightOptionsWidth = rightOptions.frame.size.width;
     
+    int screenWidth  = self.frame.size.width;
+    int screenHeight = self.frame.size.height;
+    
+
     SKAction *slideBottomOptionsUp           = [SKAction moveTo: CGPointMake(0, (self.bottomOptionsHeightLimit - bottomOptionsHeight)) duration:0.5];
     SKAction *slideBottomOptionsDown = [SKAction moveTo:CGPointMake(0.0, -bottomOptionsHeight) duration:0.5];
-    SKAction *slideBackgroundLeftToRightMenuWidth = [SKAction moveTo:CGPointMake(self.rightOptionsWidthLimit, 0.0) duration:0.5];
+    SKAction *slideRightOptionsLeft = [SKAction moveTo:CGPointMake(self.rightOptionsWidthLimit, 0.0) duration:0.5];
+    SKAction *SlideRightOptionsRight = [SKAction moveTo:CGPointMake(screenWidth, 0) duration:0.5];
     
-    if (self.shouldMoveBottomOptions) {
-        NSLog(@"auto move botom bottom y :%f, buffer %f", bottomOptionsY, bottomOptionsHeight );
+    
+    if (rightOptionsX == screenWidth) {
+        NSLog(@"auto move bottom");
         
         if (bottomOptionsY <= self.bottomOptionsHeightLimit/2) {
             [bottomOptions runAction:slideBottomOptionsDown];
@@ -312,13 +321,22 @@ static NSString * const playButtonName = @"play";
         }
         
     }
-    // if background isnt at 0 but is below 1/2 sliide it back to 0
+    
+    //NSLog(@"x %f  buffer %f", rightOptionsX, self.rightOptionsWidthLimit + 45);
+    if (bottomOptionsY == 0) {
+        NSLog(@"auto move right");
+        if (rightOptionsX >=  self.rightOptionsWidthLimit + 45) {
+            NSLog(@"right move to 0");
+            [rightOptions runAction:SlideRightOptionsRight];
+        
+        } else if (rightOptionsX < self.rightOptionsWidthLimit + 45) {
+            NSLog(@"right move onto screen");
+            [rightOptions runAction:slideRightOptionsLeft];
+        }
+
+    }
     
 
-    
-    //if (backgroundX > 0 - self.rightOptionsWidth &&  backgroundX <= (self.rightOptionsWidth/3)*2) {
-        //[background runAction:slideBackgroundLeftToRightMenuWidth];
-    //}
     
 }
 
@@ -331,13 +349,15 @@ static NSString * const playButtonName = @"play";
     CGPoint touchLocation     = [touch locationInNode:self];
     CGPoint previousLocation  = [touch previousLocationInNode:self];
     
-    float bottomOptionsY  = bottomOptions.position.y + bottomOptions.frame.size.height;
-    float rightOptionsX   = rightOptions.position.x;
+    float bottomOptionsY      = bottomOptions.position.y + bottomOptions.frame.size.height;
+    float rightOptionsX       = rightOptions.position.x;
     float bottomOptionsHeight = bottomOptions.frame.size.height;
-    float rightOptionsWidth = rightOptions.frame.size.width;
+    float rightOptionsWidth   = rightOptions.frame.size.width;
+    
     
     int screenWidth  = self.frame.size.width;
     int screenHeight = self.frame.size.height;
+    
     
     float touchDistanceToBottom = touchLocation.y;
     float touchDistanecToRight  = screenWidth - touchLocation.x;
@@ -396,14 +416,14 @@ static NSString * const playButtonName = @"play";
         // if bottom is at top and should move and movement is up dont let it move
         
         if (rightOptionsX >= screenWidth && xAdjustment > 0 && self.shouldMoveRightOptions) {
-            NSLog(@"no 1");
+            //NSLog(@"no 1");
             self.shouldMoveRightOptions = NO;
 
         }
         // if right is at 0 and should move and movement is right dont let it move
         
         if (rightOptionsX <= (self.rightOptionsWidthLimit) && xAdjustment < 0 && self.shouldMoveRightOptions) {
-            NSLog(@"no 2");
+            //NSLog(@"no 2");
             self.shouldMoveRightOptions = NO;
         }
 
@@ -413,11 +433,12 @@ static NSString * const playButtonName = @"play";
         if (self.shouldMoveBottomOptions) {
             [bottomOptions runAction:moveBackgroundBottom];
             
-            NSLog(@"action bottom");
+            //NSLog(@"action bottom");
         }
         if (self.shouldMoveRightOptions)  {
             [rightOptions runAction:moveBackgroundRight];
-            NSLog(@"action right");
+            
+            //NSLog(@"action right");
         }
     }
     
