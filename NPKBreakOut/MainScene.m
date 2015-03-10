@@ -24,7 +24,7 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 @interface MainScene ()
 
 @property (nonatomic) BOOL isGamePlaying;
-@property (nonatomic) SKNode *nodePressedAtTouchBegins;
+@property (nonatomic) NSMutableArray *nodesPressedAtTouchBegins;
 
 
 @end
@@ -42,6 +42,7 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         CGRect bottomRect         = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 1);
         SKNode *bottom            = [SKNode node];
         
+        self.nodesPressedAtTouchBegins = [[NSMutableArray alloc] init];
         self.physicsWorld.gravity         = CGVectorMake(0.0, 0.0);
         self.scaleMode                    = SKSceneScaleModeResizeFill;
         self.userInteractionEnabled       = YES;
@@ -54,8 +55,6 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         
         [[self childNodeWithName:overlayNodeNameSearch] addChild:bottom];
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
-        NSLog(@"sprites count %lu", self.view.gestureRecognizers.count);
-        
         
         [self createContentsWithSprites:sprites];
         
@@ -64,30 +63,22 @@ static const uint32_t powerUpCategory = 0x1 << 4;
     return self;
 }
 
--(void)didMoveToView:(SKView *)view
-{
-    UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
-                                                                                 action:@selector(handleTap:)];
-    recognizer.delegate             = self;
-    recognizer.numberOfTapsRequired = 2;
-    
-    [[self view] addGestureRecognizer:recognizer];
-}
-
-
 -(void)createContentsWithSprites:(NSArray *)sprites
 {
     NSArray *blocks;
     NSArray *balls;
     NSArray *paddles;
 
-    for (int i = 0; i <= 2; i++) {
-        if (i == 0) {
-            blocks  = [sprites objectAtIndex:i];
-        }else if (i == 1) {
-            balls   = [sprites objectAtIndex:i];
-        }else if (i == 2) {
-            paddles = [sprites objectAtIndex:i];
+    if (sprites.count) {
+    
+        for (int i = 0; i <= 2; i++) {
+            if (i == 0) {
+                blocks  = [sprites objectAtIndex:i];
+            }else if (i == 1) {
+                balls   = [sprites objectAtIndex:i];
+            }else if (i == 2) {
+                paddles = [sprites objectAtIndex:i];
+            }
         }
     }
     
@@ -275,32 +266,83 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+
+    for (UITouch *touch in touches) {
+        
+        CGPoint touchLocation = [touch locationInNode:self];
+        SKNode *node = [self.physicsWorld bodyAtPoint:touchLocation].node;
+        if ([node.name containsString:paddleName]) {
+            NSLog(@"node pressed %@ ",node.name);
+            
+            [self.nodesPressedAtTouchBegins addObject:node];
+        }
     
-    CGPoint touchLocation = [[touches anyObject] locationInNode:self];
-    SKNode *node          = [self.physicsWorld bodyAtPoint:touchLocation].node;
-    self.nodePressedAtTouchBegins = node;
+        
+    }
     
 }
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    CGPoint touchLocation    = [[touches anyObject] locationInNode:self];
-    CGPoint previousLocation = [[touches anyObject] previousLocationInNode:self];
     
-    if ([self.nodePressedAtTouchBegins.name containsString:paddleName]) {
+    if (self.nodesPressedAtTouchBegins.count == 1) {
+        
+        CGPoint touchLocation = [[touches anyObject] locationInNode:self];
+        CGPoint previousLocation = [[touches anyObject] previousLocationInNode:self];
+        
+        //NSLog(@"more then 0 ");
+        SKNode *firstNodePressed = [self.nodesPressedAtTouchBegins firstObject];
 
-        PaddleSprite *paddle     = (PaddleSprite *) self.nodePressedAtTouchBegins;
+        int paddleX = firstNodePressed.position.x + (touchLocation.x - previousLocation.x);
+        
+        paddleX = MAX(paddleX, firstNodePressed.frame.size.width/2);
+        paddleX = MIN(paddleX, self.size.width - firstNodePressed.frame.size.width/2);
+        
+        firstNodePressed.position = CGPointMake(paddleX, firstNodePressed.position.y);
+
+    } else if (self.nodesPressedAtTouchBegins.count == 2) {
+        NSLog(@"more then one pressed");
+        
+        for (UITouch *touch in touches) {
+            CGPoint touchLocation = [touch locationInNode:self];
+            CGPoint previousLocation = [touch previousLocationInNode:self];
+            SKNode *nodeTouched = [self nodeAtPoint:touchLocation];
+            //NSLog(@"node touched %@",nodeTouched.name);
+            
+            for (SKNode *touchBeginsNode in self.nodesPressedAtTouchBegins) {
+                NSLog(@"node touched at begin %@ node touched %@",touchBeginsNode.name, nodeTouched.name);
+
+                if ([nodeTouched.name isEqualToString:touchBeginsNode.name]) {
+                    int paddleX              = touchBeginsNode.position.x + (touchLocation.x - previousLocation.x);
+                    
+                    paddleX = MAX(paddleX, touchBeginsNode.frame.size.width/2);
+                    paddleX = MIN(paddleX, self.size.width - touchBeginsNode.frame.size.width/2);
+                    
+                    touchBeginsNode.position = CGPointMake(paddleX, touchBeginsNode.position.y);
+                    
+                }
+            }
+        }
+    }
+    //NSMutableArray *nodesPressedAtTouchBegins = self.nodesPressedAtTouchBegins;
+    //SKNode *node = nodesPressedAtTouchBegins[0];
+    
+    
+    /*
+    if ([node.name containsString:paddleName]) {
+
+        PaddleSprite *paddle     = (PaddleSprite *) self.nodesPressedAtTouchBegins;
         int paddleX              = paddle.position.x + (touchLocation.x - previousLocation.x);
         
         paddleX = MAX(paddleX, paddle.size.width/2);
         paddleX = MIN(paddleX, self.size.width - paddle.size.width/2);
         
         paddle.position = CGPointMake(paddleX, paddle.position.y);
-    }
+    } */
 }
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    self.nodePressedAtTouchBegins = [[SKNode alloc] init];
+    self.nodesPressedAtTouchBegins = [[NSMutableArray alloc] init];
     
 }
 
@@ -323,7 +365,7 @@ static const uint32_t powerUpCategory = 0x1 << 4;
     {
         GameOverScene *gameOverScene = [[GameOverScene alloc] initWithSize:self.frame.size playerWon:NO];
         
-        [self.view presentScene:gameOverScene];
+        //[self.view presentScene:gameOverScene];
     }
     
     if (firstBody.categoryBitMask == bottomCategory && secondBody.categoryBitMask == powerUpCategory) {

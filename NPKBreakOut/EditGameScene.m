@@ -697,7 +697,7 @@ static NSString * const playButtonName = @"play";
 - (void)handleDoubleTap:(UITapGestureRecognizer *)sender
 {
     CGPoint reversedPoint = [sender locationInView:[self view]];
-    reversedPoint.y       = self.frame.size.height - reversedPoint.y ;
+    reversedPoint.y       = self.frame.size.height - reversedPoint.y;
     SKNode  *nodePressed = [[self.physicsWorld bodyAtPoint:reversedPoint] node];
     
     
