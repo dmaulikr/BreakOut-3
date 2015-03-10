@@ -13,6 +13,7 @@
 #import "PaddleSprite.h"
 #import "BallSprite.h"
 #import "Constants.h"
+#import "GameData.h"
 
 static const uint32_t ballCategory    = 0x1 << 0;
 static const uint32_t blockCategory   = 0x1 << 2;

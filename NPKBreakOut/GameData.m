@@ -10,4 +10,26 @@
 
 @implementation GameData
 
++(instancetype)sharedGameData
+{
+    static id sharedInstance = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] init];
+    });
+    
+    return sharedInstance;
+}
+
+-(void)reset
+{
+    self.balls   = [[NSMutableArray alloc] init];
+    self.blocks  = [[NSMutableArray alloc] init];
+    self.paddles = [[NSMutableArray alloc] init];
+}
+
+
+
+
 @end

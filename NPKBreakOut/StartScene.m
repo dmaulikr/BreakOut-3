@@ -9,6 +9,7 @@
 #import "StartScene.h"
 #import "MainScene.h"
 #import "EditGameScene.h"
+#import "GameData.h"
 
 @implementation StartScene
 
@@ -20,7 +21,7 @@
 
         [self createSceneContents];
 
-        
+        [[GameData sharedGameData] reset];
     }
     
     return self;

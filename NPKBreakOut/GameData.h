@@ -10,11 +10,11 @@
 
 @interface GameData : NSObject
 
-@property (nonatomic) NSArray *blocks;
-@property (nonatomic) NSArray *paddles;
-@property (nonatomic) NSArray *balls;
+@property (nonatomic) NSMutableArray *blocks;
+@property (nonatomic) NSMutableArray *paddles;
+@property (nonatomic) NSMutableArray *balls;
 
--(instancetype)sharedGameData;
++(instancetype)sharedGameData;
 -(void)reset;
 
 

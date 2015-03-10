@@ -13,6 +13,7 @@
 #import "MainScene.h"
 #import "Constants.h"
 #import "GameScene.h"
+#import "GameData.h"
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
 
@@ -264,12 +265,62 @@ static NSString * const playButtonName = @"play";
     }
     
 }
+-(void)didFinishUpdate
+{
+    SKNode *node = self.nodePressedAtTouchBegins;
+
+    if ([node.name  containsString:blockName]) {
+
+        if ([[GameData sharedGameData].blocks containsObject:node]) {
+            NSLog(@"save data already has block");
+            [[GameData sharedGameData].blocks removeObject:node];
+            //refresh the block as it moves
+            [[GameData sharedGameData].blocks addObject:node];
+
+        } else {
+            NSLog(@"save data dosnt have block");
+            [[GameData sharedGameData].blocks addObject:node];
+        }
+    }
+
+    if ([node.name containsString:paddleName]) {
+        if ([[GameData sharedGameData].paddles containsObject:node]) {
+            NSLog(@"save data already has paddle");
+            [[GameData sharedGameData].paddles removeObject:node];
+            //refresh the block as it moves
+            [[GameData sharedGameData].paddles addObject:node];
+            
+        } else {
+            NSLog(@"save data dosnt have paddle");
+            [[GameData sharedGameData].paddles addObject:node];
+        }
+    }
+    
+    if ([node.name containsString:ballName]) {
+        if ([[GameData sharedGameData].balls containsObject:node]) {
+            NSLog(@"save data already has ball");
+            [[GameData sharedGameData].balls removeObject:node];
+            //refresh the block as it moves
+            [[GameData sharedGameData].balls addObject:node];
+            
+        } else {
+            NSLog(@"save data dosnt have ball");
+            [[GameData sharedGameData].balls addObject:node];
+        }
+    }
+    
+    
+}
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     NSLog(@"ended");
     if (self.isAdjustingBackground) {
         [self adjustOptionMenusToRest];
+    }
+    
+    if ([self.nodePressedAtTouchBegins.name containsString:blockName]) {
+        NSLog(@"a node was created/moved");
     }
 
     self.nodePressedAtTouchBegins = 0;
