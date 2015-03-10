@@ -38,6 +38,7 @@
 		50813EDC1A7094D800FCB418 /* PowerUpSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813EDB1A7094D800FCB418 /* PowerUpSprite.m */; };
 		50813EE11A709B9F00FCB418 /* powerUpP.png in Resources */ = {isa = PBXBuildFile; fileRef = 50813EE01A709B9F00FCB418 /* powerUpP.png */; };
 		50813EE71A7841A300FCB418 /* StartScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813EE61A7841A300FCB418 /* StartScene.m */; };
+		50DAFBA41AAF9D0A00912F7C /* GameData.m in Sources */ = {isa = PBXBuildFile; fileRef = 50DAFBA31AAF9D0A00912F7C /* GameData.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,8 @@
 		50813EE01A709B9F00FCB418 /* powerUpP.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpP.png; sourceTree = "<group>"; };
 		50813EE51A7841A300FCB418 /* StartScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StartScene.h; sourceTree = "<group>"; };
 		50813EE61A7841A300FCB418 /* StartScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartScene.m; sourceTree = "<group>"; };
+		50DAFBA21AAF9D0A00912F7C /* GameData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameData.h; sourceTree = "<group>"; };
+		50DAFBA31AAF9D0A00912F7C /* GameData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameData.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +161,8 @@
 				5058D6B81A9D387A00025597 /* EditGameScene.m */,
 				50813E9D1A6B0F4600FCB418 /* GameOverScene.h */,
 				50813E9E1A6B0F4600FCB418 /* GameOverScene.m */,
+				50DAFBA21AAF9D0A00912F7C /* GameData.h */,
+				50DAFBA31AAF9D0A00912F7C /* GameData.m */,
 				50813ECB1A707B6700FCB418 /* GamePiece.h */,
 				50813ECC1A707B6700FCB418 /* GamePiece.m */,
 				50813ED11A707D9200FCB418 /* BlockSprite.h */,
@@ -334,6 +339,7 @@
 				5058D6AD1A9C240D00025597 /* GameScene.m in Sources */,
 				50813EDC1A7094D800FCB418 /* PowerUpSprite.m in Sources */,
 				5058D6B91A9D387A00025597 /* EditGameScene.m in Sources */,
+				50DAFBA41AAF9D0A00912F7C /* GameData.m in Sources */,
 				5058D6B01A9C249400025597 /* MainScene.m in Sources */,
 				50813EE71A7841A300FCB418 /* StartScene.m in Sources */,
 				50813E9F1A6B0F4600FCB418 /* GameOverScene.m in Sources */,
