@@ -39,6 +39,7 @@
 		50813EE11A709B9F00FCB418 /* powerUpP.png in Resources */ = {isa = PBXBuildFile; fileRef = 50813EE01A709B9F00FCB418 /* powerUpP.png */; };
 		50813EE71A7841A300FCB418 /* StartScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813EE61A7841A300FCB418 /* StartScene.m */; };
 		50DAFBA41AAF9D0A00912F7C /* GameData.m in Sources */ = {isa = PBXBuildFile; fileRef = 50DAFBA31AAF9D0A00912F7C /* GameData.m */; };
+		50DAFBA61AAFC68900912F7C /* trashIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 50DAFBA51AAFC68900912F7C /* trashIcon.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,7 @@
 		50813EE61A7841A300FCB418 /* StartScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartScene.m; sourceTree = "<group>"; };
 		50DAFBA21AAF9D0A00912F7C /* GameData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameData.h; sourceTree = "<group>"; };
 		50DAFBA31AAF9D0A00912F7C /* GameData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameData.m; sourceTree = "<group>"; };
+		50DAFBA51AAFC68900912F7C /* trashIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trashIcon.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +189,7 @@
 			children = (
 				50813EA01A6DB7AB00FCB418 /* block.png */,
 				50813EBD1A6E075200FCB418 /* powerUpCircle.png */,
+				50DAFBA51AAFC68900912F7C /* trashIcon.png */,
 				50813EE01A709B9F00FCB418 /* powerUpP.png */,
 				5058D6C51AA5656000025597 /* bg.png */,
 				5058D6C31AA1102B00025597 /* bottomOptions.png */,
@@ -309,6 +312,7 @@
 				5058D6C41AA1102B00025597 /* bottomOptions.png in Resources */,
 				50813E9A1A64AC7000FCB418 /* ball.png in Resources */,
 				50813E7D1A648F8000FCB418 /* LaunchScreen.xib in Resources */,
+				50DAFBA61AAFC68900912F7C /* trashIcon.png in Resources */,
 				50813EA91A6DC75B00FCB418 /* paddle.png in Resources */,
 				50813EE11A709B9F00FCB418 /* powerUpP.png in Resources */,
 				50813E981A64A3C300FCB418 /* bg.png in Resources */,

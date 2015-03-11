@@ -268,11 +268,11 @@ static NSString * const playButtonName = @"play";
 -(void)didFinishUpdate
 {
     SKNode *node = self.nodePressedAtTouchBegins;
-
+    
     if ([node.name  containsString:blockName]) {
 
         if ([[GameData sharedGameData].blocks containsObject:node]) {
-            NSLog(@"save data already has block");
+            NSLog(@"sav e data already has block");
             [[GameData sharedGameData].blocks removeObject:node];
             //refresh the block as it moves
             [[GameData sharedGameData].blocks addObject:node];
@@ -743,6 +743,9 @@ static NSString * const playButtonName = @"play";
         }
     }
     
+    if ([sender state] == UIGestureRecognizerStateEnded) {
+        self.nodePressedAtTouchBegins = 0;
+    }
 }
 
 - (void)handleDoubleTap:(UITapGestureRecognizer *)sender
@@ -769,6 +772,11 @@ static NSString * const playButtonName = @"play";
             [block updateSelf];
         }];
     }
+    
+    if ([sender state] == UIGestureRecognizerStateEnded) {
+        self.nodePressedAtTouchBegins = 0;
+    }
+
 }
 
 
