@@ -265,52 +265,7 @@ static NSString * const playButtonName = @"play";
     }
     
 }
--(void)didFinishUpdate
-{
-    SKNode *node = self.nodePressedAtTouchBegins;
-    
-    if ([node.name  containsString:blockName]) {
 
-        if ([[GameData sharedGameData].blocks containsObject:node]) {
-            NSLog(@"sav e data already has block");
-            [[GameData sharedGameData].blocks removeObject:node];
-            //refresh the block as it moves
-            [[GameData sharedGameData].blocks addObject:node];
-
-        } else {
-            NSLog(@"save data dosnt have block");
-            [[GameData sharedGameData].blocks addObject:node];
-        }
-    }
-
-    if ([node.name containsString:paddleName]) {
-        if ([[GameData sharedGameData].paddles containsObject:node]) {
-            NSLog(@"save data already has paddle");
-            [[GameData sharedGameData].paddles removeObject:node];
-            //refresh the block as it moves
-            [[GameData sharedGameData].paddles addObject:node];
-            
-        } else {
-            NSLog(@"save data dosnt have paddle");
-            [[GameData sharedGameData].paddles addObject:node];
-        }
-    }
-    
-    if ([node.name containsString:ballName]) {
-        if ([[GameData sharedGameData].balls containsObject:node]) {
-            NSLog(@"save data already has ball");
-            [[GameData sharedGameData].balls removeObject:node];
-            //refresh the block as it moves
-            [[GameData sharedGameData].balls addObject:node];
-            
-        } else {
-            NSLog(@"save data dosnt have ball");
-            [[GameData sharedGameData].balls addObject:node];
-        }
-    }
-    
-    
-}
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -332,6 +287,30 @@ static NSString * const playButtonName = @"play";
     self.shouldMoveLeftOptions    = NO;
     self.shouldMoveUpOptions      = NO;
 
+    
+}
+
+-(void)didFinishUpdate
+{
+    SKNode *node = self.nodePressedAtTouchBegins;
+    
+    if ([node.name  containsString:blockName]) {
+        
+        if (![[GameData sharedGameData].blocks containsObject:node]) [[GameData sharedGameData].blocks addObject:node];
+
+    }
+    
+    if ([node.name containsString:paddleName]) {
+        
+        if (![[GameData sharedGameData].paddles containsObject:node]) [[GameData sharedGameData].paddles addObject:node];
+        
+    }
+    
+    if ([node.name containsString:ballName]) {
+        
+        if (![[GameData sharedGameData].balls containsObject:node]) [[GameData sharedGameData].balls addObject:node];
+        
+    }
     
 }
 
@@ -655,34 +634,33 @@ static NSString * const playButtonName = @"play";
 }
 -(void)switchToMainScene
 {
-    NSMutableArray *blocks = [[NSMutableArray alloc] init];
-    NSMutableArray *balls = [[NSMutableArray alloc] init];
-    NSMutableArray *paddles = [[NSMutableArray alloc] init];
     
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+        [[GameData sharedGameData].blocks removeObject:node];
         BlockSprite *block = (BlockSprite *)node;
         block.isEditable = NO;
         [block updateSelf];
         block.canBeEdited = NO;
-        [blocks addObject:block];
         [block removeFromParent];
+        [[GameData sharedGameData].blocks addObject:block];
     }];
     
     [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+        [[GameData sharedGameData].balls removeObject:node];
         BallSprite *ball = (BallSprite * )node;
-        [balls addObject:ball];
         [ball removeFromParent];
+        [[GameData sharedGameData].balls addObject:ball];
     }];
     
     [[self childNodeWithName:paddleNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+        [[GameData sharedGameData].paddles removeObject:node];
         PaddleSprite *paddle = (PaddleSprite *)node;
-        [paddles addObject:paddle];
         [paddle removeFromParent];
+        [[GameData sharedGameData].paddles addObject:paddle];
     }];
     
-    NSArray *sprites = [[NSArray alloc] initWithObjects:blocks,balls,paddles, nil];
     
-    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size sprites:sprites];
+    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size];
     
     if ([self.view gestureRecognizers]) {
         [self.view removeGestureRecognizer:[self.view.gestureRecognizers lastObject]];

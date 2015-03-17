@@ -23,6 +23,7 @@ NSString * const contentNodeName    = @"contentNode";
 NSString * const blockNodeName      = @"blockNode";
 NSString * const ballNodeName       = @"ballNode";
 NSString * const paddleNodeName     = @"paddleNode";
+NSString * const powerUpNodeName    = @"powerUpNode";
 NSString * const optionsNodeName    = @"optionsNode";
 
 NSString * const mainNodeNameSearch       = @"//mainNode";
@@ -32,4 +33,5 @@ NSString * const contentNodeNameSearch    = @"//contentNode";
 NSString * const blockNodeNameSearch      = @"//blockNode";
 NSString * const ballNodeNameSearch       = @"//ballNode";
 NSString * const paddleNodeNameSearch     = @"//paddleNode";
+NSString * const powerUpNodeNameSearch    = @"//powerUpNode";
 NSString * const optionsNodeNameSearch    = @"//optionsNode";

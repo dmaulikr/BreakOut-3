@@ -24,6 +24,7 @@ extern NSString * const contentNodeName;
 extern NSString * const blockNodeName;
 extern NSString * const ballNodeName;
 extern NSString * const paddleNodeName;
+extern NSString * const powerUpNodeName;
 extern NSString * const optionsNodeName;
 
 extern NSString * const mainNodeNameSearch;
@@ -33,6 +34,7 @@ extern NSString * const contentNodeNameSearch;
 extern NSString * const blockNodeNameSearch;
 extern NSString * const ballNodeNameSearch;
 extern NSString * const paddleNodeNameSearch;
+extern NSString * const powerUpNodeNameSearch;
 extern NSString * const optionsNodeNameSearch;
 
 #endif

@@ -13,6 +13,7 @@
 @property (nonatomic) NSMutableArray *blocks;
 @property (nonatomic) NSMutableArray *paddles;
 @property (nonatomic) NSMutableArray *balls;
+@property (nonatomic) NSMutableArray *powerUps;
 
 +(instancetype)sharedGameData;
 -(void)reset;

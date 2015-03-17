@@ -18,6 +18,7 @@
     SKNode *blockNode      = [[SKNode alloc] init];
     SKNode *ballNode       = [[SKNode alloc] init];
     SKNode *paddleNode     = [[SKNode alloc] init];
+    SKNode *powerUpNode    = [[SKNode alloc] init];
     SKNode *contentNode    = [[SKNode alloc] init];
     SKNode *overlayNode    = [[SKNode alloc] init];
     SKNode *backgroundNode = [[SKNode alloc] init];
@@ -27,6 +28,7 @@
     blockNode.name      = blockNodeName;
     ballNode.name       = ballNodeName;
     paddleNode.name     = paddleNodeName;
+    powerUpNode.name    = powerUpNodeName;
     overlayNode.name    = overlayNodeName;
     contentNode.name    = contentNodeName;
     backgroundNode.name = backgroundNodeName;
@@ -37,6 +39,7 @@
     blockNode.position      = origin;
     ballNode.position       = origin;
     paddleNode.position     = origin;
+    powerUpNode.position    = origin;
     overlayNode.position    = origin;
     contentNode.position    = origin;
     backgroundNode.position = origin;
@@ -47,6 +50,7 @@
     [contentNode addChild:blockNode];
     [contentNode addChild:ballNode];
     [contentNode addChild:paddleNode];
+    [contentNode addChild:powerUpNode];
     [mainNode    addChild:contentNode];
     [mainNode    addChild:overlayNode];
     [mainNode    addChild:backgroundNode];

@@ -21,6 +21,9 @@ static const uint32_t paddleCategory  = 0x1 << 3;
 static const uint32_t bottomCategory  = 0x1 << 1;
 static const uint32_t powerUpCategory = 0x1 << 4;
 
+static NSString * const saveAndQuitLabelName = @"saveAndQuit";
+static NSString * const continueLabelName   = @"continue";
+static NSString * const pausedScreenName = @"pausedScreen";
 
 @interface MainScene ()
 
@@ -32,7 +35,7 @@ static const uint32_t powerUpCategory = 0x1 << 4;
 
 @implementation MainScene
 
--(instancetype)initWithSize:(CGSize)size sprites:(NSArray *)sprites
+-(instancetype)initWithSize:(CGSize)size
 {
     if (self = [super initWithSize:size]) {
         
@@ -43,7 +46,7 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         CGRect bottomRect         = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 1);
         SKNode *bottom            = [SKNode node];
         
-        self.nodesPressedAtTouchBegins = [[NSMutableArray alloc] init];
+        self.nodesPressedAtTouchBegins    = [[NSMutableArray alloc] init];
         self.physicsWorld.gravity         = CGVectorMake(0.0, 0.0);
         self.scaleMode                    = SKSceneScaleModeResizeFill;
         self.userInteractionEnabled       = YES;
@@ -51,182 +54,38 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         self.physicsBody.friction         = 0.0;
         self.physicsWorld.contactDelegate = self;
         background.position               = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
+        background.name                   = backgroundName;
         bottom.physicsBody                = [SKPhysicsBody bodyWithEdgeLoopFromRect:bottomRect];
         bottom.physicsBody.categoryBitMask= bottomCategory;
+        self.isGamePlaying                = NO;
+
         
         [[self childNodeWithName:overlayNodeNameSearch] addChild:bottom];
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
         
-        [self createContentsWithSprites:sprites];
+        [self createContents];
         
     }
     
     return self;
 }
 
--(void)createContentsWithSprites:(NSArray *)sprites
-{
-    NSArray *blocks;
-    NSArray *balls;
-    NSArray *paddles;
-
-    if (sprites.count) {
-    
-        for (int i = 0; i <= 2; i++) {
-            if (i == 0) {
-                blocks  = [sprites objectAtIndex:i];
-            }else if (i == 1) {
-                balls   = [sprites objectAtIndex:i];
-            }else if (i == 2) {
-                paddles = [sprites objectAtIndex:i];
-            }
-        }
-    }
-    
-    self.isGamePlaying  = NO;
-    
-    if (balls.count == 0) [self createBall];
-    else                  [self createCustomBalls:balls];
-    
-    if (blocks.count == 0) [self createBlocks];
-    else                   [self createCustomBlocks:blocks];
-    
-    if (paddles.count == 0) [self createPaddle];
-    else                    [self createCustomPaddles:paddles];
-    
-    [self startGame];
-    
-}
-
--(void)createCustomBlocks:(NSArray *)blocks
-{
-    for (BlockSprite *block in blocks) {
-        
-        block.physicsBody.dynamic         = NO;
-        block.physicsBody.categoryBitMask = blockCategory;
-        //block.zPosition = 1.0;
-        [[self childNodeWithName:blockNodeNameSearch] addChild:block];
-    }
-}
-
--(void)createCustomBalls:(NSArray *)balls
-{
-    for (BallSprite *ball in balls) {
-        ball.physicsBody.dynamic         = YES;
-        ball.physicsBody.categoryBitMask    = ballCategory;
-        ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
-        ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
-        
-        [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
-    }
-}
-
-
--(void)createCustomPaddles:(NSArray *)paddles
-{
-    NSLog(@"make paddles");
-    for (PaddleSprite *paddle in paddles) {
-
-        paddle.physicsBody.categoryBitMask    = paddleCategory;
-        paddle.physicsBody.contactTestBitMask = powerUpCategory;
-        
-        [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
-    }
-    
-}
-
-
--(void)createBlocks
-{
-    float padding          = 5.0;
-    float blockHeight      = [SKSpriteNode spriteNodeWithImageNamed:@"block.png"].size.height;
-    float currentLocationY = self.frame.size.height - (blockHeight/2) - padding;
-    
-    for (int  i = 0; i < 5; i++) {
-        [self createLineOfBlocksWithLocationY:currentLocationY
-                                      padding:padding
-                               numberOfBlocks:4];
-        currentLocationY = currentLocationY - (blockHeight) - padding;
-    }
-    
-}
-
-
-
--(void)createBall
-{
-    BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
-                                                currentSize:@"normal"
-                                                     status:@"normal"
-                                                       name:ballName];
-    
-    ball.physicsBody.categoryBitMask    = ballCategory;
-    ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
-    ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory;
-    
-    [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
-}
-
--(void)createPaddle
-{
-    PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
-                                                            position:CGPointMake(self.frame.size.width/2, self.frame.size.height * 0.05)
-                                                              status:@"normal"
-                                                                name:paddleName];
-    
-    paddle.physicsBody.categoryBitMask    = paddleCategory;
-    paddle.physicsBody.contactTestBitMask = powerUpCategory;
-    
-    [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
-    
-}
-
--(void)createLineOfBlocksWithLocationY:(float)locationY padding:(float)padding numberOfBlocks:(int)numberOfBlocks
-{
-    
-    int blockWidth                = [SKSpriteNode spriteNodeWithImageNamed:@"block.png"].size.width;
-    NSMutableArray *randomNumbers = [self selectRandomBlocksWithAmount:arc4random_uniform(4)];
-    
-    for (int i = 1; i <= numberOfBlocks; i++) {
-        BOOL hasPowerup  = NO;
-        int  hitPoints   = 1;
-        
-        for (int  p = 0; p < randomNumbers.count; p++) {
-            if ([[randomNumbers objectAtIndex:p] intValue]== i) {
-                hasPowerup = YES;
-                hitPoints  = 3;
-                
-            }
-        }
-        float xOffset      = (self.frame.size.width - (blockWidth * numberOfBlocks + padding * (numberOfBlocks-1))) / 2;
-        BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake((i-0.5)*blockWidth + (i-1)*padding + xOffset,locationY)
-                                                         hitPoints:hitPoints
-                                                              name:[self nameBlock]
-                                                        hasPowerup:hasPowerup
-                                                       currentSize:@"normal"
-                                                       canBeEdited:NO];
-        
-        block.physicsBody.categoryBitMask = blockCategory;
-        
-        [[self childNodeWithName:blockNodeNameSearch] addChild:block];
-    }
-    
-}
-
--(void)createPowerUpWithLocation:(CGPoint)location
-{
-    PowerUpSprite *powerUpSprite                  = [[PowerUpSprite alloc] initWithLocation:location
-                                                                                       type:@"bigBall"
-                                                                                       name:@"powerUp"];
-    powerUpSprite.physicsBody.categoryBitMask     = powerUpCategory;
-    powerUpSprite.physicsBody.collisionBitMask    = paddleCategory | bottomCategory;
-    powerUpSprite.physicsBody.contactTestBitMask  = paddleCategory | bottomCategory;
-    
-    [[self childNodeWithName:contentNodeNameSearch] addChild:powerUpSprite];
-}
-
 -(void)startGame
 {
+    NSLog(@"start game");
+    
+    SKAction *pauseBalls = [SKAction runBlock:^{
+        NSLog(@"pause balls");
+        [self childNodeWithName:ballNodeNameSearch].paused = YES;
+        //just in case pause each ball individually
+        [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+            node.paused = YES;
+        }];
+    }];
+    
+
+    
+    //self.paused = NO;
     
     SKLabelNode *timer = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
     timer.text         = @"3";
@@ -254,14 +113,48 @@ static const uint32_t powerUpCategory = 0x1 << 4;
                 timer.text = @"GO!";
                 [timer runAction:runAnimation completion:^{
                     [timer removeFromParent];
+                    self.isGamePlaying = YES;
                     [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
                         [node.physicsBody applyImpulse:CGVectorMake(-10.0, 10.0)];
+                        node.paused = NO;
                     }];
-                    self.isGamePlaying = YES;
                 }];
             }];
         }];
     }];
+    
+}
+
+-(void)pauseGame
+{
+    
+    NSLog(@"pausing");
+    
+    SKSpriteNode *pausedScreen     = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:self.frame.size];
+    pausedScreen.anchorPoint    = CGPointZero;
+    pausedScreen.alpha          = 0.5;
+    pausedScreen.name           = pausedScreenName;
+    
+    SKLabelNode *saveLabel = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    saveLabel.text = @"Save And Quit";
+    saveLabel.fontSize = 30;
+    saveLabel.position = CGPointMake(self.frame.size.width/2, self.frame.size.height/5);
+    saveLabel.name = saveAndQuitLabelName;
+    
+    SKLabelNode *continueLabel = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    continueLabel.text = @"Continue";
+    continueLabel.fontSize = 30;
+    continueLabel.position = CGPointMake(self.frame.size.width/2, self.frame.size.height/8);
+    continueLabel.name = continueLabelName;
+    
+    
+    [pausedScreen addChild:continueLabel];
+    [pausedScreen addChild:saveLabel];
+    [[self childNodeWithName:overlayNodeNameSearch] addChild:pausedScreen];
+    
+    [self childNodeWithName:contentNodeNameSearch].paused = YES;
+    [self childNodeWithName:overlayNodeNameSearch].paused = YES;
+    
     
 }
 
@@ -272,13 +165,50 @@ static const uint32_t powerUpCategory = 0x1 << 4;
         
         CGPoint touchLocation = [touch locationInNode:self];
         SKNode *node = [self.physicsWorld bodyAtPoint:touchLocation].node;
+        
         if ([node.name containsString:paddleName]) {
-            NSLog(@"node pressed %@ ",node.name);
             
             [self.nodesPressedAtTouchBegins addObject:node];
+            
+        } else {
+            node = [self nodeAtPoint:touchLocation];
         }
-    
         
+        NSLog(@"node at pressed begins %@", node.name);
+        
+        
+        if ([node.name containsString:backgroundName]) {
+            NSLog(@"touched background pause game");
+            [self pauseGame];
+            
+        }
+        
+        if ([node.name containsString:continueLabelName]) {
+            
+            [[node parent] removeFromParent];
+            
+            NSLog(@"unpausing");
+            
+            if (self.isGamePlaying) {
+                
+                NSLog(@"count down is over ~ run start game");
+                
+                self.isGamePlaying = NO;
+                [self startGame];
+
+
+            } else {
+                NSLog(@"countdown on screen ~ resume game");
+                // game is note playing
+                self.paused = NO;
+                
+            }
+        }
+
+
+
+    
+   
     }
     
 }
@@ -482,5 +412,166 @@ static const uint32_t powerUpCategory = 0x1 << 4;
     return tempNumbers;
     
 }
+
+
+-(void)createContents
+{
+    
+    
+    if ([GameData sharedGameData].blocks.count > 0) [self createBlocksFromData];
+    else                                            [self createDefaultBlocks];
+    
+    
+    if ([GameData sharedGameData].paddles.count > 0) [self createPaddlesFromData];
+    else                                             [self createDefaultPaddle];
+    
+    if ([GameData sharedGameData].balls.count > 0) [self createBallsFromData];
+    else                                           [self createDefaultBall];
+    
+    if ([GameData sharedGameData] > 0) [self createPowerUpFromData];
+    
+    [self startGame];
+    
+}
+
+-(void)createBlocksFromData
+{
+    for (BlockSprite *block in [GameData sharedGameData].blocks) {
+        
+        block.physicsBody.dynamic         = NO;
+        block.physicsBody.categoryBitMask = blockCategory;
+        //block.zPosition = 1.0;
+        [[self childNodeWithName:blockNodeNameSearch] addChild:block];
+    }
+}
+
+-(void)createBallsFromData
+{
+    for (BallSprite *ball in [GameData sharedGameData].balls) {
+        ball.physicsBody.dynamic         = YES;
+        ball.physicsBody.categoryBitMask    = ballCategory;
+        ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
+        ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
+        
+        [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
+    }
+}
+
+
+-(void)createPaddlesFromData
+{
+    for (PaddleSprite *paddle in [GameData sharedGameData].paddles) {
+        
+        paddle.physicsBody.categoryBitMask    = paddleCategory;
+        paddle.physicsBody.contactTestBitMask = powerUpCategory;
+        
+        [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
+    }
+    
+}
+
+
+-(void)createDefaultBlocks
+{
+    float padding          = 5.0;
+    float blockHeight      = [SKSpriteNode spriteNodeWithImageNamed:@"block.png"].size.height;
+    float currentLocationY = self.frame.size.height - (blockHeight/2) - padding;
+    
+    for (int  i = 0; i < 5; i++) {
+        [self createLineOfBlocksWithLocationY:currentLocationY
+                                      padding:padding
+                               numberOfBlocks:4];
+        currentLocationY = currentLocationY - (blockHeight) - padding;
+    }
+    
+}
+
+
+
+-(void)createDefaultBall
+{
+    BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
+                                                currentSize:@"normal"
+                                                     status:@"normal"
+                                                       name:ballName];
+    
+    
+    ball.physicsBody.categoryBitMask    = ballCategory;
+    ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
+    ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory;
+    
+    [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
+    [[GameData sharedGameData].balls addObject:ball];
+}
+
+-(void)createDefaultPaddle
+{
+    PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
+                                                            position:CGPointMake(self.frame.size.width/2, self.frame.size.height * 0.05)
+                                                              status:@"normal"
+                                                                name:paddleName];
+    
+    paddle.physicsBody.categoryBitMask    = paddleCategory;
+    paddle.physicsBody.contactTestBitMask = powerUpCategory;
+    
+    [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
+    [[GameData sharedGameData].paddles addObject:paddle];
+    
+}
+
+-(void)createLineOfBlocksWithLocationY:(float)locationY padding:(float)padding numberOfBlocks:(int)numberOfBlocks
+{
+    
+    int blockWidth                = [SKSpriteNode spriteNodeWithImageNamed:@"block.png"].size.width;
+    NSMutableArray *randomNumbers = [self selectRandomBlocksWithAmount:arc4random_uniform(4)];
+    
+    for (int i = 1; i <= numberOfBlocks; i++) {
+        BOOL hasPowerup  = NO;
+        int  hitPoints   = 1;
+        
+        for (int  p = 0; p < randomNumbers.count; p++) {
+            if ([[randomNumbers objectAtIndex:p] intValue]== i) {
+                hasPowerup = YES;
+                hitPoints  = 3;
+                
+            }
+        }
+        float xOffset      = (self.frame.size.width - (blockWidth * numberOfBlocks + padding * (numberOfBlocks-1))) / 2;
+        BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake((i-0.5)*blockWidth + (i-1)*padding + xOffset,locationY)
+                                                         hitPoints:hitPoints
+                                                              name:[self nameBlock]
+                                                        hasPowerup:hasPowerup
+                                                       currentSize:@"normal"
+                                                       canBeEdited:NO];
+        
+        block.physicsBody.categoryBitMask = blockCategory;
+        
+        [[self childNodeWithName:blockNodeNameSearch] addChild:block];
+        [[GameData sharedGameData].blocks addObject:block];
+    }
+    
+}
+
+-(void)createPowerUpFromData
+{
+    for (PowerUpSprite *powerUp in [GameData sharedGameData].powerUps) {
+        [[self childNodeWithName:overlayNodeNameSearch] addChild:powerUp];
+    }
+}
+
+-(void)createPowerUpWithLocation:(CGPoint)location
+{
+    PowerUpSprite *powerUpSprite                  = [[PowerUpSprite alloc] initWithLocation:location
+                                                                                       type:@"bigBall"
+                                                                                       name:@"powerUp"];
+    powerUpSprite.physicsBody.categoryBitMask     = powerUpCategory;
+    powerUpSprite.physicsBody.collisionBitMask    = paddleCategory | bottomCategory;
+    powerUpSprite.physicsBody.contactTestBitMask  = paddleCategory | bottomCategory;
+    
+    [[self childNodeWithName:contentNodeNameSearch] addChild:powerUpSprite];
+    [[GameData sharedGameData].powerUps addObject:powerUpSprite];
+    
+}
+
     
 @end

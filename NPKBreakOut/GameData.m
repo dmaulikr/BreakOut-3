@@ -27,6 +27,7 @@
     self.balls   = [[NSMutableArray alloc] init];
     self.blocks  = [[NSMutableArray alloc] init];
     self.paddles = [[NSMutableArray alloc] init];
+    self.powerUps = [[NSMutableArray alloc] init];
 }
 
 

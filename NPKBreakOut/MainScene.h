@@ -14,6 +14,5 @@
 
 @interface MainScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate>
 
--(instancetype)initWithSize:(CGSize)size sprites:(NSArray *)sprites;
 
 @end
