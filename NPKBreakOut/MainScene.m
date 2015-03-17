@@ -64,29 +64,17 @@ static NSString * const pausedScreenName = @"pausedScreen";
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
         
         [self createContents];
+        [self startGameIsFirstTime:YES];
         
     }
     
     return self;
 }
 
--(void)startGame
+-(void)startGameIsFirstTime:(BOOL)isFirstTime
 {
     NSLog(@"start game");
-    
-    SKAction *pauseBalls = [SKAction runBlock:^{
-        NSLog(@"pause balls");
-        [self childNodeWithName:ballNodeNameSearch].paused = YES;
-        //just in case pause each ball individually
-        [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-            node.paused = YES;
-        }];
-    }];
-    
 
-    
-    //self.paused = NO;
-    
     SKLabelNode *timer = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
     timer.text         = @"3";
     timer.fontSize     = 40;
@@ -111,13 +99,19 @@ static NSString * const pausedScreenName = @"pausedScreen";
             timer.text = @"1";
             [timer runAction:runAnimation completion:^{
                 timer.text = @"GO!";
+                
+                self.physicsWorld.speed = 1.0;
+                self.isGamePlaying      = YES;
+                [self childNodeWithName:powerUpNodeNameSearch].paused = NO;
+                
+                if (isFirstTime) {
+                    [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*"
+                                                                                  usingBlock:^(SKNode *node, BOOL *stop) {
+                        [node.physicsBody applyImpulse:CGVectorMake(-10.0, 10.0)];
+                    }];
+                }
                 [timer runAction:runAnimation completion:^{
                     [timer removeFromParent];
-                    self.isGamePlaying = YES;
-                    [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-                        [node.physicsBody applyImpulse:CGVectorMake(-10.0, 10.0)];
-                        node.paused = NO;
-                    }];
                 }];
             }];
         }];
@@ -152,9 +146,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
     [pausedScreen addChild:saveLabel];
     [[self childNodeWithName:overlayNodeNameSearch] addChild:pausedScreen];
     
-    [self childNodeWithName:contentNodeNameSearch].paused = YES;
-    [self childNodeWithName:overlayNodeNameSearch].paused = YES;
-    
+    self.physicsWorld.speed = 0.0;
+    self.paused = YES;
     
 }
 
@@ -167,8 +160,10 @@ static NSString * const pausedScreenName = @"pausedScreen";
         SKNode *node = [self.physicsWorld bodyAtPoint:touchLocation].node;
         
         if ([node.name containsString:paddleName]) {
-            
-            [self.nodesPressedAtTouchBegins addObject:node];
+            NSLog(@"paddle touched");
+            if (!self.paused) {
+                [self.nodesPressedAtTouchBegins addObject:node];
+            }
             
         } else {
             node = [self nodeAtPoint:touchLocation];
@@ -178,29 +173,29 @@ static NSString * const pausedScreenName = @"pausedScreen";
         
         
         if ([node.name containsString:backgroundName]) {
-            NSLog(@"touched background pause game");
             [self pauseGame];
-            
         }
         
         if ([node.name containsString:continueLabelName]) {
             
             [[node parent] removeFromParent];
-            
+        
             NSLog(@"unpausing");
             
+            self.paused = NO;
+            [self childNodeWithName:powerUpNodeNameSearch].paused = YES;
+
             if (self.isGamePlaying) {
                 
                 NSLog(@"count down is over ~ run start game");
                 
                 self.isGamePlaying = NO;
-                [self startGame];
-
+                [self startGameIsFirstTime:NO];
 
             } else {
                 NSLog(@"countdown on screen ~ resume game");
                 // game is note playing
-                self.paused = NO;
+                self.physicsWorld.speed = 1.0;
                 
             }
         }
@@ -216,6 +211,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 {
     
     if (self.nodesPressedAtTouchBegins.count == 1) {
+        NSLog(@"moving paddle");
         
         CGPoint touchLocation = [[touches anyObject] locationInNode:self];
         CGPoint previousLocation = [[touches anyObject] previousLocationInNode:self];
@@ -304,7 +300,10 @@ static NSString * const pausedScreenName = @"pausedScreen";
     }
     
     if (firstBody.categoryBitMask == paddleCategory && secondBody.categoryBitMask == powerUpCategory) {
-        [secondBody.node removeFromParent];
+        PowerUpSprite *powerUp = (PowerUpSprite *)secondBody.node;
+        
+        [powerUp removeFromParent];
+        [[GameData sharedGameData].powerUps removeObject:powerUp];
         
         BallSprite *ball = (BallSprite *)[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:ballName];
         ball.currentSize = @"big";
@@ -328,6 +327,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
                 [self createPowerUpWithLocation:block.position];
             }
             [block removeFromParent];
+            [[GameData sharedGameData].blocks removeObject:block];
         }
         
         if ([self childNodeWithName:blockNodeNameSearch].children.count <= 0) {
@@ -429,8 +429,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
     else                                           [self createDefaultBall];
     
     if ([GameData sharedGameData] > 0) [self createPowerUpFromData];
-    
-    [self startGame];
     
 }
 
@@ -555,7 +553,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 -(void)createPowerUpFromData
 {
     for (PowerUpSprite *powerUp in [GameData sharedGameData].powerUps) {
-        [[self childNodeWithName:overlayNodeNameSearch] addChild:powerUp];
+        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
     }
 }
 
@@ -563,12 +561,12 @@ static NSString * const pausedScreenName = @"pausedScreen";
 {
     PowerUpSprite *powerUpSprite                  = [[PowerUpSprite alloc] initWithLocation:location
                                                                                        type:@"bigBall"
-                                                                                       name:@"powerUp"];
+                                                                                       name:powerUpName];
     powerUpSprite.physicsBody.categoryBitMask     = powerUpCategory;
     powerUpSprite.physicsBody.collisionBitMask    = paddleCategory | bottomCategory;
     powerUpSprite.physicsBody.contactTestBitMask  = paddleCategory | bottomCategory;
     
-    [[self childNodeWithName:contentNodeNameSearch] addChild:powerUpSprite];
+    [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUpSprite];
     [[GameData sharedGameData].powerUps addObject:powerUpSprite];
     
 }
