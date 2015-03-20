@@ -9,6 +9,13 @@
 #import "BlockSprite.h"
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
+static NSString * const currentSizeName  = @"currentSize";
+static NSString * const hitPointsName    = @"hitPoints";
+static NSString * const hasPowerUpName   = @"hasPowerUp";
+static NSString * const canBeEditedName  = @"canBeEdited";
+
+
+
 
 static double editPointRadius = 7.5;
 
@@ -43,6 +50,27 @@ static double editPointRadius = 7.5;
 
         [self updateSelf];
         
+    }
+    return self;
+}
+
+-(void)encodeWithCoder:(NSCoder *)aCoder
+{
+    //NSLog(@"saving block");
+    [aCoder encodeObject:self.currentSize forKey:currentSizeName];
+    [aCoder encodeInteger:self.hitPoints forKey:hitPointsName];
+    [aCoder encodeBool:self.hasPowerup forKey:hasPowerUpName];
+    [aCoder encodeBool:self.canBeEdited forKey:canBeEditedName];
+}
+
+-(instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder]) {
+        
+        self.currentSize = [aDecoder decodeObjectForKey:currentSizeName];
+        self.hitPoints   = [aDecoder decodeIntForKey:hitPointsName];
+        self.hasPowerup  = [aDecoder decodeBoolForKey:hasPowerUpName];
+        self.canBeEdited = [aDecoder decodeBoolForKey:canBeEditedName];
     }
     return self;
 }

@@ -10,18 +10,24 @@
 #import "MainScene.h"
 #import "EditGameScene.h"
 #import "GameData.h"
+#import "DataTableViewController.h"
+
+static NSString * const playLabelName = @"play";
+static NSString * const editLabelName   = @"edit";
+static NSString * const loadLabelName = @"load";
+static NSString * const reusableCellName = @"aCell";
 
 @implementation StartScene
 
 -(instancetype)initWithSize:(CGSize)size
 {
     if (self = [super initWithSize:size]) {
-        
+        NSLog(@"start start scene");
         self.backgroundColor = [SKColor blueColor];
 
         [self createSceneContents];
+        
 
-        [[GameData sharedGameData] reset];
     }
     
     return self;
@@ -33,6 +39,7 @@
     [self createTitle];
     [self createPlayButton];
     [self createEditButton];
+    [self createLoadButton];
     
     //[super view];
     
@@ -81,7 +88,7 @@
     SKLabelNode *playButton = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
     playButton.text = @"Play";
     playButton.fontSize = 32;
-    playButton.name = @"play";
+    playButton.name = playLabelName;
     playButton.position = CGPointMake(self.frame.size.width/4, self.frame.size.height * 0.3);
     playButton.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:playButton.frame.size];
     playButton.physicsBody.dynamic = NO;
@@ -95,7 +102,7 @@
     SKLabelNode *editButton = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
     editButton.text = @"Edit";
     editButton.fontSize = 32;
-    editButton.name = @"edit";
+    editButton.name = editLabelName;
     editButton.position = CGPointMake(self.frame.size.width * 0.75, self.frame.size.height * 0.3);
     editButton.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:editButton.frame.size];
     editButton.physicsBody.dynamic = NO;
@@ -103,21 +110,94 @@
     [self addChild:editButton];
 }
 
+
+-(void)createLoadButton
+{
+    SKLabelNode *playButton = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    playButton.text = @"Load";
+    playButton.fontSize = 32;
+    playButton.name = loadLabelName;
+    playButton.position = CGPointMake(self.frame.size.width/2, self.frame.size.height * 0.2);
+    playButton.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:playButton.frame.size];
+    playButton.physicsBody.dynamic = NO;
+    
+    [self  addChild:playButton];
+    
+}
+
+
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
-    SKPhysicsBody *body = [self.physicsWorld bodyAtPoint:[[touches anyObject] locationInNode:self]];
-    if (body && [body.node.name isEqualToString:@"title"]) {
-        
-    } else if (body && [body.node.name isEqualToString:@"play"]) {
-        NSLog(@"play");
+    SKNode *node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
+    NSLog(@"%@",node.name);
+    if ([node.name isEqualToString:playLabelName]) {
         MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size];
         [self.view presentScene:mainScene];
-    } else if (body && [body.node.name isEqualToString:@"edit"]) {
-        NSLog(@"Edit");
+    } else if ([node.name isEqualToString:editLabelName]) {
         EditGameScene *editScene = [[EditGameScene alloc] initWithSize:self.frame.size];
         [self.view presentScene:editScene];
+    } else if ([node.name isEqualToString:loadLabelName]) {
+        [self createTable];
+    } else if (node.name == Nil) {
+        NSLog(@"bacground");
+        for (UIView *view in self.view.subviews) {
+            if ([view isKindOfClass:[UITableView class]]) {
+                [view removeFromSuperview];
+            }
+            
+        }
+
     }
 }
+
+-(void)createTable
+{
+    
+    //DataTableViewController *dataController = [[UITableViewda]]
+    //self.view.window.rootViewController =
+    float scaleFactor = 0.75;
+    float tableWidth = self.frame.size.width*scaleFactor;
+    float tableHeight = self.frame.size.height*scaleFactor;
+    float tablePositionX = (self.frame.size.width * (1 - scaleFactor)/2);
+    float tablePositionY = (self.frame.size.height *(1-scaleFactor)/2);
+
+    UITableView *table = [[UITableView alloc] initWithFrame:
+                          CGRectMake(tablePositionX, tablePositionY, tableWidth, tableHeight)
+                                                      style:UITableViewStylePlain];
+    table.dataSource = self;
+    table.delegate = self;
+    table.layer.cornerRadius = 5;
+    table.layer.masksToBounds = YES;
+    self.tableView = table;
+
+    
+    [self.view addSubview:self.tableView];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 1;
+}
+
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:reusableCellName];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reusableCellName];
+    }
+    
+    [cell.textLabel setText:@"hello"];
+    
+    return  cell;
+}
+
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
 
 @end

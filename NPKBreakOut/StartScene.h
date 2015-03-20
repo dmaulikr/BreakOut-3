@@ -8,6 +8,8 @@
 
 #import <SpriteKit/SpriteKit.h>
 
-@interface StartScene : SKScene <UIGestureRecognizerDelegate>
+@interface StartScene : SKScene <UIGestureRecognizerDelegate, UITableViewDataSource, UITableViewDelegate>
+
+@property (retain, nonatomic) IBOutlet UITableView *tableView;
 
 @end

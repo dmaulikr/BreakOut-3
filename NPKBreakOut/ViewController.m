@@ -7,7 +7,8 @@
 //
 
 #import "ViewController.h"
-#import "StartScene.h"
+#import "GameView.h"
+
 
 @interface ViewController ()
 
@@ -19,19 +20,15 @@
 {
     [super viewDidLoad];
 
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:self];
     
-    SKView *mainView = [[SKView alloc] initWithFrame:self.view.frame];
-    mainView.showsDrawCount = YES;
-    mainView.showsNodeCount = YES;
-    mainView.showsFPS = YES;
-    mainView.ignoresSiblingOrder = YES;
+    
+
+    GameView *mainView = [[GameView alloc] initWithFrame:self.view.frame];
     
     [self.view addSubview:mainView];
     
-    
-    StartScene *startView = [[StartScene alloc] initWithSize:self.view.frame.size];
-    
-    [mainView presentScene:startView];
+
     
     
 }
@@ -41,5 +38,6 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
+
 
 @end

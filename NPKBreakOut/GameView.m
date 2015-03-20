@@ -7,15 +7,26 @@
 //
 
 #import "GameView.h"
+#import "StartScene.h"
 
 @implementation GameView
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
+-(instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.showsDrawCount = YES;
+        self.showsNodeCount = YES;
+        self.showsFPS = YES;
+        self.ignoresSiblingOrder = YES;
+        StartScene *startView = [[StartScene alloc] initWithSize:self.frame.size];
+        
+        [self presentScene:startView];
+        
+    }
+    return self;
 }
-*/
+
+
 
 @end

@@ -14,6 +14,7 @@
 #import "BallSprite.h"
 #import "Constants.h"
 #import "GameData.h"
+#import "StartScene.h"
 
 static const uint32_t ballCategory    = 0x1 << 0;
 static const uint32_t blockCategory   = 0x1 << 2;
@@ -70,350 +71,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
     return self;
 }
-
--(void)startGameIsFirstTime:(BOOL)isFirstTime
-{
-    NSLog(@"start game");
-
-    SKLabelNode *timer = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
-    timer.text         = @"3";
-    timer.fontSize     = 40;
-    timer.fontColor    = [UIColor blackColor];
-    timer.position     = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
-    
-    [[self childNodeWithName:overlayNodeNameSearch] addChild:timer];
-    
-    
-    SKAction *fadeIn       = [SKAction fadeInWithDuration:0.3];
-    SKAction *shrinkTiny   = [SKAction scaleTo:0.01 duration:0.0];
-    SKAction *growToNormal = [SKAction scaleTo:1 duration:0.3];
-    SKAction *fadeOut      = [SKAction fadeOutWithDuration:0.7];
-    
-    SKAction *growFadeIn    = [SKAction group:@[fadeIn, growToNormal]];
-    SKAction *fadeOutShrink = [SKAction sequence:@[fadeOut, shrinkTiny]];
-    SKAction *runAnimation  = [SKAction sequence:@[growFadeIn, fadeOutShrink]];
-    
-    [timer runAction:runAnimation completion:^{
-        timer.text = @"2";
-        [timer runAction:runAnimation completion:^{
-            timer.text = @"1";
-            [timer runAction:runAnimation completion:^{
-                timer.text = @"GO!";
-                
-                self.physicsWorld.speed = 1.0;
-                self.isGamePlaying      = YES;
-                [self childNodeWithName:powerUpNodeNameSearch].paused = NO;
-                
-                if (isFirstTime) {
-                    [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*"
-                                                                                  usingBlock:^(SKNode *node, BOOL *stop) {
-                        [node.physicsBody applyImpulse:CGVectorMake(-10.0, 10.0)];
-                    }];
-                }
-                [timer runAction:runAnimation completion:^{
-                    [timer removeFromParent];
-                }];
-            }];
-        }];
-    }];
-    
-}
-
--(void)pauseGame
-{
-    
-    NSLog(@"pausing");
-    
-    SKSpriteNode *pausedScreen     = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:self.frame.size];
-    pausedScreen.anchorPoint    = CGPointZero;
-    pausedScreen.alpha          = 0.5;
-    pausedScreen.name           = pausedScreenName;
-    
-    SKLabelNode *saveLabel = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
-    saveLabel.text = @"Save And Quit";
-    saveLabel.fontSize = 30;
-    saveLabel.position = CGPointMake(self.frame.size.width/2, self.frame.size.height/5);
-    saveLabel.name = saveAndQuitLabelName;
-    
-    SKLabelNode *continueLabel = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
-    continueLabel.text = @"Continue";
-    continueLabel.fontSize = 30;
-    continueLabel.position = CGPointMake(self.frame.size.width/2, self.frame.size.height/8);
-    continueLabel.name = continueLabelName;
-    
-    
-    [pausedScreen addChild:continueLabel];
-    [pausedScreen addChild:saveLabel];
-    [[self childNodeWithName:overlayNodeNameSearch] addChild:pausedScreen];
-    
-    self.physicsWorld.speed = 0.0;
-    self.paused = YES;
-    
-}
-
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-
-    for (UITouch *touch in touches) {
-        
-        CGPoint touchLocation = [touch locationInNode:self];
-        SKNode *node = [self.physicsWorld bodyAtPoint:touchLocation].node;
-        
-        if ([node.name containsString:paddleName]) {
-            NSLog(@"paddle touched");
-            if (!self.paused) {
-                [self.nodesPressedAtTouchBegins addObject:node];
-            }
-            
-        } else {
-            node = [self nodeAtPoint:touchLocation];
-        }
-        
-        NSLog(@"node at pressed begins %@", node.name);
-        
-        
-        if ([node.name containsString:backgroundName]) {
-            [self pauseGame];
-        }
-        
-        if ([node.name containsString:continueLabelName]) {
-            
-            [[node parent] removeFromParent];
-        
-            NSLog(@"unpausing");
-            
-            self.paused = NO;
-            [self childNodeWithName:powerUpNodeNameSearch].paused = YES;
-
-            if (self.isGamePlaying) {
-                
-                NSLog(@"count down is over ~ run start game");
-                
-                self.isGamePlaying = NO;
-                [self startGameIsFirstTime:NO];
-
-            } else {
-                NSLog(@"countdown on screen ~ resume game");
-                // game is note playing
-                self.physicsWorld.speed = 1.0;
-                
-            }
-        }
-
-
-
-    
-   
-    }
-    
-}
--(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    
-    if (self.nodesPressedAtTouchBegins.count == 1) {
-        NSLog(@"moving paddle");
-        
-        CGPoint touchLocation = [[touches anyObject] locationInNode:self];
-        CGPoint previousLocation = [[touches anyObject] previousLocationInNode:self];
-        
-        //NSLog(@"more then 0 ");
-        SKNode *firstNodePressed = [self.nodesPressedAtTouchBegins firstObject];
-
-        int paddleX = firstNodePressed.position.x + (touchLocation.x - previousLocation.x);
-        
-        paddleX = MAX(paddleX, firstNodePressed.frame.size.width/2);
-        paddleX = MIN(paddleX, self.size.width - firstNodePressed.frame.size.width/2);
-        
-        firstNodePressed.position = CGPointMake(paddleX, firstNodePressed.position.y);
-
-    } else if (self.nodesPressedAtTouchBegins.count == 2) {
-        NSLog(@"more then one pressed");
-        
-        for (UITouch *touch in touches) {
-            CGPoint touchLocation = [touch locationInNode:self];
-            CGPoint previousLocation = [touch previousLocationInNode:self];
-            SKNode *nodeTouched = [self nodeAtPoint:touchLocation];
-            //NSLog(@"node touched %@",nodeTouched.name);
-            
-            for (SKNode *touchBeginsNode in self.nodesPressedAtTouchBegins) {
-                NSLog(@"node touched at begin %@ node touched %@",touchBeginsNode.name, nodeTouched.name);
-
-                if ([nodeTouched.name isEqualToString:touchBeginsNode.name]) {
-                    int paddleX              = touchBeginsNode.position.x + (touchLocation.x - previousLocation.x);
-                    
-                    paddleX = MAX(paddleX, touchBeginsNode.frame.size.width/2);
-                    paddleX = MIN(paddleX, self.size.width - touchBeginsNode.frame.size.width/2);
-                    
-                    touchBeginsNode.position = CGPointMake(paddleX, touchBeginsNode.position.y);
-                    
-                }
-            }
-        }
-    }
-    //NSMutableArray *nodesPressedAtTouchBegins = self.nodesPressedAtTouchBegins;
-    //SKNode *node = nodesPressedAtTouchBegins[0];
-    
-    
-    /*
-    if ([node.name containsString:paddleName]) {
-
-        PaddleSprite *paddle     = (PaddleSprite *) self.nodesPressedAtTouchBegins;
-        int paddleX              = paddle.position.x + (touchLocation.x - previousLocation.x);
-        
-        paddleX = MAX(paddleX, paddle.size.width/2);
-        paddleX = MIN(paddleX, self.size.width - paddle.size.width/2);
-        
-        paddle.position = CGPointMake(paddleX, paddle.position.y);
-    } */
-}
-
--(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    self.nodesPressedAtTouchBegins = [[NSMutableArray alloc] init];
-    
-}
-
--(void)didBeginContact:(SKPhysicsContact *)contact
-{
-    SKPhysicsBody *firstBody;
-    SKPhysicsBody *secondBody;
-    
-    if (contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask)
-    {
-        firstBody  = contact.bodyA;
-        secondBody = contact.bodyB;
-    } else
-    {
-        firstBody  = contact.bodyB;
-        secondBody = contact.bodyA;
-    }
-    
-    if (firstBody.categoryBitMask == ballCategory && secondBody.categoryBitMask == bottomCategory)
-    {
-        GameOverScene *gameOverScene = [[GameOverScene alloc] initWithSize:self.frame.size playerWon:NO];
-        
-        //[self.view presentScene:gameOverScene];
-    }
-    
-    if (firstBody.categoryBitMask == bottomCategory && secondBody.categoryBitMask == powerUpCategory) {
-        [secondBody.node removeFromParent];
-    }
-    
-    if (firstBody.categoryBitMask == paddleCategory && secondBody.categoryBitMask == powerUpCategory) {
-        PowerUpSprite *powerUp = (PowerUpSprite *)secondBody.node;
-        
-        [powerUp removeFromParent];
-        [[GameData sharedGameData].powerUps removeObject:powerUp];
-        
-        BallSprite *ball = (BallSprite *)[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:ballName];
-        ball.currentSize = @"big";
-        
-        [ball updateSelf];
-    }
-    
-    
-    if (firstBody.categoryBitMask == ballCategory && secondBody.categoryBitMask == blockCategory) {
-        
-        BlockSprite *block = (BlockSprite *)secondBody.node;
-        
-        if (block.hitPoints == 3) {
-            block.hitPoints--;
-            [block updateSelf];
-        }else if (block.hitPoints == 2) {
-            block.hitPoints--;
-            [block updateSelf];
-        } else if (block.hitPoints == 1) {
-            if (block.hasPowerup) {
-                [self createPowerUpWithLocation:block.position];
-            }
-            [block removeFromParent];
-            [[GameData sharedGameData].blocks removeObject:block];
-        }
-        
-        if ([self childNodeWithName:blockNodeNameSearch].children.count <= 0) {
-            GameOverScene *gameWonScene = [[GameOverScene alloc]
-                                           initWithSize:self.frame.size playerWon:YES];
-            [self.view presentScene:gameWonScene];
-        }
-    }
-}
-
--(void)didChangeSize:(CGSize)oldSize
-{
-    NSLog(@"changed size adjust scene");
-    
-}
-
--(void)update:(NSTimeInterval)currentTime
-{
-    SKNode *ball = [[self childNodeWithName:ballNodeNameSearch] childNodeWithName:ballName];
-    static int maxSpeed = 1000;
-    float speed = sqrt(ball.physicsBody.velocity.dx * ball.physicsBody.velocity.dx +
-                       ball.physicsBody.velocity.dy * ball.physicsBody.velocity.dy);
-    
-    if (abs(ball.physicsBody.velocity.dx) < 60 && self.isGamePlaying) {
-        //NSLog(@"x is slow %f", ball.physicsBody.velocity.dx);
-        
-        [ball.physicsBody applyImpulse:CGVectorMake(3, 0)];
-        //NSLog(@"x speed increease %f", ball.physicsBody.velocity.dx * .001);
-        
-    }
-    
-    if (abs(ball.physicsBody.velocity.dy) < 75 && self.isGamePlaying) {
-        //NSLog(@"y is slow %f", ball.physicsBody.velocity.dy);
-        
-        [ball.physicsBody applyImpulse:CGVectorMake(0, 3)];
-        //NSLog(@"y speed increease %f", ball.physicsBody.velocity.dy * .001);
-        
-    }
-    
-    if(speed > maxSpeed)
-    {
-        ball.physicsBody.linearDamping = 0.4;
-    } else
-    {
-        ball.physicsBody.linearDamping = 0.0;
-    }
-}
-
-
-
--(NSString*)nameBlock
-{
-    int count = (int)[self childNodeWithName:blockNodeNameSearch].children.count;
-    if (count <= 0) {
-        count = 1;
-    }
-    return [NSString stringWithFormat:@"block%d",count];
-    
-}
-
--(NSMutableArray *)selectRandomBlocksWithAmount:(int)amount
-{
-    NSMutableArray *tempNumbers = [[NSMutableArray alloc] init];
-    if (amount) {
-        
-        int randomNumber;
-        
-        NSMutableArray *remainingNumbers = [NSMutableArray array];
-        for (int i = 1; i <= 4; i++) {
-            [remainingNumbers addObject:[NSNumber numberWithInt:i]];
-        }
-        
-        for (int i = 0; i < amount; i++) {
-            float maxIndex = [remainingNumbers count];
-            randomNumber = arc4random_uniform(maxIndex);
-            
-            [tempNumbers addObject:[remainingNumbers objectAtIndex:randomNumber]];
-            [remainingNumbers removeObjectAtIndex:randomNumber];
-        }
-    }
-    
-    return tempNumbers;
-    
-}
-
-
 -(void)createContents
 {
     
@@ -570,6 +227,361 @@ static NSString * const pausedScreenName = @"pausedScreen";
     [[GameData sharedGameData].powerUps addObject:powerUpSprite];
     
 }
+
+
+-(void)startGameIsFirstTime:(BOOL)isFirstTime
+{
+    NSLog(@"start game");
+
+    SKLabelNode *timer = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    timer.text         = @"3";
+    timer.fontSize     = 40;
+    timer.fontColor    = [UIColor blackColor];
+    timer.position     = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
+    
+    [[self childNodeWithName:overlayNodeNameSearch] addChild:timer];
+    
+    
+    SKAction *fadeIn       = [SKAction fadeInWithDuration:0.3];
+    SKAction *shrinkTiny   = [SKAction scaleTo:0.01 duration:0.0];
+    SKAction *growToNormal = [SKAction scaleTo:1 duration:0.3];
+    SKAction *fadeOut      = [SKAction fadeOutWithDuration:0.7];
+    
+    SKAction *growFadeIn    = [SKAction group:@[fadeIn, growToNormal]];
+    SKAction *fadeOutShrink = [SKAction sequence:@[fadeOut, shrinkTiny]];
+    SKAction *runAnimation  = [SKAction sequence:@[growFadeIn, fadeOutShrink]];
+    
+    [timer runAction:runAnimation completion:^{
+        timer.text = @"2";
+        [timer runAction:runAnimation completion:^{
+            timer.text = @"1";
+            [timer runAction:runAnimation completion:^{
+                timer.text = @"GO!";
+                
+                self.physicsWorld.speed = 1.0;
+                self.isGamePlaying      = YES;
+                [self childNodeWithName:powerUpNodeNameSearch].paused = NO;
+                
+                if (isFirstTime) {
+                    [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*"
+                                                                                  usingBlock:^(SKNode *node, BOOL *stop) {
+                        [node.physicsBody applyImpulse:CGVectorMake(-10.0, 10.0)];
+                    }];
+                }
+                [[GameData sharedGameData] save];
+                [timer runAction:runAnimation completion:^{
+                    [timer removeFromParent];
+                }];
+            }];
+        }];
+    }];
+    
+}
+
+-(void)pauseGame
+{
+    
+    NSLog(@"pausing");
+    
+    SKSpriteNode *pausedScreen     = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:self.frame.size];
+    pausedScreen.anchorPoint    = CGPointZero;
+    pausedScreen.alpha          = 0.5;
+    pausedScreen.name           = pausedScreenName;
+    
+    SKLabelNode *saveLabel = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    saveLabel.text = @"Save And Quit";
+    saveLabel.fontSize = 30;
+    saveLabel.position = CGPointMake(self.frame.size.width/2, self.frame.size.height/5);
+    saveLabel.name = saveAndQuitLabelName;
+    
+    SKLabelNode *continueLabel = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    continueLabel.text = @"Continue";
+    continueLabel.fontSize = 30;
+    continueLabel.position = CGPointMake(self.frame.size.width/2, self.frame.size.height/8);
+    continueLabel.name = continueLabelName;
+    
+    
+    [pausedScreen addChild:continueLabel];
+    [pausedScreen addChild:saveLabel];
+    [[self childNodeWithName:overlayNodeNameSearch] addChild:pausedScreen];
+    
+    self.physicsWorld.speed = 0.0;
+    self.paused = YES;
+    
+}
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+
+    for (UITouch *touch in touches) {
+        
+        CGPoint touchLocation = [touch locationInNode:self];
+        SKNode *node = [self.physicsWorld bodyAtPoint:touchLocation].node;
+        
+        if ([node.name containsString:paddleName]) {
+            NSLog(@"paddle touched");
+            if (!self.paused) {
+                [self.nodesPressedAtTouchBegins addObject:node];
+            }
+            
+        } else {
+            node = [self nodeAtPoint:touchLocation];
+        }
+        
+        NSLog(@"node at pressed begins %@", node.name);
+        
+        
+        if ([node.name containsString:backgroundName]) {
+            [self pauseGame];
+        }
+        
+        if ([node.name containsString:continueLabelName]) {
+            
+            [[node parent] removeFromParent];
+        
+            NSLog(@"unpausing");
+            
+            self.paused = NO;
+            [self childNodeWithName:powerUpNodeNameSearch].paused = YES;
+
+            if (self.isGamePlaying) {
+                
+                NSLog(@"count down is over ~ run start game");
+                
+                self.isGamePlaying = NO;
+                [self startGameIsFirstTime:NO];
+
+            } else {
+                NSLog(@"countdown on screen ~ resume game");
+                // game is note playing
+                self.physicsWorld.speed = 1.0;
+                
+            }
+        }
+
+
+        if ([node.name isEqualToString:saveAndQuitLabelName]) {
+            NSLog(@"save and quit");
+            [self  removeAllChildren];
+            [[GameData sharedGameData] save];
+            StartScene *startScene = [[StartScene alloc] initWithSize:self.size];
+            [self.view presentScene:startScene];
+            
+        }
+
+    
+   
+    }
+    
+}
+-(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    
+    if (self.nodesPressedAtTouchBegins.count == 1) {
+        NSLog(@"moving paddle");
+        
+        CGPoint touchLocation = [[touches anyObject] locationInNode:self];
+        CGPoint previousLocation = [[touches anyObject] previousLocationInNode:self];
+        
+        //NSLog(@"more then 0 ");
+        SKNode *firstNodePressed = [self.nodesPressedAtTouchBegins firstObject];
+
+        int paddleX = firstNodePressed.position.x + (touchLocation.x - previousLocation.x);
+        
+        paddleX = MAX(paddleX, firstNodePressed.frame.size.width/2);
+        paddleX = MIN(paddleX, self.size.width - firstNodePressed.frame.size.width/2);
+        
+        firstNodePressed.position = CGPointMake(paddleX, firstNodePressed.position.y);
+
+    } else if (self.nodesPressedAtTouchBegins.count == 2) {
+        NSLog(@"more then one pressed");
+        
+        for (UITouch *touch in touches) {
+            CGPoint touchLocation = [touch locationInNode:self];
+            CGPoint previousLocation = [touch previousLocationInNode:self];
+            SKNode *nodeTouched = [self nodeAtPoint:touchLocation];
+            //NSLog(@"node touched %@",nodeTouched.name);
+            
+            for (SKNode *touchBeginsNode in self.nodesPressedAtTouchBegins) {
+                NSLog(@"node touched at begin %@ node touched %@",touchBeginsNode.name, nodeTouched.name);
+
+                if ([nodeTouched.name isEqualToString:touchBeginsNode.name]) {
+                    int paddleX              = touchBeginsNode.position.x + (touchLocation.x - previousLocation.x);
+                    
+                    paddleX = MAX(paddleX, touchBeginsNode.frame.size.width/2);
+                    paddleX = MIN(paddleX, self.size.width - touchBeginsNode.frame.size.width/2);
+                    
+                    touchBeginsNode.position = CGPointMake(paddleX, touchBeginsNode.position.y);
+                    
+                }
+            }
+        }
+    }
+    //NSMutableArray *nodesPressedAtTouchBegins = self.nodesPressedAtTouchBegins;
+    //SKNode *node = nodesPressedAtTouchBegins[0];
+    
+    
+    /*
+    if ([node.name containsString:paddleName]) {
+
+        PaddleSprite *paddle     = (PaddleSprite *) self.nodesPressedAtTouchBegins;
+        int paddleX              = paddle.position.x + (touchLocation.x - previousLocation.x);
+        
+        paddleX = MAX(paddleX, paddle.size.width/2);
+        paddleX = MIN(paddleX, self.size.width - paddle.size.width/2);
+        
+        paddle.position = CGPointMake(paddleX, paddle.position.y);
+    } */
+}
+
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    self.nodesPressedAtTouchBegins = [[NSMutableArray alloc] init];
+    
+}
+
+-(void)didBeginContact:(SKPhysicsContact *)contact
+{
+    SKPhysicsBody *firstBody;
+    SKPhysicsBody *secondBody;
+    
+    if (contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask)
+    {
+        firstBody  = contact.bodyA;
+        secondBody = contact.bodyB;
+    } else
+    {
+        firstBody  = contact.bodyB;
+        secondBody = contact.bodyA;
+    }
+    
+    if (firstBody.categoryBitMask == ballCategory && secondBody.categoryBitMask == bottomCategory)
+    {
+        GameOverScene *gameOverScene = [[GameOverScene alloc] initWithSize:self.frame.size playerWon:NO];
+        
+        //[self.view presentScene:gameOverScene];
+    }
+    
+    if (firstBody.categoryBitMask == bottomCategory && secondBody.categoryBitMask == powerUpCategory) {
+        [secondBody.node removeFromParent];
+    }
+    
+    if (firstBody.categoryBitMask == paddleCategory && secondBody.categoryBitMask == powerUpCategory) {
+        PowerUpSprite *powerUp = (PowerUpSprite *)secondBody.node;
+        
+        [powerUp removeFromParent];
+        [[GameData sharedGameData].powerUps removeObject:powerUp];
+        
+        BallSprite *ball = (BallSprite *)[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:ballName];
+        ball.currentSize = @"big";
+        
+        [ball updateSelf];
+    }
+    
+    
+    if (firstBody.categoryBitMask == ballCategory && secondBody.categoryBitMask == blockCategory) {
+        
+        BlockSprite *block = (BlockSprite *)secondBody.node;
+        
+        if (block.hitPoints == 3) {
+            block.hitPoints--;
+            [block updateSelf];
+        }else if (block.hitPoints == 2) {
+            block.hitPoints--;
+            [block updateSelf];
+        } else if (block.hitPoints == 1) {
+            if (block.hasPowerup) {
+                [self createPowerUpWithLocation:block.position];
+            }
+            [block removeFromParent];
+            [[GameData sharedGameData].blocks removeObject:block];
+        }
+        
+        if ([self childNodeWithName:blockNodeNameSearch].children.count <= 0) {
+            GameOverScene *gameWonScene = [[GameOverScene alloc]
+                                           initWithSize:self.frame.size playerWon:YES];
+            [self.view presentScene:gameWonScene];
+        }
+        
+    }
+}
+
+-(void)didChangeSize:(CGSize)oldSize
+{
+    //NSLog(@"changed size adjust scene");
+    
+}
+
+-(void)update:(NSTimeInterval)currentTime
+{
+    SKNode *ball = [[self childNodeWithName:ballNodeNameSearch] childNodeWithName:ballName];
+    static int maxSpeed = 1000;
+    float speed = sqrt(ball.physicsBody.velocity.dx * ball.physicsBody.velocity.dx +
+                       ball.physicsBody.velocity.dy * ball.physicsBody.velocity.dy);
+    
+    if (abs(ball.physicsBody.velocity.dx) < 60 && self.isGamePlaying) {
+        //NSLog(@"x is slow %f", ball.physicsBody.velocity.dx);
+        
+        [ball.physicsBody applyImpulse:CGVectorMake(3, 0)];
+        //NSLog(@"x speed increease %f", ball.physicsBody.velocity.dx * .001);
+        
+    }
+    
+    if (abs(ball.physicsBody.velocity.dy) < 75 && self.isGamePlaying) {
+        //NSLog(@"y is slow %f", ball.physicsBody.velocity.dy);
+        
+        [ball.physicsBody applyImpulse:CGVectorMake(0, 3)];
+        //NSLog(@"y speed increease %f", ball.physicsBody.velocity.dy * .001);
+        
+    }
+    
+    if(speed > maxSpeed)
+    {
+        ball.physicsBody.linearDamping = 0.4;
+    } else
+    {
+        ball.physicsBody.linearDamping = 0.0;
+    }
+}
+
+
+
+-(NSString*)nameBlock
+{
+    int count = (int)[self childNodeWithName:blockNodeNameSearch].children.count;
+    if (count <= 0) {
+        count = 1;
+    }
+    return [NSString stringWithFormat:@"block%d",count];
+    
+}
+
+-(NSMutableArray *)selectRandomBlocksWithAmount:(int)amount
+{
+    NSMutableArray *tempNumbers = [[NSMutableArray alloc] init];
+    if (amount) {
+        
+        int randomNumber;
+        
+        NSMutableArray *remainingNumbers = [NSMutableArray array];
+        for (int i = 1; i <= 4; i++) {
+            [remainingNumbers addObject:[NSNumber numberWithInt:i]];
+        }
+        
+        for (int i = 0; i < amount; i++) {
+            float maxIndex = [remainingNumbers count];
+            randomNumber = arc4random_uniform(maxIndex);
+            
+            [tempNumbers addObject:[remainingNumbers objectAtIndex:randomNumber]];
+            [remainingNumbers removeObjectAtIndex:randomNumber];
+        }
+    }
+    
+    return tempNumbers;
+    
+}
+
+
 
     
 @end

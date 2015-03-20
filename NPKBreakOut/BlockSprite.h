@@ -9,7 +9,7 @@
 #import "GamePiece.h"
 #import <UIKit/UIKit.h>
 
-@interface BlockSprite : GamePiece
+@interface BlockSprite : GamePiece <NSCoding>
 
 @property (nonatomic) int hitPoints;
 @property (nonatomic) BOOL hasPowerup;

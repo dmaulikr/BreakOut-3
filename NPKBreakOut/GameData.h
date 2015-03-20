@@ -8,7 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-@interface GameData : NSObject
+
+@interface GameData : NSObject <NSCoding>
 
 @property (nonatomic) NSMutableArray *blocks;
 @property (nonatomic) NSMutableArray *paddles;
@@ -17,6 +18,8 @@
 
 +(instancetype)sharedGameData;
 -(void)reset;
+-(void)save;
++(instancetype)loadInstance;
 
 
 @end
