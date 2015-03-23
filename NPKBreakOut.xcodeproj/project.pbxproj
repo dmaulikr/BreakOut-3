@@ -10,6 +10,7 @@
 		500D6B5D1ABCC52700628A95 /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B5C1ABCC52700628A95 /* GameView.m */; };
 		500D6B631AC0957D00628A95 /* DataTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B621AC0957D00628A95 /* DataTableView.m */; };
 		500D6B661AC09D2200628A95 /* DataView.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B651AC09D2200628A95 /* DataView.m */; };
+		500D6B691AC0B19C00628A95 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B681AC0B19C00628A95 /* ViewController.m */; };
 		5058D6A81A9BDF1D00025597 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 5058D6A71A9BDF1D00025597 /* Constants.m */; };
 		5058D6AA1A9BE41F00025597 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5058D6A91A9BE41E00025597 /* CloudKit.framework */; };
 		5058D6AD1A9C240D00025597 /* GameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 5058D6AC1A9C240D00025597 /* GameScene.m */; };
@@ -61,6 +62,8 @@
 		500D6B621AC0957D00628A95 /* DataTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataTableView.m; sourceTree = "<group>"; };
 		500D6B641AC09D2200628A95 /* DataView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataView.h; sourceTree = "<group>"; };
 		500D6B651AC09D2200628A95 /* DataView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataView.m; sourceTree = "<group>"; };
+		500D6B671AC0B19C00628A95 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		500D6B681AC0B19C00628A95 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		5058D6A61A9BDEEB00025597 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		5058D6A71A9BDF1D00025597 /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 		5058D6A91A9BE41E00025597 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
@@ -155,6 +158,8 @@
 			children = (
 				50813E6D1A648F8000FCB418 /* AppDelegate.h */,
 				50813E6E1A648F8000FCB418 /* AppDelegate.m */,
+				500D6B671AC0B19C00628A95 /* ViewController.h */,
+				500D6B681AC0B19C00628A95 /* ViewController.m */,
 				5058D6A61A9BDEEB00025597 /* Constants.h */,
 				5058D6A71A9BDF1D00025597 /* Constants.m */,
 				500D6B5B1ABCC52700628A95 /* GameView.h */,
@@ -352,6 +357,7 @@
 				500D6B661AC09D2200628A95 /* DataView.m in Sources */,
 				500D6B5D1ABCC52700628A95 /* GameView.m in Sources */,
 				5058D6AD1A9C240D00025597 /* GameScene.m in Sources */,
+				500D6B691AC0B19C00628A95 /* ViewController.m in Sources */,
 				500D6B631AC0957D00628A95 /* DataTableView.m in Sources */,
 				50813EDC1A7094D800FCB418 /* PowerUpSprite.m in Sources */,
 				5058D6B91A9D387A00025597 /* EditGameScene.m in Sources */,
