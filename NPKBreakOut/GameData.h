@@ -15,11 +15,12 @@
 @property (nonatomic) NSMutableArray *paddles;
 @property (nonatomic) NSMutableArray *balls;
 @property (nonatomic) NSMutableArray *powerUps;
+@property (nonatomic) NSString *saveFileName;
 
 +(instancetype)sharedGameData;
 -(void)reset;
--(void)save;
-+(instancetype)loadInstance;
-
+-(void)resaveGameData;
+-(void)saveWithFileName:(NSString *)fileName;
+-(id)initWithFileName:(NSString *)fileName;
 
 @end

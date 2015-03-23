@@ -17,6 +17,8 @@ extern NSString * const backgroundName;
 extern NSString * const bottomOptionsName;
 extern NSString * const rightOptionsName;
 
+extern NSString * const saveFileDirectory;
+
 extern NSString * const mainNodeName;
 extern NSString * const overlayNodeName;
 extern NSString * const backgroundNodeName;

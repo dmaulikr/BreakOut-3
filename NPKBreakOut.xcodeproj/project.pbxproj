@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		500D6B5A1ABCBE0D00628A95 /* DataTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B591ABCBE0D00628A95 /* DataTableViewController.m */; };
 		500D6B5D1ABCC52700628A95 /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B5C1ABCC52700628A95 /* GameView.m */; };
+		500D6B631AC0957D00628A95 /* DataTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B621AC0957D00628A95 /* DataTableView.m */; };
+		500D6B661AC09D2200628A95 /* DataView.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B651AC09D2200628A95 /* DataView.m */; };
 		5058D6A81A9BDF1D00025597 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 5058D6A71A9BDF1D00025597 /* Constants.m */; };
 		5058D6AA1A9BE41F00025597 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5058D6A91A9BE41E00025597 /* CloudKit.framework */; };
 		5058D6AD1A9C240D00025597 /* GameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 5058D6AC1A9C240D00025597 /* GameScene.m */; };
@@ -21,7 +22,6 @@
 		50813E6C1A648F8000FCB418 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813E6B1A648F8000FCB418 /* main.m */; };
 		50813E6F1A648F8000FCB418 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813E6E1A648F8000FCB418 /* AppDelegate.m */; };
 		50813E721A648F8000FCB418 /* NPKBreakOut.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 50813E701A648F8000FCB418 /* NPKBreakOut.xcdatamodeld */; };
-		50813E751A648F8000FCB418 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813E741A648F8000FCB418 /* ViewController.m */; };
 		50813E781A648F8000FCB418 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 50813E761A648F8000FCB418 /* Main.storyboard */; };
 		50813E7A1A648F8000FCB418 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 50813E791A648F8000FCB418 /* Images.xcassets */; };
 		50813E7D1A648F8000FCB418 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 50813E7B1A648F8000FCB418 /* LaunchScreen.xib */; };
@@ -55,10 +55,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		500D6B581ABCBE0D00628A95 /* DataTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataTableViewController.h; sourceTree = "<group>"; };
-		500D6B591ABCBE0D00628A95 /* DataTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataTableViewController.m; sourceTree = "<group>"; };
 		500D6B5B1ABCC52700628A95 /* GameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
 		500D6B5C1ABCC52700628A95 /* GameView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
+		500D6B611AC0957D00628A95 /* DataTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataTableView.h; sourceTree = "<group>"; };
+		500D6B621AC0957D00628A95 /* DataTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataTableView.m; sourceTree = "<group>"; };
+		500D6B641AC09D2200628A95 /* DataView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataView.h; sourceTree = "<group>"; };
+		500D6B651AC09D2200628A95 /* DataView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataView.m; sourceTree = "<group>"; };
 		5058D6A61A9BDEEB00025597 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		5058D6A71A9BDF1D00025597 /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 		5058D6A91A9BE41E00025597 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
@@ -78,8 +80,6 @@
 		50813E6D1A648F8000FCB418 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		50813E6E1A648F8000FCB418 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		50813E711A648F8000FCB418 /* NPKBreakOut.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NPKBreakOut.xcdatamodel; sourceTree = "<group>"; };
-		50813E731A648F8000FCB418 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		50813E741A648F8000FCB418 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		50813E771A648F8000FCB418 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		50813E791A648F8000FCB418 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		50813E7C1A648F8000FCB418 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -157,8 +157,6 @@
 				50813E6E1A648F8000FCB418 /* AppDelegate.m */,
 				5058D6A61A9BDEEB00025597 /* Constants.h */,
 				5058D6A71A9BDF1D00025597 /* Constants.m */,
-				50813E731A648F8000FCB418 /* ViewController.h */,
-				50813E741A648F8000FCB418 /* ViewController.m */,
 				500D6B5B1ABCC52700628A95 /* GameView.h */,
 				500D6B5C1ABCC52700628A95 /* GameView.m */,
 				5058D6AB1A9C240D00025597 /* GameScene.h */,
@@ -169,10 +167,12 @@
 				50813ECC1A707B6700FCB418 /* GamePiece.m */,
 				50813EE51A7841A300FCB418 /* StartScene.h */,
 				50813EE61A7841A300FCB418 /* StartScene.m */,
+				500D6B611AC0957D00628A95 /* DataTableView.h */,
+				500D6B621AC0957D00628A95 /* DataTableView.m */,
+				500D6B641AC09D2200628A95 /* DataView.h */,
+				500D6B651AC09D2200628A95 /* DataView.m */,
 				5058D6AE1A9C249400025597 /* MainScene.h */,
 				5058D6AF1A9C249400025597 /* MainScene.m */,
-				500D6B581ABCBE0D00628A95 /* DataTableViewController.h */,
-				500D6B591ABCBE0D00628A95 /* DataTableViewController.m */,
 				5058D6B71A9D387A00025597 /* EditGameScene.h */,
 				5058D6B81A9D387A00025597 /* EditGameScene.m */,
 				50813E9D1A6B0F4600FCB418 /* GameOverScene.h */,
@@ -349,11 +349,11 @@
 				50813ED61A70883D00FCB418 /* PaddleSprite.m in Sources */,
 				50813E721A648F8000FCB418 /* NPKBreakOut.xcdatamodeld in Sources */,
 				5058D6A81A9BDF1D00025597 /* Constants.m in Sources */,
-				50813E751A648F8000FCB418 /* ViewController.m in Sources */,
+				500D6B661AC09D2200628A95 /* DataView.m in Sources */,
 				500D6B5D1ABCC52700628A95 /* GameView.m in Sources */,
 				5058D6AD1A9C240D00025597 /* GameScene.m in Sources */,
+				500D6B631AC0957D00628A95 /* DataTableView.m in Sources */,
 				50813EDC1A7094D800FCB418 /* PowerUpSprite.m in Sources */,
-				500D6B5A1ABCBE0D00628A95 /* DataTableViewController.m in Sources */,
 				5058D6B91A9D387A00025597 /* EditGameScene.m in Sources */,
 				50DAFBA41AAF9D0A00912F7C /* GameData.m in Sources */,
 				5058D6B01A9C249400025597 /* MainScene.m in Sources */,

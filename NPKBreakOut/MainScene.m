@@ -63,9 +63,18 @@ static NSString * const pausedScreenName = @"pausedScreen";
         
         [[self childNodeWithName:overlayNodeNameSearch] addChild:bottom];
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
+    
         
         [self createContents];
         [self startGameIsFirstTime:YES];
+        
+        if ([[GameData sharedGameData].saveFileName isEqualToString:@""]) {
+            NSLog(@"starting main scene there is no saveFileName");
+            NSDate *now = [NSDate date];
+            [GameData sharedGameData].saveFileName = [now description];
+            [[GameData sharedGameData] saveWithFileName:[GameData sharedGameData].saveFileName];
+        }
+
         
     }
     
@@ -268,7 +277,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
                         [node.physicsBody applyImpulse:CGVectorMake(-10.0, 10.0)];
                     }];
                 }
-                [[GameData sharedGameData] save];
+                NSDate *date = [NSDate date];
+                [[GameData sharedGameData] saveWithFileName:[date description]];
                 [timer runAction:runAnimation completion:^{
                     [timer removeFromParent];
                 }];
@@ -361,9 +371,9 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 
         if ([node.name isEqualToString:saveAndQuitLabelName]) {
-            NSLog(@"save and quit");
+            NSDate *date = [NSDate date];
+            [[GameData sharedGameData] resaveGameData];
             [self  removeAllChildren];
-            [[GameData sharedGameData] save];
             StartScene *startScene = [[StartScene alloc] initWithSize:self.size];
             [self.view presentScene:startScene];
             

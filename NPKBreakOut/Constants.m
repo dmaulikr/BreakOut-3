@@ -16,6 +16,8 @@ NSString * const backgroundName    = @"background";
 NSString * const bottomOptionsName = @"bottomOptions";
 NSString * const rightOptionsName  = @"rightOptions";
 
+NSString * const saveFileDirectory = @"gameData";
+
 NSString * const mainNodeName       = @"mainNode";
 NSString * const overlayNodeName    = @"overlayNode";
 NSString * const backgroundNodeName = @"backgroundNode";
