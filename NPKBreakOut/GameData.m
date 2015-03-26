@@ -21,12 +21,13 @@ static NSString * const saveFileKey = @"saveKey";
 -(id)initWithCoder:(NSCoder *)aDecoder
 {
     NSLog(@"GameData init with coder a decoder");
+    [self reset];
 
     if (self) {
         NSLog(@"assigning decoded values");
         self.saveFileName = [aDecoder decodeObjectForKey:saveFileKey];
         if ([aDecoder decodeObjectForKey:saveFileKey]) {
-            NSLog(@"deoced nothing");
+            NSLog(@"de %@", self.saveFileName);
         }
         
         self.balls  = [aDecoder decodeObjectForKey:gameDataBallsKey];
@@ -43,6 +44,25 @@ static NSString * const saveFileKey = @"saveKey";
     
 }
 
+-(BOOL)doesSaveFileExist:(NSString *)fileName;
+{
+    return [[NSFileManager defaultManager] fileExistsAtPath:[GameData filePathWithName:fileName]];
+}
+
+-(BOOL)deleteSaveFile:(NSString *)fileName
+{
+    NSString *path = [GameData filePathWithName:fileName];
+    NSLog(@"deleting %@",path);
+    
+    NSError *error = nil;
+    BOOL success = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
+    if (!success || error) {
+        return NO;
+    }
+    return YES;
+    
+}
+
 -(instancetype)init
 {
     NSLog(@"GameData init");
@@ -50,7 +70,6 @@ static NSString * const saveFileKey = @"saveKey";
     if (self) {
         NSString *path = [GameData filePathWithName:@""];
         
-        NSLog(@"%@", path);
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
             NSLog(@"no file creating folder");
             [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:NO attributes:nil error:nil];
@@ -159,8 +178,9 @@ static NSString * const saveFileKey = @"saveKey";
 -(void)reset
 {
 
-    //NSLog(@"gamedata Reset");
+    NSLog(@"gamedata Reset reset reset reset");
     self.saveFileName = @"";
+    self.startScene = nil;
     self.balls   = [[NSMutableArray alloc] init];
     self.blocks  = [[NSMutableArray alloc] init];
     self.paddles = [[NSMutableArray alloc] init];

@@ -18,6 +18,8 @@
 static NSString * const playLabelName = @"play";
 static NSString * const editLabelName   = @"edit";
 static NSString * const loadLabelName = @"load";
+static NSString * const backLabelName = @"back";
+
 
 @interface StartScene  ()
 
@@ -32,13 +34,15 @@ static NSString * const loadLabelName = @"load";
     if (self = [super initWithSize:size]) {
         self.backgroundColor = [SKColor blueColor];
         self.playLabelHeight = self.frame.size.height * 0.15;
-        
+
         [self createSceneContents];
 
     }
     
     return self;
 }
+
+
 
 -(void)createSceneContents
 {
@@ -132,8 +136,18 @@ static NSString * const loadLabelName = @"load";
     
 }
 
--(void)createDeleteButton
+-(void)createBackButton
 {
+    SKLabelNode *backButton = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    backButton.text = @"back";
+    backButton.fontSize = 32;
+    backButton.name = backLabelName;
+    backButton.position = CGPointMake(self.frame.size.width/2, 20);
+    backButton.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:backButton.frame.size];
+    backButton.physicsBody.dynamic = NO;
+    
+    [self  addChild:backButton];
+    
     
 }
 
@@ -142,29 +156,54 @@ static NSString * const loadLabelName = @"load";
 {
     
     SKNode *node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
+    NSLog(@"node touched %@", node.name);
     if ([node.name isEqualToString:playLabelName]) {
+        [self startMainScene];
         
         if ([[self.view subviews] containsObject:self.tableView]) {
             [self.tableView removeFromSuperview];
         }
-        MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size];
-        [self.view presentScene:mainScene];
-        
         
     } else if ([node.name isEqualToString:editLabelName]) {
-        EditGameScene *editScene = [[EditGameScene alloc] initWithSize:self.frame.size];
-        [self.view presentScene:editScene];
-    } else if ([node.name isEqualToString:loadLabelName]) {
-        [self createTable];
-    } else if (node.name == Nil) {
-        for (UIView *view in self.view.subviews) {
-            if ([view isKindOfClass:[UITableView class]]) {
-                [view removeFromSuperview];
-            }
-            
-        }
+        [self startEditScene];
 
+    } else if ([node.name isEqualToString:loadLabelName]) {
+        
+        [GameData sharedGameData].startScene = self;
+        for (SKNode *node in self.children) {
+            if ([node.name isEqualToString:playLabelName]) {
+                [node removeFromParent];
+            }
+            if ([node.name isEqualToString:editLabelName]) {
+                [node removeFromParent];
+            }
+        }
+        [self createBackButton];
+        [self createTable];
+        
+    } else if ([node.name isEqualToString:backLabelName]) {
+        [self.tableView removeFromSuperview];
+        [self createEditButton];
+        [self createPlayButton];
+        for (UIView *view in self.view.subviews) {
+            if (view.frame.size.height == self.tableView.frame.size.height) {
+                [view  removeFromSuperview];
+            }
+        }
+        [node removeFromParent];
     }
+}
+
+-(void)startMainScene
+{
+    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size];
+    [self.view presentScene:mainScene];
+    
+}
+
+-(void)startEditScene
+{
+    
 }
 
 -(void)createTable
@@ -173,7 +212,7 @@ static NSString * const loadLabelName = @"load";
     float scaleFactor = 0.85;
     float tableWidth = self.frame.size.width*scaleFactor;
     
-    float tableHeight = self.frame.size.height - self.playLabelHeight - 55;
+    float tableHeight = self.frame.size.height - 80;
     
     float tablePositionX = (self.frame.size.width * (1 - scaleFactor)/2);
     float tablePositionY = 20;

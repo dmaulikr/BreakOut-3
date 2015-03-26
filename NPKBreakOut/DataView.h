@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface DataView : UIView
+@interface DataView : UIView <UITextFieldDelegate>
 
 
 -(instancetype)initWithFrame:(CGRect)frame fileName:(NSString *)fileName;

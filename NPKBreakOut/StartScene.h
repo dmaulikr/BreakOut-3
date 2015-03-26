@@ -12,4 +12,7 @@
 
 @property (retain, nonatomic) IBOutlet UITableView *tableView;
 
+-(void)startMainScene;
+-(void)startEditScene;
+
 @end

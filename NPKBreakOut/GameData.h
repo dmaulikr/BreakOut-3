@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "StartScene.h"
 
 
 @interface GameData : NSObject <NSCoding>
@@ -16,11 +17,15 @@
 @property (nonatomic) NSMutableArray *balls;
 @property (nonatomic) NSMutableArray *powerUps;
 @property (nonatomic) NSString *saveFileName;
+@property (nonatomic) StartScene *startScene;
 
 +(instancetype)sharedGameData;
 -(void)reset;
 -(void)resaveGameData;
 -(void)saveWithFileName:(NSString *)fileName;
 -(id)initWithFileName:(NSString *)fileName;
+-(BOOL)doesSaveFileExist:(NSString *)fileName;
+-(BOOL)deleteSaveFile:(NSString *)fileName;
+
 
 @end

@@ -28,6 +28,8 @@ static NSString * const reusableCellName = @"aCell";
 {
     if (self = [super initWithFrame:frame style:style]) {
         
+        [self createBackButton];
+        
         NSString *url = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
                                                               NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:saveFileDirectory];
         
@@ -42,6 +44,28 @@ static NSString * const reusableCellName = @"aCell";
     return  self;
 }
 
+-(void)createBackButton
+{
+    /*
+    NSLog(@"create back button");
+    UIButton *backButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [backButton addTarget:self
+                   action:@selector(backButtonTapped:)
+         forControlEvents:UIControlEventTouchUpInside];
+    [backButton setTitle:@"back" forState:UIControlStateNormal];
+    [backButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [backButton setFrame:CGRectMake(-20, 0, 50, 50)];
+    backButton.titleLabel.textColor = [UIColor blackColor];
+    //backButton.frame = CGRectMake(30, 30, 30, 30);
+
+    [self.superview addSubview:backButton];*/
+    
+}
+
+-(IBAction)backButtonTapped:(id)sender
+{
+    NSLog(@"tapped");
+}
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return self.saveFiles.count;
@@ -66,10 +90,8 @@ static NSString * const reusableCellName = @"aCell";
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    //NSLog(@"row selected");
     NSString *cellLabel = [tableView cellForRowAtIndexPath:indexPath].textLabel.text;
-    NSLog(@"cell pressed %@", cellLabel);
-    [[GameData sharedGameData] initWithFileName:cellLabel];
+    //[[GameData sharedGameData] initWithFileName:cellLabel];
     
     DataView *dataView = [[DataView alloc] initWithFrame:self.frame fileName:cellLabel];
     dataView.layer.cornerRadius = 5;

@@ -63,10 +63,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
         
         [[self childNodeWithName:overlayNodeNameSearch] addChild:bottom];
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
-    
         
-        [self createContents];
-        [self startGameIsFirstTime:YES];
+        NSLog(@"main scene init gameData saveFileName %@", [GameData sharedGameData].saveFileName);
         
         if ([[GameData sharedGameData].saveFileName isEqualToString:@""]) {
             NSLog(@"starting main scene there is no saveFileName");
@@ -74,7 +72,10 @@ static NSString * const pausedScreenName = @"pausedScreen";
             [GameData sharedGameData].saveFileName = [now description];
             [[GameData sharedGameData] saveWithFileName:[GameData sharedGameData].saveFileName];
         }
-
+        
+        [self createContents];
+        [self startGameIsFirstTime:YES];
+        
         
     }
     
@@ -100,6 +101,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 -(void)createBlocksFromData
 {
+    NSLog(@"create blocks from data");
     for (BlockSprite *block in [GameData sharedGameData].blocks) {
         
         block.physicsBody.dynamic         = NO;
