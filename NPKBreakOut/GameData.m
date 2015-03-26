@@ -8,6 +8,7 @@
 
 #import "GameData.h"
 #import "BlockSprite.h"
+#import "GameSaveFile.h"
 
 static NSString * const gameDataBallsKey    = @"balls";
 static NSString * const gameDataBlocksKey   = @"blocks";
@@ -20,14 +21,10 @@ static NSString * const saveFileKey = @"saveKey";
 
 -(id)initWithCoder:(NSCoder *)aDecoder
 {
-    NSLog(@"GameData init with coder a decoder");
-    [self reset];
-
     if (self) {
-        NSLog(@"assigning decoded values");
         self.saveFileName = [aDecoder decodeObjectForKey:saveFileKey];
         if ([aDecoder decodeObjectForKey:saveFileKey]) {
-            NSLog(@"de %@", self.saveFileName);
+            NSLog(@"loaded save file name %@", self.saveFileName);
         }
         
         self.balls  = [aDecoder decodeObjectForKey:gameDataBallsKey];
@@ -35,7 +32,7 @@ static NSString * const saveFileKey = @"saveKey";
         if (!self.blocks) {
             NSLog(@"no blocks");
         } else {
-            NSLog(@"blocks count %lu  ", self.blocks.count);
+            NSLog(@"loaded blocks count %lu  ", self.blocks.count);
         }
         self.paddles = [aDecoder decodeObjectForKey:gameDataPaddlesKey];
         self.powerUps = [aDecoder decodeObjectForKey:gameDataPowerUpsKey];
@@ -44,9 +41,54 @@ static NSString * const saveFileKey = @"saveKey";
     
 }
 
--(BOOL)doesSaveFileExist:(NSString *)fileName;
+
+-(id)initWithFileName:(NSString *)fileName
 {
-    return [[NSFileManager defaultManager] fileExistsAtPath:[GameData filePathWithName:fileName]];
+    if (self = [self init]) {
+        if (fileName) {
+            NSLog(@"GameData load file");
+            self = [self initWithGameData:[self loadInstanceWithFileName:fileName]];
+        }
+    }
+    NSLog(@"gameDate is now named: %@", self.saveFileName);
+    return self;
+}
+
+-(instancetype)initWithGameData:(GameData *)gameData
+{
+    self = gameData;
+    if (self) {
+        NSLog(@"new name %@ ", self.saveFileName);
+    }
+    return self;
+}
+
+
+-(instancetype)init
+{
+    self = [super init];
+    if (self) {
+        NSString *path = [GameData filePathWithName:@""];
+        
+        if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+            [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:NO attributes:nil error:nil];
+        }
+        [self reset];
+    }
+    return self;
+}
+
+-(instancetype)loadInstanceWithFileName:(NSString *)fileName
+{
+    [self reset];
+    NSData * decodedData = [NSData dataWithContentsOfFile:[GameData filePathWithName:fileName]];
+    GameData *gameData = self;
+    
+    if (decodedData) {
+        gameData = [NSKeyedUnarchiver unarchiveObjectWithData:decodedData];
+    }
+    
+    return gameData;
 }
 
 -(BOOL)deleteSaveFile:(NSString *)fileName
@@ -62,43 +104,35 @@ static NSString * const saveFileKey = @"saveKey";
     return YES;
     
 }
-
--(instancetype)init
+-(void)resaveGameData
 {
-    NSLog(@"GameData init");
-    self = [super init];
-    if (self) {
-        NSString *path = [GameData filePathWithName:@""];
-        
-        if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-            NSLog(@"no file creating folder");
-            [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:NO attributes:nil error:nil];
+    NSString *filePath = [GameData filePathWithName:self.saveFileName];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        BOOL success = [NSKeyedArchiver archiveRootObject:self toFile:[GameData filePathWithName:self.saveFileName]];
+        if (success) {
+            NSLog(@"resaved %@",self.saveFileName);
             
         } else {
-            NSLog(@"file alreay exists");
+            //NSLog(@"bad");
         }
-        [self reset];
     }
-    return self;
 }
 
-
-
--(id)initWithFileName:(NSString *)fileName
+-(void)saveWithFileName:(NSString *)fileName
 {
-
-    [self reset];
-    if (self = [super init]) {
-        if (fileName) {
-            NSLog(@"GameData initWithFilename there is a filename");
-            self = [self loadInstanceWithFileName:fileName];
-            
-        } else {
-            NSLog(@"GameData initWithFileNAme no fileName");
-        }
+    NSString *filePath = [GameData filePathWithName:fileName];
+    self.saveFileName = fileName;
+    //NSLog(@"data save with file %@", filePath);
+    BOOL success = [NSKeyedArchiver archiveRootObject:self toFile:filePath];
+    
+    if (success) {
+        NSLog(@"saved %@ to location %@", fileName, filePath);
+    } else {
+        NSLog(@"couldnt save");
     }
-    return self;
+    
 }
+
 
 +(instancetype)sharedGameData
 {
@@ -125,54 +159,9 @@ static NSString * const saveFileKey = @"saveKey";
 
 
 
--(instancetype)loadInstanceWithFileName:(NSString *)fileName
+-(BOOL)doesSaveFileExist:(NSString *)fileName;
 {
-    NSLog(@"loadInstance");
-    
-    NSData * decodedData = [NSData dataWithContentsOfFile:[GameData filePathWithName:fileName]];
-    GameData *gameData = self;
-    
-    if (decodedData) {
-        NSLog(@"loading data");
-        gameData = [NSKeyedUnarchiver unarchiveObjectWithData:decodedData];
-    } else {
-        NSLog(@"load instance no data to load");
-    }
-    
-    return gameData;
-}
-
--(void)resaveGameData
-{
-    NSString *filePath = [GameData filePathWithName:self.saveFileName];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-        BOOL success = [NSKeyedArchiver archiveRootObject:self toFile:[GameData filePathWithName:self.saveFileName]];
-        if (success) {
-            NSLog(@"resaved %@",self.saveFileName);
-            
-        } else {
-            //NSLog(@"bad");
-        }
-    }
-}
-
--(void)saveWithFileName:(NSString *)fileName
-{
-
-    
-    NSString *filePath = [GameData filePathWithName:fileName];
-    //NSLog(@"data save with file %@", filePath);
-    BOOL success = [NSKeyedArchiver archiveRootObject:self toFile:filePath];
-    
-    
-    if (success) {
-        NSLog(@"saved %@ to location %@", fileName, filePath);
-    } else {
-        NSLog(@"couldnt save");
-    }
-    
-    
-    //[encodedData writeToFile:[GameData filePath] atomically:YES];
+    return [[NSFileManager defaultManager] fileExistsAtPath:[GameData filePathWithName:fileName]];
 }
 
 -(void)reset
@@ -194,10 +183,10 @@ static NSString * const saveFileKey = @"saveKey";
     //[aCoder encodeInteger:1 forKey:@"one"];
     NSLog(@"encoding save %@", self.saveFileName);
     [aCoder encodeObject:self.saveFileName forKey:saveFileKey];
-    //[aCoder encodeObject:self.balls    forKey:gameDataBallsKey];
+    [aCoder encodeObject:self.balls    forKey:gameDataBallsKey];
     [aCoder encodeObject:self.blocks   forKey:gameDataBlocksKey];
-    //[aCoder encodeObject:self.paddles  forKey:gameDataPaddlesKey];
-    //[aCoder encodeObject:self.powerUps forKey:gameDataPowerUpsKey];
+    [aCoder encodeObject:self.paddles  forKey:gameDataPaddlesKey];
+    [aCoder encodeObject:self.powerUps forKey:gameDataPowerUpsKey];
 }
 
 

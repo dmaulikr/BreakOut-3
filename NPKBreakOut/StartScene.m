@@ -14,13 +14,6 @@
 #import "DataTableView.h"
 #import "DataView.h"
 
-
-static NSString * const playLabelName = @"play";
-static NSString * const editLabelName   = @"edit";
-static NSString * const loadLabelName = @"load";
-static NSString * const backLabelName = @"back";
-
-
 @interface StartScene  ()
 
 @property (nonatomic) int playLabelHeight;
@@ -34,6 +27,7 @@ static NSString * const backLabelName = @"back";
     if (self = [super initWithSize:size]) {
         self.backgroundColor = [SKColor blueColor];
         self.playLabelHeight = self.frame.size.height * 0.15;
+        [GameData sharedGameData].startScene = self;
 
         [self createSceneContents];
 
@@ -46,13 +40,12 @@ static NSString * const backLabelName = @"back";
 
 -(void)createSceneContents
 {
-    
+    [[self childNodeWithName:backLabelName] removeFromParent];
     [self createTitle];
     [self createPlayButton];
     [self createEditButton];
     [self createLoadButton];
-    
-    //[super view];
+    [self createEditSavesButton];
     
 }
 
@@ -61,7 +54,7 @@ static NSString * const backLabelName = @"back";
     SKLabelNode *title = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
     title.text = @"Super BreakOut";
     title.fontSize = 50;
-    title.name = @"title";
+    title.name = gameTitleName;
     title.position = CGPointMake(self.frame.size.width/2, self.frame.size.height-200);
     title.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:title.frame.size];
     title.physicsBody.dynamic = NO;
@@ -105,7 +98,6 @@ static NSString * const backLabelName = @"back";
     playButton.physicsBody.dynamic = NO;
     
     [self  addChild:playButton];
-    
 }
 
 -(void)createEditButton
@@ -124,22 +116,21 @@ static NSString * const backLabelName = @"back";
 
 -(void)createLoadButton
 {
-    SKLabelNode *playButton = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
-    playButton.text = @"Load";
-    playButton.fontSize = 32;
-    playButton.name = loadLabelName;
-    playButton.position = CGPointMake(self.frame.size.width/2, self.frame.size.height * 0.2);
-    playButton.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:playButton.frame.size];
-    playButton.physicsBody.dynamic = NO;
+    SKLabelNode *loadButton = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    loadButton.text = @"Load";
+    loadButton.fontSize = 32;
+    loadButton.name = loadLabelName;
+    loadButton.position = CGPointMake(self.frame.size.width/4, self.playLabelHeight +100);
+    loadButton.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:loadButton.frame.size];
+    loadButton.physicsBody.dynamic = NO;
     
-    [self  addChild:playButton];
-    
+    [self  addChild:loadButton];
 }
 
 -(void)createBackButton
 {
     SKLabelNode *backButton = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
-    backButton.text = @"back";
+    backButton.text = @"Back";
     backButton.fontSize = 32;
     backButton.name = backLabelName;
     backButton.position = CGPointMake(self.frame.size.width/2, 20);
@@ -147,7 +138,17 @@ static NSString * const backLabelName = @"back";
     backButton.physicsBody.dynamic = NO;
     
     [self  addChild:backButton];
+}
+
+-(void)createEditSavesButton
+{
+    SKLabelNode *editSaveButton = [SKLabelNode labelNodeWithFontNamed:@"arial"];
+    editSaveButton.text = @"Edit Saves";
+    editSaveButton.fontSize = 32;
+    editSaveButton.name = editSavesName;
+    editSaveButton.position = CGPointMake(self.frame.size.width * 0.75, self.playLabelHeight + 100);
     
+    [self addChild:editSaveButton];
     
 }
 
@@ -156,7 +157,7 @@ static NSString * const backLabelName = @"back";
 {
     
     SKNode *node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
-    NSLog(@"node touched %@", node.name);
+    //NSLog(@"node touched %@", node.name);
     if ([node.name isEqualToString:playLabelName]) {
         [self startMainScene];
         
@@ -169,29 +170,25 @@ static NSString * const backLabelName = @"back";
 
     } else if ([node.name isEqualToString:loadLabelName]) {
         
-        [GameData sharedGameData].startScene = self;
-        for (SKNode *node in self.children) {
-            if ([node.name isEqualToString:playLabelName]) {
-                [node removeFromParent];
-            }
-            if ([node.name isEqualToString:editLabelName]) {
-                [node removeFromParent];
-            }
-        }
+        [self removeAllChildren];
+
         [self createBackButton];
-        [self createTable];
+        [self createTableWithEditing:NO];
         
     } else if ([node.name isEqualToString:backLabelName]) {
-        [self.tableView removeFromSuperview];
-        [self createEditButton];
-        [self createPlayButton];
-        for (UIView *view in self.view.subviews) {
-            if (view.frame.size.height == self.tableView.frame.size.height) {
-                [view  removeFromSuperview];
-            }
-        }
-        [node removeFromParent];
+        [self resetContents];
+
+    } else if ([node.name isEqualToString:editSavesName]) {
+        [self createTableWithEditing:YES];
     }
+}
+
+-(void)resetContents
+{
+    [self.tableView removeFromSuperview];
+    [self.dataView  removeFromSuperview];
+    [self createSceneContents];
+    
 }
 
 -(void)startMainScene
@@ -203,10 +200,12 @@ static NSString * const backLabelName = @"back";
 
 -(void)startEditScene
 {
+    EditGameScene *editScene = [[EditGameScene alloc] initWithSize:self.frame.size];
+    [self.view presentScene:editScene];
     
 }
 
--(void)createTable
+-(void)createTableWithEditing:(BOOL)editing
 {
 
     float scaleFactor = 0.85;
@@ -223,11 +222,13 @@ static NSString * const backLabelName = @"back";
     table.layer.cornerRadius = 5;
     table.layer.masksToBounds = YES;
     self.tableView = table;
+    
+    if (editing) {
+        [table setEditing:YES animated:YES];
+    }
 
     [self.view addSubview:self.tableView];
-    
 
-    
 }
 
 

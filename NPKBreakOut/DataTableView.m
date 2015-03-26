@@ -27,47 +27,25 @@ static NSString * const reusableCellName = @"aCell";
 -(instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style
 {
     if (self = [super initWithFrame:frame style:style]) {
-        
-        [self createBackButton];
-        
-        NSString *url = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
-                                                              NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:saveFileDirectory];
-        
-        NSArray *filesUrl = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:url error:Nil];
-        if (filesUrl) {
-            NSLog(@"table files Loaded");
-            self.saveFiles = (NSMutableArray *)filesUrl;
-        } else {
-            NSLog(@"table files couldn't load ");
-        }
+        [self loadSaveFiles];
     }
     return  self;
 }
 
--(void)createBackButton
+-(void)loadSaveFiles
 {
-    /*
-    NSLog(@"create back button");
-    UIButton *backButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [backButton addTarget:self
-                   action:@selector(backButtonTapped:)
-         forControlEvents:UIControlEventTouchUpInside];
-    [backButton setTitle:@"back" forState:UIControlStateNormal];
-    [backButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [backButton setFrame:CGRectMake(-20, 0, 50, 50)];
-    backButton.titleLabel.textColor = [UIColor blackColor];
-    //backButton.frame = CGRectMake(30, 30, 30, 30);
-
-    [self.superview addSubview:backButton];*/
+    NSString *url = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
+                                                          NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:saveFileDirectory];
     
+    NSArray *filesUrl = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:url error:Nil];
+    if (filesUrl) {
+        self.saveFiles = (NSMutableArray *)filesUrl;
+    }
 }
 
--(IBAction)backButtonTapped:(id)sender
-{
-    NSLog(@"tapped");
-}
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    NSLog(@"is this fucking shit working? %lu", self.saveFiles.count);
     return self.saveFiles.count;
 }
 
@@ -107,6 +85,21 @@ static NSString * const reusableCellName = @"aCell";
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     return 1;
+}
+
+
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
+                                           forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"delete");
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        if ([[GameData sharedGameData] deleteSaveFile:[self cellForRowAtIndexPath:indexPath].textLabel.text]) {
+            NSLog(@"deleted");
+        }
+        
+        [super deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [self.saveFiles removeObject:[self.saveFiles lastObject]];
+    }
 }
 
 

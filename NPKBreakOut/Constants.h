@@ -17,6 +17,14 @@ extern NSString * const backgroundName;
 extern NSString * const bottomOptionsName;
 extern NSString * const rightOptionsName;
 
+extern NSString * const gameTitleName;
+extern NSString * const playLabelName;
+extern NSString * const editLabelName;
+extern NSString * const loadLabelName;
+extern NSString * const backLabelName;
+extern NSString * const editSavesName;
+
+
 extern NSString * const saveFileDirectory;
 
 extern NSString * const mainNodeName;

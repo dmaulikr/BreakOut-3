@@ -16,6 +16,13 @@ NSString * const backgroundName    = @"background";
 NSString * const bottomOptionsName = @"bottomOptions";
 NSString * const rightOptionsName  = @"rightOptions";
 
+NSString * const gameTitleName = @"gameTitle";
+NSString * const playLabelName = @"play";
+NSString * const editLabelName = @"edit";
+NSString * const loadLabelName = @"load";
+NSString * const backLabelName = @"back";
+NSString * const editSavesName = @"editSaves";
+
 NSString * const saveFileDirectory = @"gameData";
 
 NSString * const mainNodeName       = @"mainNode";

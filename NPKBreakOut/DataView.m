@@ -29,6 +29,7 @@
         self.fileName = fileName;
         self.textFieldInput = @"";
         self.startScene = [GameData sharedGameData].startScene;
+        self.startScene.dataView = self;
         [self createContents];
     }
     return  self;
@@ -39,7 +40,7 @@
 {
     [self createTitle];
     [self createPlayButton];
-    
+    [self createDeleteButton];
 
     
 }
@@ -58,14 +59,44 @@
     [self addSubview:play];
 }
 
+-(void)createDeleteButton
+{
+    UIButton *delete = [UIButton buttonWithType:UIButtonTypeCustom];
+    [delete addTarget:self
+               action:@selector(deleteButtonPressed)
+     forControlEvents:UIControlEventTouchUpInside];
+    [delete setTitle:@"Delete" forState:UIControlStateNormal];
+    delete.titleLabel.font = [UIFont fontWithName:@"arial" size:32];
+    [delete setFrame:CGRectMake(130, 500, 100, 60)];
+    [delete setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self addSubview:delete];
+}
+
+-(void)deleteButtonPressed
+{
+    if ([[GameData sharedGameData] deleteSaveFile:self.textField.text]) {
+        NSLog(@"deleted");
+    } else {
+        NSLog(@"cant delete");
+    }
+    [self.startScene createSceneContents];
+    [self removeFromSuperview];
+    
+}
+
 -(void)playButtonPressed
 {
-    [[GameData sharedGameData] initWithFileName:self.fileName];
-    
+    if ([[GameData sharedGameData] doesSaveFileExist:self.fileName]) {
+        NSLog(@"dataView play %@", self.fileName);
+        [[GameData sharedGameData] initWithFileName:self.fileName];
+
+        NSLog(@"gamedata savefileName %@", [GameData sharedGameData].saveFileName);
+    }
     [self.startScene startMainScene];
     [self removeFromSuperview];
     
 }
+
 
 -(void)createTitle
 {
@@ -96,12 +127,11 @@
     if ([[GameData sharedGameData] doesSaveFileExist:self.fileName]) {
         
         if (![self.fileName isEqualToString:self.textFieldInput]) {
-            NSLog(@"saved data does exist and then ame has changed deleteing and saving");
+            NSLog(@"saved data does exist and the name has changed deleteing and saving");
             
             if (![self.textFieldInput isEqualToString:@""]) {
                 //add name validation here
                 if ([[GameData sharedGameData] deleteSaveFile:self.fileName]) {
-                    NSLog(@"data deleted");
                     [[GameData sharedGameData] saveWithFileName:self.textFieldInput];
                     self.fileName = self.textFieldInput;
                 } else {

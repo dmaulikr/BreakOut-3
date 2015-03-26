@@ -10,9 +10,12 @@
 
 @interface StartScene : SKScene <UIGestureRecognizerDelegate>
 
-@property (retain, nonatomic) IBOutlet UITableView *tableView;
+@property (retain, nonatomic) UITableView *tableView;
+@property (retain, nonatomic) UIView *dataView;
 
 -(void)startMainScene;
 -(void)startEditScene;
+-(void)createSceneContents;
+
 
 @end

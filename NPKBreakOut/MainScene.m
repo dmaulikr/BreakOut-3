@@ -64,13 +64,15 @@ static NSString * const pausedScreenName = @"pausedScreen";
         [[self childNodeWithName:overlayNodeNameSearch] addChild:bottom];
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
         
-        NSLog(@"main scene init gameData saveFileName %@", [GameData sharedGameData].saveFileName);
+        NSLog(@"main scene init ");
         
         if ([[GameData sharedGameData].saveFileName isEqualToString:@""]) {
-            NSLog(@"starting main scene there is no saveFileName");
+            NSLog(@"starting,  main scene has no saveFileName");
             NSDate *now = [NSDate date];
             [GameData sharedGameData].saveFileName = [now description];
             [[GameData sharedGameData] saveWithFileName:[GameData sharedGameData].saveFileName];
+        } else {
+            NSLog(@"starting, main scene Has savefile");
         }
         
         [self createContents];
@@ -242,7 +244,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 -(void)startGameIsFirstTime:(BOOL)isFirstTime
 {
-    NSLog(@"start game");
+    //NSLog(@"start game");
 
     SKLabelNode *timer = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
     timer.text         = @"3";
@@ -293,7 +295,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 -(void)pauseGame
 {
     
-    NSLog(@"pausing");
+    //NSLog(@"pausing");
     
     SKSpriteNode *pausedScreen     = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:self.frame.size];
     pausedScreen.anchorPoint    = CGPointZero;
@@ -331,7 +333,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
         SKNode *node = [self.physicsWorld bodyAtPoint:touchLocation].node;
         
         if ([node.name containsString:paddleName]) {
-            NSLog(@"paddle touched");
+           // NSLog(@"paddle touched");
             if (!self.paused) {
                 [self.nodesPressedAtTouchBegins addObject:node];
             }
@@ -340,7 +342,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
             node = [self nodeAtPoint:touchLocation];
         }
         
-        NSLog(@"node at pressed begins %@", node.name);
+        //NSLog(@"node at pressed begins %@", node.name);
         
         
         if ([node.name containsString:backgroundName]) {
@@ -376,6 +378,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
             NSDate *date = [NSDate date];
             [[GameData sharedGameData] resaveGameData];
             [self  removeAllChildren];
+            [[GameData sharedGameData] reset];
             StartScene *startScene = [[StartScene alloc] initWithSize:self.size];
             [self.view presentScene:startScene];
             
