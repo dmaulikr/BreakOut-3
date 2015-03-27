@@ -8,6 +8,8 @@
 
 #import "GameScene.h"
 #import "Constants.h"
+#import "GameSaveFile.h"
+#import "GameData.h"
 
 @implementation GameScene
 
@@ -59,4 +61,23 @@
     return mainNode;
     
 }
+
+-(GameSaveFile *)setupSaveFile:(GameSaveFile *)saveFile
+{
+    GameSaveFile *file = saveFile;
+    
+    NSLog(@"savefile name %@", file.saveFileName);
+    
+    if ([file.saveFileName isEqualToString:@""]) {
+        NSLog(@"starting,   scene has no saveFileName");
+        NSDate *now = [NSDate date];
+        file.saveFileName = [now description];
+        [[GameData sharedGameData] archiveSaveFile:file];
+        
+    } else {
+        NSLog(@"starting, scene Has savefile");
+    }
+    return file;
+}
+
 @end

@@ -9,63 +9,13 @@
 #import "GameData.h"
 #import "BlockSprite.h"
 #import "GameSaveFile.h"
-
-static NSString * const gameDataBallsKey    = @"balls";
-static NSString * const gameDataBlocksKey   = @"blocks";
-static NSString * const gameDataPaddlesKey  = @"paddles";
-static NSString * const gameDataPowerUpsKey = @"powerUps";
-static NSString * const saveFileKey = @"saveKey";
-
+#import "Constants.h"
 
 @implementation GameData
 
--(id)initWithCoder:(NSCoder *)aDecoder
-{
-    if (self) {
-        self.saveFileName = [aDecoder decodeObjectForKey:saveFileKey];
-        if ([aDecoder decodeObjectForKey:saveFileKey]) {
-            NSLog(@"loaded save file name %@", self.saveFileName);
-        }
-        
-        self.balls  = [aDecoder decodeObjectForKey:gameDataBallsKey];
-        self.blocks = [aDecoder decodeObjectForKey:gameDataBlocksKey];
-        if (!self.blocks) {
-            NSLog(@"no blocks");
-        } else {
-            NSLog(@"loaded blocks count %lu  ", self.blocks.count);
-        }
-        self.paddles = [aDecoder decodeObjectForKey:gameDataPaddlesKey];
-        self.powerUps = [aDecoder decodeObjectForKey:gameDataPowerUpsKey];
-    }
-    return self;
-    
-}
-
-
--(id)initWithFileName:(NSString *)fileName
-{
-    if (self = [self init]) {
-        if (fileName) {
-            NSLog(@"GameData load file");
-            self = [self initWithGameData:[self loadInstanceWithFileName:fileName]];
-        }
-    }
-    NSLog(@"gameDate is now named: %@", self.saveFileName);
-    return self;
-}
-
--(instancetype)initWithGameData:(GameData *)gameData
-{
-    self = gameData;
-    if (self) {
-        NSLog(@"new name %@ ", self.saveFileName);
-    }
-    return self;
-}
-
-
 -(instancetype)init
 {
+    NSLog(@"gamedata init");
     self = [super init];
     if (self) {
         NSString *path = [GameData filePathWithName:@""];
@@ -73,66 +23,48 @@ static NSString * const saveFileKey = @"saveKey";
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
             [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:NO attributes:nil error:nil];
         }
-        [self reset];
     }
     return self;
 }
 
--(instancetype)loadInstanceWithFileName:(NSString *)fileName
+-(GameSaveFile *)loadSaveFileWithFileName:(NSString *)fileName
 {
-    [self reset];
-    NSData * decodedData = [NSData dataWithContentsOfFile:[GameData filePathWithName:fileName]];
-    GameData *gameData = self;
+    NSData *decodedData = [NSData dataWithContentsOfFile:[GameData filePathWithName:fileName]];
+    GameSaveFile *saveFile;
     
     if (decodedData) {
-        gameData = [NSKeyedUnarchiver unarchiveObjectWithData:decodedData];
+         saveFile = (GameSaveFile *)[NSKeyedUnarchiver unarchiveObjectWithData:decodedData];
     }
-    
-    return gameData;
+    return saveFile;
 }
 
--(BOOL)deleteSaveFile:(NSString *)fileName
+-(void)deleteSaveFile:(GameSaveFile *)saveFile
 {
-    NSString *path = [GameData filePathWithName:fileName];
-    NSLog(@"deleting %@",path);
+    NSString *path = [GameData filePathWithName:saveFile.saveFileName];
+    NSLog(@"deleting %@", saveFile.saveFileName);
     
     NSError *error = nil;
     BOOL success = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
     if (!success || error) {
-        return NO;
+        NSLog(@"couldnt delete %@", saveFile.saveFileName);
     }
-    return YES;
     
-}
--(void)resaveGameData
-{
-    NSString *filePath = [GameData filePathWithName:self.saveFileName];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-        BOOL success = [NSKeyedArchiver archiveRootObject:self toFile:[GameData filePathWithName:self.saveFileName]];
-        if (success) {
-            NSLog(@"resaved %@",self.saveFileName);
-            
-        } else {
-            //NSLog(@"bad");
-        }
-    }
 }
 
--(void)saveWithFileName:(NSString *)fileName
+
+-(void)archiveSaveFile:(GameSaveFile *)saveFile
 {
-    NSString *filePath = [GameData filePathWithName:fileName];
-    self.saveFileName = fileName;
-    //NSLog(@"data save with file %@", filePath);
-    BOOL success = [NSKeyedArchiver archiveRootObject:self toFile:filePath];
+    NSString *filePath = [GameData filePathWithName:saveFile.saveFileName];
+    
+    BOOL success = [NSKeyedArchiver archiveRootObject:saveFile toFile:filePath];
     
     if (success) {
-        NSLog(@"saved %@ to location %@", fileName, filePath);
+        NSLog(@"saved %@ ", saveFile.saveFileName);
     } else {
         NSLog(@"couldnt save");
     }
     
 }
-
 
 +(instancetype)sharedGameData
 {
@@ -157,37 +89,23 @@ static NSString * const saveFileKey = @"saveKey";
     return filePath;
 }
 
-
+-(NSMutableArray *)loadSaveFiles
+{
+    NSString *url = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
+                                                          NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:saveFileDirectory];
+    NSMutableArray *files;
+    NSArray *filesUrl = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:url error:Nil];
+    if (filesUrl) {
+         files = (NSMutableArray *)filesUrl;
+    }
+    return files;
+}
 
 -(BOOL)doesSaveFileExist:(NSString *)fileName;
 {
     return [[NSFileManager defaultManager] fileExistsAtPath:[GameData filePathWithName:fileName]];
 }
 
--(void)reset
-{
-
-    NSLog(@"gamedata Reset reset reset reset");
-    self.saveFileName = @"";
-    self.startScene = nil;
-    self.balls   = [[NSMutableArray alloc] init];
-    self.blocks  = [[NSMutableArray alloc] init];
-    self.paddles = [[NSMutableArray alloc] init];
-    self.powerUps = [[NSMutableArray alloc] init];
-}
-
--(void)encodeWithCoder:(NSCoder *)aCoder
-{
-    //NSLog(@"encoding GameData");
-
-    //[aCoder encodeInteger:1 forKey:@"one"];
-    NSLog(@"encoding save %@", self.saveFileName);
-    [aCoder encodeObject:self.saveFileName forKey:saveFileKey];
-    [aCoder encodeObject:self.balls    forKey:gameDataBallsKey];
-    [aCoder encodeObject:self.blocks   forKey:gameDataBlocksKey];
-    [aCoder encodeObject:self.paddles  forKey:gameDataPaddlesKey];
-    [aCoder encodeObject:self.powerUps forKey:gameDataPowerUpsKey];
-}
 
 
 

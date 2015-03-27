@@ -13,7 +13,9 @@ static NSString * const currentSizeName  = @"currentSize";
 static NSString * const hitPointsName    = @"hitPoints";
 static NSString * const hasPowerUpName   = @"hasPowerUp";
 static NSString * const canBeEditedName  = @"canBeEdited";
-
+static NSString * const nameKey          = @"name";
+static NSString * const positionKey      = @"position";
+static NSString * const blockKey         = @"block";
 
 
 
@@ -54,23 +56,30 @@ static double editPointRadius = 7.5;
     return self;
 }
 
+
 -(void)encodeWithCoder:(NSCoder *)aCoder
 {
-    //NSLog(@"saving block");
+    NSLog(@"saving block");
+ /*
     [aCoder encodeObject:self.currentSize forKey:currentSizeName];
     [aCoder encodeInteger:self.hitPoints forKey:hitPointsName];
     [aCoder encodeBool:self.hasPowerup forKey:hasPowerUpName];
-    [aCoder encodeBool:self.canBeEdited forKey:canBeEditedName];
+    [aCoder encodeBool:self.canBeEdited forKey:canBeEditedName];*/
+    
+    [aCoder encodeObject:self forKey:blockKey];
 }
 
 -(instancetype)initWithCoder:(NSCoder *)aDecoder
 {
-    if (self = [super initWithCoder:aDecoder]) {
+    self = [aDecoder decodeObjectForKey:blockKey];
+
+    if (self) {
+        NSLog(@"decoded block %@", self.name);
         
-        self.currentSize = [aDecoder decodeObjectForKey:currentSizeName];
+       /* self.currentSize = [aDecoder decodeObjectForKey:currentSizeName];
         self.hitPoints   = [aDecoder decodeIntForKey:hitPointsName];
         self.hasPowerup  = [aDecoder decodeBoolForKey:hasPowerUpName];
-        self.canBeEdited = [aDecoder decodeBoolForKey:canBeEditedName];
+        self.canBeEdited = [aDecoder decodeBoolForKey:canBeEditedName]; */
     }
     return self;
 }
@@ -201,35 +210,35 @@ static double editPointRadius = 7.5;
     
     float scaleX     = offX / (self.frame.size.width/2);
     float scaleY     = offY / (self.frame.size.height/2);
-    float scaleXBall = offX / (self.frame.size.width/2);
-    float scaleYBall = offY / (self.frame.size.height/2);
+    //float scaleXBall = offX / (self.frame.size.width/2);
+    //float scaleYBall = offY / (self.frame.size.height/2);
         
     scaleX *= -1.0;
         
     if (scaleX != 0) {
             
         scaleX     = 1.0 + scaleX;
-        scaleXBall = 1.0 + (scaleXBall * 1.0);
+        //scaleXBall = 1.0 + (scaleXBall * 1.0);
             
     } else if (scaleX == 0) {
         
         scaleX     = 1.0;
-        scaleXBall = 1.0;
+        //scaleXBall = 1.0;
     }
         
     if (scaleY != 0) {
         if (offsetSizeY > 10 || offsetSizeY < -10) {
             scaleY     = 1.0 + scaleY;
-            scaleYBall = 1.0 + (scaleYBall * -1.0);
+            //scaleYBall = 1.0 + (scaleYBall * -1.0);
         } else {
             NSLog(@"to small");
             scaleY     = 1.0;
-            scaleYBall = 1.0;
+            //scaleYBall = 1.0;
         }
             
     } else if (scaleY == 0) {
         scaleY     = 1.0;
-        scaleYBall = 1.0;
+        //scaleYBall = 1.0;
     }
         
     SKAction *adjust = [SKAction scaleXBy:scaleX y:scaleY duration:0];

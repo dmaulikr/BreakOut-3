@@ -27,25 +27,15 @@ static NSString * const reusableCellName = @"aCell";
 -(instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style
 {
     if (self = [super initWithFrame:frame style:style]) {
-        [self loadSaveFiles];
+        self.saveFiles = [[GameData sharedGameData] loadSaveFiles];
     }
     return  self;
 }
 
--(void)loadSaveFiles
-{
-    NSString *url = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
-                                                          NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:saveFileDirectory];
-    
-    NSArray *filesUrl = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:url error:Nil];
-    if (filesUrl) {
-        self.saveFiles = (NSMutableArray *)filesUrl;
-    }
-}
+
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    NSLog(@"is this fucking shit working? %lu", self.saveFiles.count);
     return self.saveFiles.count;
 }
 
@@ -93,12 +83,10 @@ static NSString * const reusableCellName = @"aCell";
 {
     NSLog(@"delete");
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        if ([[GameData sharedGameData] deleteSaveFile:[self cellForRowAtIndexPath:indexPath].textLabel.text]) {
-            NSLog(@"deleted");
-        }
+        [[GameData sharedGameData] deleteSaveFile:[self cellForRowAtIndexPath:indexPath].textLabel.text];
         
         [super deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [self.saveFiles removeObject:[self.saveFiles lastObject]];
+        self.saveFiles = [[GameData sharedGameData] loadSaveFiles];
     }
 }
 

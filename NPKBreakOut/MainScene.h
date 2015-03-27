@@ -9,10 +9,13 @@
 #import <SpriteKit/SpriteKit.h>
 #import <UIKit/UIKit.h>
 #import "GameScene.h"
+#import "GameSaveFile.h"
 
 
 
 @interface MainScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate>
+
+-(instancetype)initWithSize:(CGSize)size saveFile:(GameSaveFile *)saveFile;
 
 
 @end

@@ -14,6 +14,7 @@
 #import "Constants.h"
 #import "GameScene.h"
 #import "GameData.h"
+#import "GameSaveFile.h"
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
 
@@ -29,6 +30,9 @@ static NSString * const playButtonName = @"play";
 
 @property (nonatomic) SKNode *nodePressedAtTouchBegins;
 @property (nonatomic) BlockSprite* rotatingBlock;
+
+@property (nonatomic) GameSaveFile *saveFile;
+
 
 @property (nonatomic) float bottomOptionsBuffer;
 @property (nonatomic) float rightOptionsBuffer;
@@ -49,11 +53,12 @@ static NSString * const playButtonName = @"play";
 
 @implementation EditGameScene
 
--(instancetype)initWithSize:(CGSize)size
+-(instancetype)initWithSize:(CGSize)size saveFile:(GameSaveFile *)saveFile
 {
     if (self = [super initWithSize:size]) {
         
         [self addChild:[super createNodeTree]];
+        self.saveFile = [super setupSaveFile:saveFile];
         
         SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
 
@@ -70,6 +75,7 @@ static NSString * const playButtonName = @"play";
         self.rightOptionsBuffer       = 100;
         self.blockHeight              = [[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height;
         self.bottomOptionsHeight      = [[SKSpriteNode alloc] initWithImageNamed:@"bottomOptions.png"].frame.size.height;
+        
 
         [self createBackground];
         [self createBottomOptions];
@@ -296,19 +302,19 @@ static NSString * const playButtonName = @"play";
     
     if ([node.name  containsString:blockName]) {
         
-        if (![[GameData sharedGameData].blocks containsObject:node]) [[GameData sharedGameData].blocks addObject:node];
+        if (![self.saveFile.blocks containsObject:node]) [self.saveFile.blocks addObject:node];
 
     }
     
     if ([node.name containsString:paddleName]) {
         
-        if (![[GameData sharedGameData].paddles containsObject:node]) [[GameData sharedGameData].paddles addObject:node];
+        if (![self.saveFile.paddles containsObject:node]) [self.saveFile.paddles addObject:node];
         
     }
     
     if ([node.name containsString:ballName]) {
         
-        if (![[GameData sharedGameData].balls containsObject:node]) [[GameData sharedGameData].balls addObject:node];
+        if (![self.saveFile.balls containsObject:node]) [self.saveFile.balls addObject:node];
         
     }
     
@@ -320,17 +326,17 @@ static NSString * const playButtonName = @"play";
     SKNode *bottomOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:bottomOptionsName];
     SKNode *rightOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:rightOptionsName];
     
-    BOOL isBottomOptionsHidden;
-    BOOL isRightOptionsHIdden;
+    //BOOL isBottomOptionsHidden;
+    //BOOL isRightOptionsHIdden;
     
     float bottomOptionsY  = bottomOptions.position.y + bottomOptions.frame.size.height;
     float rightOptionsX   = rightOptions.position.x;
     
     float bottomOptionsHeight = bottomOptions.frame.size.height;
-    float rightOptionsWidth = rightOptions.frame.size.width;
+    //float rightOptionsWidth = rightOptions.frame.size.width;
     
     int screenWidth  = self.frame.size.width;
-    int screenHeight = self.frame.size.height;
+    //int screenHeight = self.frame.size.height;
     
 
     SKAction *slideBottomOptionsUp           = [SKAction moveTo: CGPointMake(0, (self.bottomOptionsHeightLimit - bottomOptionsHeight)) duration:0.5];
@@ -381,12 +387,12 @@ static NSString * const playButtonName = @"play";
     
     float bottomOptionsY      = bottomOptions.position.y + bottomOptions.frame.size.height;
     float rightOptionsX       = rightOptions.position.x;
-    float bottomOptionsHeight = bottomOptions.frame.size.height;
-    float rightOptionsWidth   = rightOptions.frame.size.width;
+    //float bottomOptionsHeight = bottomOptions.frame.size.height;
+    //float rightOptionsWidth   = rightOptions.frame.size.width;
     
     
     int screenWidth  = self.frame.size.width;
-    int screenHeight = self.frame.size.height;
+    //int screenHeight = self.frame.size.height;
     
     
     float touchDistanceToBottom = touchLocation.y;
@@ -636,27 +642,27 @@ static NSString * const playButtonName = @"play";
 {
     
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        [[GameData sharedGameData].blocks removeObject:node];
+        [self.saveFile.blocks removeObject:node];
         BlockSprite *block = (BlockSprite *)node;
         block.isEditable = NO;
         [block updateSelf];
         block.canBeEdited = NO;
         [block removeFromParent];
-        [[GameData sharedGameData].blocks addObject:block];
+        [self.saveFile.blocks addObject:block];
     }];
     
     [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        [[GameData sharedGameData].balls removeObject:node];
+        [self.saveFile.balls removeObject:node];
         BallSprite *ball = (BallSprite * )node;
         [ball removeFromParent];
-        [[GameData sharedGameData].balls addObject:ball];
+        [self.saveFile.balls addObject:ball];
     }];
     
     [[self childNodeWithName:paddleNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        [[GameData sharedGameData].paddles removeObject:node];
+        [self.saveFile.paddles removeObject:node];
         PaddleSprite *paddle = (PaddleSprite *)node;
         [paddle removeFromParent];
-        [[GameData sharedGameData].paddles addObject:paddle];
+        [self.saveFile.paddles addObject:paddle];
     }];
     
     

@@ -7,14 +7,15 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
+#import "GameSaveFile.h"
 
 @interface StartScene : SKScene <UIGestureRecognizerDelegate>
 
 @property (retain, nonatomic) UITableView *tableView;
 @property (retain, nonatomic) UIView *dataView;
 
--(void)startMainScene;
--(void)startEditScene;
+-(void)startMainSceneWithSaveFile:(GameSaveFile *)saveFile;
+-(void)startEditSceneWithSaveFile:(GameSaveFile *)saveFile;
 -(void)createSceneContents;
 
 

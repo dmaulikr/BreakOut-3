@@ -15,6 +15,7 @@
 #import "Constants.h"
 #import "GameData.h"
 #import "StartScene.h"
+#import "GameSaveFile.h"
 
 static const uint32_t ballCategory    = 0x1 << 0;
 static const uint32_t blockCategory   = 0x1 << 2;
@@ -30,17 +31,21 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 @property (nonatomic) BOOL isGamePlaying;
 @property (nonatomic) NSMutableArray *nodesPressedAtTouchBegins;
+@property (nonatomic) GameSaveFile *saveFile;
 
 
 @end
 
 @implementation MainScene
 
--(instancetype)initWithSize:(CGSize)size
+
+-(instancetype)initWithSize:(CGSize)size saveFile:(GameSaveFile *)saveFile
 {
     if (self = [super initWithSize:size]) {
         
         [self addChild:[super createNodeTree]];
+        self.saveFile = [super setupSaveFile:saveFile];
+
         
         SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
         SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
@@ -59,63 +64,53 @@ static NSString * const pausedScreenName = @"pausedScreen";
         bottom.physicsBody                = [SKPhysicsBody bodyWithEdgeLoopFromRect:bottomRect];
         bottom.physicsBody.categoryBitMask= bottomCategory;
         self.isGamePlaying                = NO;
-
+        
         
         [[self childNodeWithName:overlayNodeNameSearch] addChild:bottom];
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
         
-        NSLog(@"main scene init ");
-        
-        if ([[GameData sharedGameData].saveFileName isEqualToString:@""]) {
-            NSLog(@"starting,  main scene has no saveFileName");
-            NSDate *now = [NSDate date];
-            [GameData sharedGameData].saveFileName = [now description];
-            [[GameData sharedGameData] saveWithFileName:[GameData sharedGameData].saveFileName];
-        } else {
-            NSLog(@"starting, main scene Has savefile");
-        }
-        
         [self createContents];
         [self startGameIsFirstTime:YES];
         
-        
     }
-    
     return self;
 }
+
+
+
+
 -(void)createContents
 {
-    
-    
-    if ([GameData sharedGameData].blocks.count > 0) [self createBlocksFromData];
+    if (self.saveFile.blocks.count > 0) [self createBlocksFromData];
     else                                            [self createDefaultBlocks];
     
     
-    if ([GameData sharedGameData].paddles.count > 0) [self createPaddlesFromData];
+    if (self.saveFile.paddles.count > 0) [self createPaddlesFromData];
     else                                             [self createDefaultPaddle];
     
-    if ([GameData sharedGameData].balls.count > 0) [self createBallsFromData];
+    if (self.saveFile.balls.count > 0) [self createBallsFromData];
     else                                           [self createDefaultBall];
     
-    if ([GameData sharedGameData] > 0) [self createPowerUpFromData];
+    if (self.saveFile.powerUps.count > 0) [self createPowerUpFromData];
     
 }
 
 -(void)createBlocksFromData
 {
     NSLog(@"create blocks from data");
-    for (BlockSprite *block in [GameData sharedGameData].blocks) {
-        
-        block.physicsBody.dynamic         = NO;
-        block.physicsBody.categoryBitMask = blockCategory;
+    for (BlockSprite *block in self.saveFile.blocks) {
+        BlockSprite *newBlock = block;
+        NSLog(@"create %@", newBlock.name);
+        //block.physicsBody.dynamic         = NO;
+        //block.physicsBody.categoryBitMask = blockCategory;
         //block.zPosition = 1.0;
-        [[self childNodeWithName:blockNodeNameSearch] addChild:block];
+        [[self childNodeWithName:blockNodeNameSearch] addChild:[[BlockSprite alloc] init]];
     }
 }
 
 -(void)createBallsFromData
 {
-    for (BallSprite *ball in [GameData sharedGameData].balls) {
+    for (BallSprite *ball in self.saveFile.balls) {
         ball.physicsBody.dynamic         = YES;
         ball.physicsBody.categoryBitMask    = ballCategory;
         ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
@@ -128,7 +123,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 -(void)createPaddlesFromData
 {
-    for (PaddleSprite *paddle in [GameData sharedGameData].paddles) {
+    for (PaddleSprite *paddle in self.saveFile.paddles) {
         
         paddle.physicsBody.categoryBitMask    = paddleCategory;
         paddle.physicsBody.contactTestBitMask = powerUpCategory;
@@ -138,6 +133,12 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
 }
 
+-(void)createPowerUpFromData
+{
+    for (PowerUpSprite *powerUp in self.saveFile.powerUps) {
+        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
+    }
+}
 
 -(void)createDefaultBlocks
 {
@@ -169,7 +170,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory;
     
     [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
-    [[GameData sharedGameData].balls addObject:ball];
+    [self.saveFile.balls addObject:ball];
 }
 
 -(void)createDefaultPaddle
@@ -183,7 +184,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     paddle.physicsBody.contactTestBitMask = powerUpCategory;
     
     [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
-    [[GameData sharedGameData].paddles addObject:paddle];
+    [self.saveFile.paddles addObject:paddle];
     
 }
 
@@ -215,17 +216,12 @@ static NSString * const pausedScreenName = @"pausedScreen";
         block.physicsBody.categoryBitMask = blockCategory;
         
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
-        [[GameData sharedGameData].blocks addObject:block];
+        [self.saveFile.blocks addObject:block];
     }
     
 }
 
--(void)createPowerUpFromData
-{
-    for (PowerUpSprite *powerUp in [GameData sharedGameData].powerUps) {
-        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
-    }
-}
+
 
 -(void)createPowerUpWithLocation:(CGPoint)location
 {
@@ -237,7 +233,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     powerUpSprite.physicsBody.contactTestBitMask  = paddleCategory | bottomCategory;
     
     [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUpSprite];
-    [[GameData sharedGameData].powerUps addObject:powerUpSprite];
+    [self.saveFile.powerUps addObject:powerUpSprite];
     
 }
 
@@ -281,8 +277,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
                         [node.physicsBody applyImpulse:CGVectorMake(-10.0, 10.0)];
                     }];
                 }
-                NSDate *date = [NSDate date];
-                [[GameData sharedGameData] saveWithFileName:[date description]];
+                [[GameData sharedGameData] archiveSaveFile:self.saveFile];
                 [timer runAction:runAnimation completion:^{
                     [timer removeFromParent];
                 }];
@@ -375,17 +370,14 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 
         if ([node.name isEqualToString:saveAndQuitLabelName]) {
-            NSDate *date = [NSDate date];
-            [[GameData sharedGameData] resaveGameData];
-            [self  removeAllChildren];
-            [[GameData sharedGameData] reset];
+            [[GameData sharedGameData] archiveSaveFile:self.saveFile];
+            [self removeAllChildren];
+            
             StartScene *startScene = [[StartScene alloc] initWithSize:self.size];
             [self.view presentScene:startScene];
             
         }
 
-    
-   
     }
     
 }
@@ -472,7 +464,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
     if (firstBody.categoryBitMask == ballCategory && secondBody.categoryBitMask == bottomCategory)
     {
-        GameOverScene *gameOverScene = [[GameOverScene alloc] initWithSize:self.frame.size playerWon:NO];
+        //GameOverScene *gameOverScene = [[GameOverScene alloc] initWithSize:self.frame.size playerWon:NO];
         
         //[self.view presentScene:gameOverScene];
     }
@@ -485,12 +477,13 @@ static NSString * const pausedScreenName = @"pausedScreen";
         PowerUpSprite *powerUp = (PowerUpSprite *)secondBody.node;
         
         [powerUp removeFromParent];
-        [[GameData sharedGameData].powerUps removeObject:powerUp];
+        [self.saveFile.powerUps removeObject:powerUp];
         
         BallSprite *ball = (BallSprite *)[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:ballName];
         ball.currentSize = @"big";
         
         [ball updateSelf];
+        [[GameData sharedGameData] archiveSaveFile:self.saveFile];
     }
     
     
@@ -509,7 +502,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
                 [self createPowerUpWithLocation:block.position];
             }
             [block removeFromParent];
-            [[GameData sharedGameData].blocks removeObject:block];
+            [self.saveFile.blocks removeObject:block];
         }
         
         if ([self childNodeWithName:blockNodeNameSearch].children.count <= 0) {

@@ -74,11 +74,12 @@
 
 -(void)deleteButtonPressed
 {
-    if ([[GameData sharedGameData] deleteSaveFile:self.textField.text]) {
-        NSLog(@"deleted");
-    } else {
-        NSLog(@"cant delete");
+    if ([[GameData sharedGameData] doesSaveFileExist:self.fileName]) {
+        GameSaveFile *saveToDelete = [[GameSaveFile alloc] init];
+        saveToDelete.saveFileName = self.fileName;
+        [[GameData sharedGameData] deleteSaveFile:saveToDelete];
     }
+  
     [self.startScene createSceneContents];
     [self removeFromSuperview];
     
@@ -86,13 +87,11 @@
 
 -(void)playButtonPressed
 {
+    GameSaveFile *saveFile = [[GameSaveFile alloc] init];
     if ([[GameData sharedGameData] doesSaveFileExist:self.fileName]) {
-        NSLog(@"dataView play %@", self.fileName);
-        [[GameData sharedGameData] initWithFileName:self.fileName];
-
-        NSLog(@"gamedata savefileName %@", [GameData sharedGameData].saveFileName);
+        saveFile = [[GameData sharedGameData] loadSaveFileWithFileName:self.fileName];
     }
-    [self.startScene startMainScene];
+    [self.startScene startMainSceneWithSaveFile:saveFile];
     [self removeFromSuperview];
     
 }
@@ -130,13 +129,18 @@
             NSLog(@"saved data does exist and the name has changed deleteing and saving");
             
             if (![self.textFieldInput isEqualToString:@""]) {
+                
+                GameSaveFile *oldSave = [[GameSaveFile alloc] init];
+                GameSaveFile *newSave = [[GameSaveFile alloc] init];
+                newSave.saveFileName = self.textFieldInput;
+                oldSave.saveFileName = self.fileName;
+                
+                
                 //add name validation here
-                if ([[GameData sharedGameData] deleteSaveFile:self.fileName]) {
-                    [[GameData sharedGameData] saveWithFileName:self.textFieldInput];
-                    self.fileName = self.textFieldInput;
-                } else {
-                    NSLog(@"error cant delete data %@", self.fileName);
-                }
+                [[GameData sharedGameData] deleteSaveFile:oldSave];
+                [[GameData sharedGameData] archiveSaveFile:newSave ];
+                self.fileName = self.textFieldInput;
+                
             } else {
                 NSLog(@"text field was empty no saving");
                 self.textField.text = self.fileName;

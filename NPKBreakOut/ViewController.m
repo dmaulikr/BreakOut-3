@@ -19,11 +19,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:self];
     
-    
-
     GameView *mainView = [[GameView alloc] initWithFrame:self.view.frame];
     
     [self.view addSubview:mainView];
