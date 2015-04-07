@@ -98,13 +98,14 @@ static NSString * const pausedScreenName = @"pausedScreen";
 -(void)createBlocksFromData
 {
     NSLog(@"create blocks from data");
-    for (BlockSprite *block in self.saveFile.blocks) {
-        BlockSprite *newBlock = block;
-        NSLog(@"create %@", newBlock.name);
+    NSMutableArray *blocks = self.saveFile.blocks;
+    for (BlockSprite *block in blocks) {
+        
+        NSLog(@"create %@", block.name);
         //block.physicsBody.dynamic         = NO;
         //block.physicsBody.categoryBitMask = blockCategory;
         //block.zPosition = 1.0;
-        [[self childNodeWithName:blockNodeNameSearch] addChild:[[BlockSprite alloc] init]];
+        [[self childNodeWithName:blockNodeNameSearch] addChild:block];
     }
 }
 

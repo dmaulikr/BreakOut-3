@@ -60,26 +60,27 @@ static double editPointRadius = 7.5;
 -(void)encodeWithCoder:(NSCoder *)aCoder
 {
     NSLog(@"saving block");
- /*
+ 
     [aCoder encodeObject:self.currentSize forKey:currentSizeName];
     [aCoder encodeInteger:self.hitPoints forKey:hitPointsName];
     [aCoder encodeBool:self.hasPowerup forKey:hasPowerUpName];
-    [aCoder encodeBool:self.canBeEdited forKey:canBeEditedName];*/
+    [aCoder encodeBool:self.canBeEdited forKey:canBeEditedName];
     
     [aCoder encodeObject:self forKey:blockKey];
 }
 
 -(instancetype)initWithCoder:(NSCoder *)aDecoder
 {
-    self = [aDecoder decodeObjectForKey:blockKey];
+    BlockSprite *block = [aDecoder decodeObjectForKey:blockKey];
+    NSLog(@"%@", block.name);
 
     if (self) {
         NSLog(@"decoded block %@", self.name);
         
-       /* self.currentSize = [aDecoder decodeObjectForKey:currentSizeName];
+        self.currentSize = [aDecoder decodeObjectForKey:currentSizeName];
         self.hitPoints   = [aDecoder decodeIntForKey:hitPointsName];
         self.hasPowerup  = [aDecoder decodeBoolForKey:hasPowerUpName];
-        self.canBeEdited = [aDecoder decodeBoolForKey:canBeEditedName]; */
+        self.canBeEdited = [aDecoder decodeBoolForKey:canBeEditedName];
     }
     return self;
 }

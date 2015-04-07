@@ -13,7 +13,7 @@ static NSString * const gameDataBallsKey    = @"balls";
 static NSString * const gameDataBlocksKey   = @"blocks";
 static NSString * const gameDataPaddlesKey  = @"paddles";
 static NSString * const gameDataPowerUpsKey = @"powerUps";
-static NSString * const saveFileKey         = @"saveKey";
+static NSString * const saveFileNameKey     = @"saveKey";
 
 @implementation GameSaveFile
 
@@ -22,20 +22,23 @@ static NSString * const saveFileKey         = @"saveKey";
 {
     self = [self init];
     if (self) {
-        self.saveFileName = [aDecoder decodeObjectForKey:saveFileKey];
-        if ([aDecoder decodeObjectForKey:saveFileKey]) {
+        
+        if ([aDecoder decodeObjectForKey:saveFileNameKey]) {
+            self.saveFileName = [aDecoder decodeObjectForKey:saveFileNameKey];
             NSLog(@"loaded save file name %@", self.saveFileName);
+            
         }
         
-        self.balls  = [aDecoder decodeObjectForKey:gameDataBallsKey];
-        self.blocks = [aDecoder decodeObjectForKey:gameDataBlocksKey];
-        if (!self.blocks) {
-            NSLog(@"no blocks");
+        if ([aDecoder decodeObjectForKey:gameDataBlocksKey]) {
+            self.blocks = [aDecoder decodeObjectForKey:gameDataBlocksKey];
+            NSLog(@"save file decoded %lu number of blocks", self.blocks.count);
         } else {
-            NSLog(@"loaded blocks count %lu  ", self.blocks.count);
+            NSLog(@"save file couldnt decode blocks");
         }
-        self.paddles = [aDecoder decodeObjectForKey:gameDataPaddlesKey];
-        self.powerUps = [aDecoder decodeObjectForKey:gameDataPowerUpsKey];
+
+        //self.paddles = [aDecoder decodeObjectForKey:gameDataPaddlesKey];
+        //self.balls  = [aDecoder decodeObjectForKey:gameDataBallsKey];
+        //self.powerUps = [aDecoder decodeObjectForKey:gameDataPowerUpsKey];
     }
     return self;
 }
@@ -63,7 +66,7 @@ static NSString * const saveFileKey         = @"saveKey";
 -(void)encodeWithCoder:(NSCoder *)aCoder
 {
     NSLog(@"encoding save %@", self.saveFileName);
-    [aCoder encodeObject:self.saveFileName forKey:saveFileKey];
+    [aCoder encodeObject:self.saveFileName forKey:saveFileNameKey];
     [aCoder encodeObject:self.balls    forKey:gameDataBallsKey];
     [aCoder encodeObject:self.blocks   forKey:gameDataBlocksKey];
     [aCoder encodeObject:self.paddles  forKey:gameDataPaddlesKey];
