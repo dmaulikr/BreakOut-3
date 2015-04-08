@@ -19,7 +19,7 @@
     self = [super init];
     if (self) {
         NSString *path = [GameData filePathWithName:@""];
-        
+        self.saveFile = [[GameSaveFile alloc] init];
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
             [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:NO attributes:nil error:nil];
         }
@@ -30,36 +30,38 @@
 -(GameSaveFile *)loadSaveFileWithFileName:(NSString *)fileName
 {
     NSData *decodedData = [NSData dataWithContentsOfFile:[GameData filePathWithName:fileName]];
-    GameSaveFile *saveFile;
     
     if (decodedData) {
-         saveFile = (GameSaveFile *)[NSKeyedUnarchiver unarchiveObjectWithData:decodedData];
+         self.saveFile = (GameSaveFile *)[NSKeyedUnarchiver unarchiveObjectWithData:decodedData];
     }
-    return saveFile;
+    
+    return self.saveFile;
 }
 
--(void)deleteSaveFile:(GameSaveFile *)saveFile
+-(void)deleteSaveFileNamed:(NSString *)fileName
 {
-    NSString *path = [GameData filePathWithName:saveFile.saveFileName];
-    NSLog(@"deleting %@", saveFile.saveFileName);
+    NSString *path = [GameData filePathWithName:fileName];
     
     NSError *error = nil;
     BOOL success = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
     if (!success || error) {
-        NSLog(@"couldnt delete %@", saveFile.saveFileName);
+        NSLog(@"couldnt delete %@", fileName);
+    } else {
+        NSLog(@"deleted %@", fileName);
+
     }
     
 }
 
 
--(void)archiveSaveFile:(GameSaveFile *)saveFile
+-(void)archiveSaveFile
 {
-    NSString *filePath = [GameData filePathWithName:saveFile.saveFileName];
+    NSString *filePath = [GameData filePathWithName:self.saveFile.saveFileName];
     
-    BOOL success = [NSKeyedArchiver archiveRootObject:saveFile toFile:filePath];
+    BOOL success = [NSKeyedArchiver archiveRootObject:self.saveFile toFile:filePath];
     
     if (success) {
-        NSLog(@"saved %@ ", saveFile.saveFileName);
+        NSLog(@"saved %@ ", self.saveFile);
     } else {
         NSLog(@"couldnt save");
     }

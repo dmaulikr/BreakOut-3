@@ -11,6 +11,6 @@
 
 @interface EditGameScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate>
 
--(instancetype)initWithSize:(CGSize)size saveFile:(GameSaveFile *)saveFile;
+-(instancetype)initWithSize:(CGSize)size;
 
 @end

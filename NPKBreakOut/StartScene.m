@@ -30,7 +30,6 @@
         [GameData sharedGameData].startScene = self;
 
         [self createSceneContents];
-
     }
     
     return self;
@@ -159,14 +158,14 @@
     SKNode *node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
     //NSLog(@"node touched %@", node.name);
     if ([node.name isEqualToString:playLabelName]) {
-        [self startMainSceneWithSaveFile:[[GameSaveFile alloc] init]];
+        [self startMainScene];
         
         if ([[self.view subviews] containsObject:self.tableView]) {
             [self.tableView removeFromSuperview];
         }
         
     } else if ([node.name isEqualToString:editLabelName]) {
-        [self startEditSceneWithSaveFile:[[GameSaveFile alloc] init]];
+        [self startEditScene];
 
     } else if ([node.name isEqualToString:loadLabelName]) {
         
@@ -191,16 +190,16 @@
     
 }
 
--(void)startMainSceneWithSaveFile:(GameSaveFile *)saveFile
+-(void)startMainScene
 {
-    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size saveFile:saveFile];
+    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size];
     [self.view presentScene:mainScene];
     
 }
 
--(void)startEditSceneWithSaveFile:(GameSaveFile *)saveFile
+-(void)startEditScene
 {
-    EditGameScene *editScene = [[EditGameScene alloc] initWithSize:self.frame.size saveFile:saveFile];
+    EditGameScene *editScene = [[EditGameScene alloc] initWithSize:self.frame.size];
     [self.view presentScene:editScene];
     
 }

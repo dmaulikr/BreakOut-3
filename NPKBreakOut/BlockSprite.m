@@ -9,10 +9,10 @@
 #import "BlockSprite.h"
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
-static NSString * const currentSizeName  = @"currentSize";
-static NSString * const hitPointsName    = @"hitPoints";
-static NSString * const hasPowerUpName   = @"hasPowerUp";
-static NSString * const canBeEditedName  = @"canBeEdited";
+static NSString * const currentSizeKey  = @"currentSize";
+static NSString * const hitPointsKey    = @"hitPoints";
+static NSString * const hasPowerUpKey   = @"hasPowerUp";
+static NSString * const canBeEditedKey  = @"canBeEdited";
 static NSString * const nameKey          = @"name";
 static NSString * const positionKey      = @"position";
 static NSString * const blockKey         = @"block";
@@ -59,31 +59,39 @@ static double editPointRadius = 7.5;
 
 -(void)encodeWithCoder:(NSCoder *)aCoder
 {
-    NSLog(@"saving block");
- 
-    [aCoder encodeObject:self.currentSize forKey:currentSizeName];
-    [aCoder encodeInteger:self.hitPoints forKey:hitPointsName];
-    [aCoder encodeBool:self.hasPowerup forKey:hasPowerUpName];
-    [aCoder encodeBool:self.canBeEdited forKey:canBeEditedName];
+    //NSLog(@"saving block");
+    //NSLog(@"name %@", self.name);
     
-    [aCoder encodeObject:self forKey:blockKey];
+    NSValue *position = [NSValue valueWithCGPoint:self.position];
+ 
+    [aCoder encodeObject:self.currentSize forKey:currentSizeKey];
+    [aCoder encodeInteger:self.hitPoints forKey:hitPointsKey];
+    [aCoder encodeBool:self.hasPowerup forKey:hasPowerUpKey];
+    [aCoder encodeBool:self.canBeEdited forKey:canBeEditedKey];
+    [aCoder encodeObject:self.name forKey:nameKey];
+    [aCoder encodeObject:position forKey:positionKey];
+    
+    
 }
 
 -(instancetype)initWithCoder:(NSCoder *)aDecoder
 {
-    BlockSprite *block = [aDecoder decodeObjectForKey:blockKey];
-    NSLog(@"%@", block.name);
-
-    if (self) {
-        NSLog(@"decoded block %@", self.name);
+    
+    if (self = [super initWithCoder:aDecoder]) {
+        BlockSprite *block = [[BlockSprite alloc]  initWithLocation:[[aDecoder decodeObjectForKey:positionKey] CGPointValue]
+                                                           hitPoints:[aDecoder decodeIntForKey:hitPointsKey]
+                                                                name:[aDecoder decodeObjectForKey:nameKey]
+                                                          hasPowerup:[aDecoder decodeBoolForKey:hasPowerUpKey]
+                                                         currentSize: [aDecoder decodeObjectForKey:currentSizeKey]
+                                                         canBeEdited:[aDecoder decodeObjectForKey:canBeEditedKey]];
         
-        self.currentSize = [aDecoder decodeObjectForKey:currentSizeName];
-        self.hitPoints   = [aDecoder decodeIntForKey:hitPointsName];
-        self.hasPowerup  = [aDecoder decodeBoolForKey:hasPowerUpName];
-        self.canBeEdited = [aDecoder decodeBoolForKey:canBeEditedName];
+        //NSLog(@"init with coder blocksprite decoded block %@", block.name);
+        self = block;
+
     }
     return self;
 }
+
 
 -(void)updateSelf
 {
@@ -94,6 +102,8 @@ static double editPointRadius = 7.5;
         
     } else if (self.hitPoints == 2) {
         
+        self.color            = [UIColor redColor];
+
         self.colorBlendFactor = 0.4;
         
     } else {

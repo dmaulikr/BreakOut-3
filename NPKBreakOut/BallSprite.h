@@ -8,7 +8,7 @@
 
 #import "GamePiece.h"
 
-@interface BallSprite : GamePiece
+@interface BallSprite : GamePiece <NSCoding>
 
 @property (nonatomic) NSString *currentSize;
 @property (nonatomic) NSString *status;

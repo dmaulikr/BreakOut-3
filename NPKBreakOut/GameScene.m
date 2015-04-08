@@ -62,22 +62,21 @@
     
 }
 
--(GameSaveFile *)setupSaveFile:(GameSaveFile *)saveFile
+-(void)setupSaveFile
 {
-    GameSaveFile *file = saveFile;
+    //NSLog(@"savefile name %@", file.saveFileName);
     
-    NSLog(@"savefile name %@", file.saveFileName);
-    
-    if ([file.saveFileName isEqualToString:@""]) {
-        NSLog(@"starting,   scene has no saveFileName");
+    if ([[GameData sharedGameData].saveFile.saveFileName isEqualToString:@""]) {
+        GameSaveFile *newSave = [[GameSaveFile alloc] init];
+        NSLog(@"scene has no saveFileName");
         NSDate *now = [NSDate date];
-        file.saveFileName = [now description];
-        [[GameData sharedGameData] archiveSaveFile:file];
-        
+        newSave.saveFileName = [now description];
+        [GameData sharedGameData].saveFile = newSave;
+        [[GameData sharedGameData] archiveSaveFile];
+
     } else {
         NSLog(@"starting, scene Has savefile");
     }
-    return file;
 }
 
 @end

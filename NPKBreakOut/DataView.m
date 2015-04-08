@@ -41,6 +41,7 @@
     [self createTitle];
     [self createPlayButton];
     [self createDeleteButton];
+    [self createEditButton];
 
     
 }
@@ -72,12 +73,35 @@
     [self addSubview:delete];
 }
 
+-(void)createEditButton
+{
+    UIButton *edit = [UIButton buttonWithType:UIButtonTypeCustom];
+    [edit       addTarget:self
+                   action:@selector(editButtonPressed)
+         forControlEvents:UIControlEventTouchUpInside];
+    [edit setTitle:@"Edit" forState:UIControlStateNormal];
+    edit.titleLabel.font = [UIFont fontWithName:@"arial" size:32];
+    [edit setFrame:CGRectMake(230, 550, 100, 60)];
+    [edit setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self addSubview:edit];
+    
+}
+
+-(void)editButtonPressed
+{
+    if ([[GameData sharedGameData] doesSaveFileExist:self.fileName]) {
+        [[GameData sharedGameData] loadSaveFileWithFileName:self.fileName];
+    }
+    [self.startScene startEditScene];
+    [self removeFromSuperview];
+    
+    
+}
+
 -(void)deleteButtonPressed
 {
     if ([[GameData sharedGameData] doesSaveFileExist:self.fileName]) {
-        GameSaveFile *saveToDelete = [[GameSaveFile alloc] init];
-        saveToDelete.saveFileName = self.fileName;
-        [[GameData sharedGameData] deleteSaveFile:saveToDelete];
+        [[GameData sharedGameData] deleteSaveFileNamed:self.fileName];
     }
   
     [self.startScene createSceneContents];
@@ -87,11 +111,10 @@
 
 -(void)playButtonPressed
 {
-    GameSaveFile *saveFile = [[GameSaveFile alloc] init];
     if ([[GameData sharedGameData] doesSaveFileExist:self.fileName]) {
-        saveFile = [[GameData sharedGameData] loadSaveFileWithFileName:self.fileName];
+        [[GameData sharedGameData] loadSaveFileWithFileName:self.fileName];
     }
-    [self.startScene startMainSceneWithSaveFile:saveFile];
+    [self.startScene startMainScene];
     [self removeFromSuperview];
     
 }
@@ -137,8 +160,9 @@
                 
                 
                 //add name validation here
-                [[GameData sharedGameData] deleteSaveFile:oldSave];
-                [[GameData sharedGameData] archiveSaveFile:newSave ];
+                [[GameData sharedGameData] deleteSaveFileNamed:oldSave.saveFileName];
+                [GameData sharedGameData].saveFile = newSave;
+                [[GameData sharedGameData] archiveSaveFile];
                 self.fileName = self.textFieldInput;
                 
             } else {

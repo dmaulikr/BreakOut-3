@@ -20,6 +20,7 @@ static NSString * const saveFileNameKey     = @"saveKey";
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
+    NSLog(@"init with coder game save file");
     self = [self init];
     if (self) {
         
@@ -35,9 +36,15 @@ static NSString * const saveFileNameKey     = @"saveKey";
         } else {
             NSLog(@"save file couldnt decode blocks");
         }
+        
+        if ([aDecoder decodeObjectForKey:gameDataBallsKey]) {
+            self.balls = [aDecoder decodeObjectForKey:gameDataBallsKey];
+            NSLog(@"save file decoded balls");
+        } else {
+            NSLog(@"save file couldn't load balls");
+        }
 
         //self.paddles = [aDecoder decodeObjectForKey:gameDataPaddlesKey];
-        //self.balls  = [aDecoder decodeObjectForKey:gameDataBallsKey];
         //self.powerUps = [aDecoder decodeObjectForKey:gameDataPowerUpsKey];
     }
     return self;
@@ -46,7 +53,12 @@ static NSString * const saveFileNameKey     = @"saveKey";
 -(instancetype)init
 {
     if (self = [super init]) {
-        [self reset];
+        NSLog(@"game Save Reset");
+        self.saveFileName = @"";
+        self.balls   = [[NSMutableArray alloc] init];
+        self.blocks  = [[NSMutableArray alloc] init];
+        self.paddles = [[NSMutableArray alloc] init];
+        self.powerUps = [[NSMutableArray alloc] init];
     }
     return self;
 }

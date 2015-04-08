@@ -31,8 +31,6 @@ static NSString * const playButtonName = @"play";
 @property (nonatomic) SKNode *nodePressedAtTouchBegins;
 @property (nonatomic) BlockSprite* rotatingBlock;
 
-@property (nonatomic) GameSaveFile *saveFile;
-
 
 @property (nonatomic) float bottomOptionsBuffer;
 @property (nonatomic) float rightOptionsBuffer;
@@ -53,12 +51,12 @@ static NSString * const playButtonName = @"play";
 
 @implementation EditGameScene
 
--(instancetype)initWithSize:(CGSize)size saveFile:(GameSaveFile *)saveFile
+-(instancetype)initWithSize:(CGSize)size
 {
     if (self = [super initWithSize:size]) {
         
         [self addChild:[super createNodeTree]];
-        self.saveFile = [super setupSaveFile:saveFile];
+        [super setupSaveFile];
         
         SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
 
@@ -76,7 +74,7 @@ static NSString * const playButtonName = @"play";
         self.blockHeight              = [[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height;
         self.bottomOptionsHeight      = [[SKSpriteNode alloc] initWithImageNamed:@"bottomOptions.png"].frame.size.height;
         
-
+        [self createContents];
         [self createBackground];
         [self createBottomOptions];
         [self createRightOptions];
@@ -98,6 +96,14 @@ static NSString * const playButtonName = @"play";
     
     [[self view] addGestureRecognizer:tapRecognizer];
     [[self view] addGestureRecognizer:longPressRecognizer];
+}
+
+-(void)createContents
+{
+    if ([GameData sharedGameData].saveFile.blocks.count != 0) {
+        //<#statements#>
+    }
+    
 }
 
 
@@ -302,19 +308,19 @@ static NSString * const playButtonName = @"play";
     
     if ([node.name  containsString:blockName]) {
         
-        if (![self.saveFile.blocks containsObject:node]) [self.saveFile.blocks addObject:node];
+        if (![[GameData sharedGameData].saveFile.blocks containsObject:node]) [[GameData sharedGameData].saveFile.blocks addObject:node];
 
     }
     
     if ([node.name containsString:paddleName]) {
         
-        if (![self.saveFile.paddles containsObject:node]) [self.saveFile.paddles addObject:node];
+        if (![[GameData sharedGameData].saveFile.paddles containsObject:node]) [[GameData sharedGameData].saveFile.paddles addObject:node];
         
     }
     
     if ([node.name containsString:ballName]) {
         
-        if (![self.saveFile.balls containsObject:node]) [self.saveFile.balls addObject:node];
+        if (![[GameData sharedGameData].saveFile.balls containsObject:node]) [[GameData sharedGameData].saveFile.balls addObject:node];
         
     }
     
@@ -638,31 +644,32 @@ static NSString * const playButtonName = @"play";
     int count = (int)[self childNodeWithName:paddleNodeNameSearch].children.count;
     return [NSString stringWithFormat:@"paddle%d",count];
 }
+
 -(void)switchToMainScene
 {
     
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        [self.saveFile.blocks removeObject:node];
+        [[GameData sharedGameData].saveFile.blocks removeObject:node];
         BlockSprite *block = (BlockSprite *)node;
         block.isEditable = NO;
         [block updateSelf];
         block.canBeEdited = NO;
         [block removeFromParent];
-        [self.saveFile.blocks addObject:block];
+        [[GameData sharedGameData].saveFile.blocks addObject:block];
     }];
     
     [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        [self.saveFile.balls removeObject:node];
+        [[GameData sharedGameData].saveFile.balls removeObject:node];
         BallSprite *ball = (BallSprite * )node;
         [ball removeFromParent];
-        [self.saveFile.balls addObject:ball];
+        [[GameData sharedGameData].saveFile.balls addObject:ball];
     }];
     
     [[self childNodeWithName:paddleNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        [self.saveFile.paddles removeObject:node];
+        [[GameData sharedGameData].saveFile.paddles removeObject:node];
         PaddleSprite *paddle = (PaddleSprite *)node;
         [paddle removeFromParent];
-        [self.saveFile.paddles addObject:paddle];
+        [[GameData sharedGameData].saveFile.paddles addObject:paddle];
     }];
     
     

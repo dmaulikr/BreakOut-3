@@ -14,13 +14,14 @@
 @interface GameData : NSObject
 
 @property (nonatomic) StartScene *startScene;
+@property (nonatomic) GameSaveFile *saveFile;
 
 +(instancetype)sharedGameData;
 -(GameSaveFile *)loadSaveFileWithFileName:(NSString *)fileName;
 
 -(BOOL)doesSaveFileExist:(NSString *)fileName;
--(void)archiveSaveFile:(GameSaveFile *)saveFile;
--(void)deleteSaveFile:(GameSaveFile *)saveFile;
+-(void)archiveSaveFile;
+-(void)deleteSaveFileNamed:(NSString *)fileName;
 -(NSMutableArray *)loadSaveFiles;
 
 

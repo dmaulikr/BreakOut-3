@@ -16,6 +16,13 @@ NSString * const backgroundName    = @"background";
 NSString * const bottomOptionsName = @"bottomOptions";
 NSString * const rightOptionsName  = @"rightOptions";
 
+uint32_t const ballCategory     = 0x1 << 0;
+uint32_t const blockCategory    = 0x1 << 2;
+uint32_t const paddleCategory   = 0x1 << 3;
+uint32_t const bottomCategory   = 0x1 << 1;
+uint32_t const powerUpCategory  = 0x1 << 4;
+
+
 NSString * const gameTitleName = @"gameTitle";
 NSString * const playLabelName = @"play";
 NSString * const editLabelName = @"edit";

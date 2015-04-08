@@ -83,7 +83,7 @@ static NSString * const reusableCellName = @"aCell";
 {
     NSLog(@"delete");
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [[GameData sharedGameData] deleteSaveFile:[self cellForRowAtIndexPath:indexPath].textLabel.text];
+        [[GameData sharedGameData] deleteSaveFileNamed:[self cellForRowAtIndexPath:indexPath].textLabel.text];
         
         [super deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         self.saveFiles = [[GameData sharedGameData] loadSaveFiles];

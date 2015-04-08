@@ -12,6 +12,6 @@
 @interface GameScene : SKScene
 
 -(SKNode *)createNodeTree;
--(GameSaveFile *)setupSaveFile:(GameSaveFile *)saveFile;
+-(void)setupSaveFile;
 
 @end

@@ -14,8 +14,8 @@
 @property (retain, nonatomic) UITableView *tableView;
 @property (retain, nonatomic) UIView *dataView;
 
--(void)startMainSceneWithSaveFile:(GameSaveFile *)saveFile;
--(void)startEditSceneWithSaveFile:(GameSaveFile *)saveFile;
+-(void)startMainScene;
+-(void)startEditScene;
 -(void)createSceneContents;
 
 

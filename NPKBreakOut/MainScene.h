@@ -15,7 +15,5 @@
 
 @interface MainScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate>
 
--(instancetype)initWithSize:(CGSize)size saveFile:(GameSaveFile *)saveFile;
-
 
 @end

@@ -17,6 +17,12 @@ extern NSString * const backgroundName;
 extern NSString * const bottomOptionsName;
 extern NSString * const rightOptionsName;
 
+extern uint32_t const ballCategory;
+extern uint32_t const blockCategory;
+extern uint32_t const paddleCategory;
+extern uint32_t const bottomCategory;
+extern uint32_t const powerUpCategory;
+
 extern NSString * const gameTitleName;
 extern NSString * const playLabelName;
 extern NSString * const editLabelName;
