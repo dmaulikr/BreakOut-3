@@ -17,6 +17,5 @@
 -(void)startMainScene;
 -(void)startEditScene;
 -(void)createSceneContents;
-
-
+-(void)createTable;
 @end

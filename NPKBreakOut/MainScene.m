@@ -104,7 +104,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
 -(void)createBallsFromData
 {
     for (BallSprite *ball in [GameData sharedGameData].saveFile.balls) {
-        ball.physicsBody.dynamic         = YES;
+
+        ball.physicsBody.dynamic = YES;
         ball.physicsBody.categoryBitMask    = ballCategory;
         ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
         ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
@@ -125,6 +126,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
     }
     
 }
+
+
 
 -(void)createPowerUpFromData
 {
@@ -234,12 +237,9 @@ static NSString * const pausedScreenName = @"pausedScreen";
 -(void)startGameIsFirstTime:(BOOL)isFirstTime
 {
     BOOL firstTime = isFirstTime;
-    //NSLog(@"start game");
     
     for (BallSprite *ball in [self childNodeWithName:ballNodeNameSearch].children) {
-        NSLog(@"a ball found ");
         if (ball.physicsBody.velocity.dy || ball.physicsBody.velocity.dx) {
-            NSLog(@"has velocity");
             firstTime = NO;
         }
     }
@@ -375,6 +375,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
         if ([node.name isEqualToString:saveAndQuitLabelName]) {
             [[GameData sharedGameData] archiveSaveFile];
             [self removeAllChildren];
+            [GameData sharedGameData].saveFile = [[GameSaveFile alloc] init];
             
             StartScene *startScene = [[StartScene alloc] initWithSize:self.size];
             [self.view presentScene:startScene];
@@ -388,7 +389,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 {
     
     if (self.nodesPressedAtTouchBegins.count == 1) {
-        NSLog(@"moving paddle");
+        //NSLog(@"moving paddle");
         
         CGPoint touchLocation = [[touches anyObject] locationInNode:self];
         CGPoint previousLocation = [[touches anyObject] previousLocationInNode:self];

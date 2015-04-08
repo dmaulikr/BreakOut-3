@@ -15,7 +15,7 @@
 
 -(instancetype)init
 {
-    NSLog(@"gamedata init");
+    //NSLog(@"gamedata init");
     self = [super init];
     if (self) {
         NSString *path = [GameData filePathWithName:@""];

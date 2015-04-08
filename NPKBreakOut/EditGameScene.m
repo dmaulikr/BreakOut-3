@@ -57,6 +57,12 @@ static NSString * const playButtonName = @"play";
         
         [self addChild:[super createNodeTree]];
         [super setupSaveFile];
+        //[self childNodeWithName:blockNodeNameSearch].zPosition = 0.5;
+        //[self childNodeWithName:ballNodeNameSearch].zPosition = 0.5;
+        //[self childNodeWithName:paddleNodeNameSearch].zPosition = 0.5;
+        //[self childNodeWithName:optionsNodeNameSearch].zPosition = 1.0;
+        //[self childNodeWithName:backgroundNodeNameSearch].zPosition = 1.0;
+        
         
         SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
 
@@ -65,7 +71,7 @@ static NSString * const playButtonName = @"play";
         self.physicsBody.friction         = 0.0;
         self.physicsWorld.contactDelegate = self;
         self.name                         = @"world";
-        self.anchorPoint                 = CGPointZero;
+        //self.anchorPoint                 = CGPointZero;
 
         self.bottomOptionsHeightLimit = 110.0;
         self.rightOptionsWidthLimit   = self.frame.size.width - 90.0;
@@ -74,8 +80,8 @@ static NSString * const playButtonName = @"play";
         self.blockHeight              = [[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height;
         self.bottomOptionsHeight      = [[SKSpriteNode alloc] initWithImageNamed:@"bottomOptions.png"].frame.size.height;
         
-        [self createContents];
         [self createBackground];
+        [self createContents];
         [self createBottomOptions];
         [self createRightOptions];
     }
@@ -100,8 +106,38 @@ static NSString * const playButtonName = @"play";
 
 -(void)createContents
 {
-    if ([GameData sharedGameData].saveFile.blocks.count != 0) {
-        //<#statements#>
+    if ([GameData sharedGameData].saveFile.blocks.count > 0)  [self createBlocksFromData];
+    if ([GameData sharedGameData].saveFile.balls.count > 0)   [self createBallsFromData];
+    if ([GameData sharedGameData].saveFile.paddles.count > 0) [self createPaddlesFromData];
+    //self.physicsWorld.speed = 0;
+    
+}
+
+-(void)createBlocksFromData
+{
+    for (BlockSprite *block in [GameData sharedGameData].saveFile.blocks) {
+        block.physicsBody.dynamic = YES;
+        [[self childNodeWithName:blockNodeNameSearch] addChild:block];
+    }
+}
+
+-(void)createBallsFromData
+{
+    for (BallSprite *ball in [GameData sharedGameData].saveFile.balls) {
+        ball.physicsBody.dynamic = NO;
+        [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
+    }
+}
+
+
+-(void)createPaddlesFromData
+{
+    for (PaddleSprite *paddle in [GameData sharedGameData].saveFile.paddles) {
+        
+        paddle.physicsBody.categoryBitMask    = paddleCategory;
+        paddle.physicsBody.contactTestBitMask = powerUpCategory;
+        
+        [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
     }
     
 }
@@ -110,10 +146,7 @@ static NSString * const playButtonName = @"play";
 -(void)createBackground
 {
     SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
-    background.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:background.frame.size];
-    background.physicsBody.dynamic = NO;
-    background.position       = CGPointZero;
-    background.anchorPoint    = CGPointZero;
+    background.position       = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
     background.name           = backgroundName;
     
     [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
@@ -145,10 +178,8 @@ static NSString * const playButtonName = @"play";
     SKSpriteNode *bottomOptions = [SKSpriteNode spriteNodeWithImageNamed:@"bottomOptions"];
     
     bottomOptions.anchorPoint = CGPointMake(0,0);
-    //CGPointMake((bottomOptions.frame.size.width/2) * -1, (bottomOptions.frame.size.height/2));
     bottomOptions.position = CGPointMake(0,bottomOptions.frame.size.height * -1);
     bottomOptions.name = bottomOptionsName;
-    NSLog(@"%f, %f", bottomOptions.position.y, bottomOptions.position.x);
     
     
     [[self childNodeWithName:optionsNodeNameSearch] addChild:bottomOptions];
@@ -159,18 +190,20 @@ static NSString * const playButtonName = @"play";
                                                     hasPowerup:NO
                                                    currentSize:@"normal"
                                                    canBeEdited:NO];
+    block.zPosition = 100;
     
     BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(bottomOptions.size.width/2, 100)
                                                 currentSize:@"normal"
                                                      status:@"normal"
                                                        name:overlayBallName];
+    ball.zPosition = 100;
     ball.physicsBody.dynamic = NO;
     
     PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
                                                             position:CGPointMake(bottomOptions.size.width * 3/4, 100)
                                                               status:@"normal"
                                                                 name:overlayPaddleName];
-    
+    paddle.zPosition = 100;
     [bottomOptions addChild:paddle];
     [bottomOptions addChild:ball];
     [bottomOptions  addChild:block];
@@ -181,7 +214,7 @@ static NSString * const playButtonName = @"play";
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
-    SKNode *node = [self.physicsWorld bodyAtPoint:[[touches anyObject] locationInNode:self]].node;
+    SKNode *node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
     
     
     NSLog(@"touch begins pressed %@", node.name);

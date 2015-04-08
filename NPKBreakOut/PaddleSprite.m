@@ -9,10 +9,11 @@
 #import "PaddleSprite.h"
 
 
-static NSString* ballCategoryName = @"ball";
-static NSString* paddleCategoryName = @"paddle";
-static NSString* blockCategoryName = @"block";
-static NSString* blockNodeCategoryName = @"blockNode";
+static NSString *positionKey = @"position";
+static NSString *statusKey   = @"status";
+static NSString *nameKey     = @"name";
+static NSString *currentSizeKey = @"currentSizeKey";
+
 
 @interface PaddleSprite ()
 
@@ -39,6 +40,28 @@ static NSString* blockNodeCategoryName = @"blockNode";
         
     }
     return self;
+}
+
+-(instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder]) {
+        PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:[aDecoder decodeObjectForKey:currentSizeKey]
+                                                                position:[[aDecoder decodeObjectForKey:positionKey] CGPointValue]
+                                                                  status:[aDecoder decodeObjectForKey:statusKey]
+                                                                    name:[aDecoder decodeObjectForKey:nameKey]];
+        self = paddle;
+
+    }
+    return self;
+}
+
+-(void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:[NSValue valueWithCGPoint:self.position] forKey:positionKey];
+    [aCoder encodeObject:self.status forKey:statusKey];
+    [aCoder encodeObject:self.name forKey:nameKey];
+    [aCoder encodeObject:self.currentSize forKey:currentSizeKey];
+
 }
 
 -(void)updateSelf

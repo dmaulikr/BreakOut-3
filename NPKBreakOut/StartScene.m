@@ -44,7 +44,6 @@
     [self createPlayButton];
     [self createEditButton];
     [self createLoadButton];
-    [self createEditSavesButton];
     
 }
 
@@ -139,18 +138,6 @@
     [self  addChild:backButton];
 }
 
--(void)createEditSavesButton
-{
-    SKLabelNode *editSaveButton = [SKLabelNode labelNodeWithFontNamed:@"arial"];
-    editSaveButton.text = @"Edit Saves";
-    editSaveButton.fontSize = 32;
-    editSaveButton.name = editSavesName;
-    editSaveButton.position = CGPointMake(self.frame.size.width * 0.75, self.playLabelHeight + 100);
-    
-    [self addChild:editSaveButton];
-    
-}
-
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -172,13 +159,11 @@
         [self removeAllChildren];
 
         [self createBackButton];
-        [self createTableWithEditing:NO];
+        [self createTable];
         
     } else if ([node.name isEqualToString:backLabelName]) {
         [self resetContents];
 
-    } else if ([node.name isEqualToString:editSavesName]) {
-        [self createTableWithEditing:YES];
     }
 }
 
@@ -204,7 +189,7 @@
     
 }
 
--(void)createTableWithEditing:(BOOL)editing
+-(void)createTable
 {
 
     float scaleFactor = 0.85;
@@ -222,10 +207,6 @@
     table.layer.masksToBounds = YES;
     self.tableView = table;
     
-    if (editing) {
-        [table setEditing:YES animated:YES];
-    }
-
     [self.view addSubview:self.tableView];
 
 }

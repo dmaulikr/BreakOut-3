@@ -54,14 +54,14 @@ static NSString * const velocityDyKey     = @"velocityDy";
         CGVector vector = CGVectorMake([aDecoder decodeFloatForKey:velocityDxKey], [aDecoder decodeFloatForKey:velocityDyKey]);
         ball.physicsBody.velocity = vector;
         self = ball;
-        NSLog(@"init with coder ball decoding %@", self.name);
+        //NSLog(@"init with coder ball decoding %@", self.name);
     }
     return self;
 }
 
 -(void)encodeWithCoder:(NSCoder *)aCoder
 {
-    NSLog(@"encoding ball %@", self.name);
+    //NSLog(@"encoding ball %@", self.name);
     [aCoder encodeObject:self.name forKey:nameKey];
     [aCoder encodeObject:self.currentSize forKey:currentSizeKey];
     [aCoder encodeObject:self.status forKey:statusKey];

@@ -104,7 +104,7 @@
         [[GameData sharedGameData] deleteSaveFileNamed:self.fileName];
     }
   
-    [self.startScene createSceneContents];
+    [self.startScene createTable];
     [self removeFromSuperview];
     
 }

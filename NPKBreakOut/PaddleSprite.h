@@ -8,7 +8,7 @@
 
 #import "GamePiece.h"
 
-@interface PaddleSprite : GamePiece
+@interface PaddleSprite : GamePiece <NSCoding>
 
 @property (nonatomic) NSString *currentSize;
 @property (nonatomic) NSString *status;

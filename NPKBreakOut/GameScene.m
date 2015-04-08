@@ -10,6 +10,9 @@
 #import "Constants.h"
 #import "GameSaveFile.h"
 #import "GameData.h"
+#import "BlockSprite.h"
+#import "BallSprite.h"
+#import "PaddleSprite.h"
 
 @implementation GameScene
 
@@ -36,6 +39,7 @@
     backgroundNode.name = backgroundNodeName;
     optionsNode.name    = optionsNodeName;
     
+    
     CGPoint origin = CGPointZero;
     mainNode.position       = origin;
     blockNode.position      = origin;
@@ -53,10 +57,10 @@
     [contentNode addChild:ballNode];
     [contentNode addChild:paddleNode];
     [contentNode addChild:powerUpNode];
-    [mainNode    addChild:contentNode];
-    [mainNode    addChild:overlayNode];
     [mainNode    addChild:backgroundNode];
+    [mainNode    addChild:contentNode];
     [mainNode    addChild:optionsNode];
+    [mainNode    addChild:overlayNode];
 
     return mainNode;
     
@@ -78,5 +82,6 @@
         NSLog(@"starting, scene Has savefile");
     }
 }
+
 
 @end
