@@ -15,6 +15,7 @@ NSString * const powerUpName       = @"powerUp";
 NSString * const backgroundName    = @"background";
 NSString * const bottomOptionsName = @"bottomOptions";
 NSString * const rightOptionsName  = @"rightOptions";
+NSString * const hitPointsLabelName  = @"hitPointsLabel";
 
 uint32_t const ballCategory     = 0x1 << 0;
 uint32_t const blockCategory    = 0x1 << 2;

@@ -23,10 +23,8 @@
                         hitPoints:(int)hitPoints name:(NSString *)name
                        hasPowerup:(BOOL)hasPowerup currentSize:(NSString *)currentSize
                       canBeEdited:(BOOL)canBeEdited;
--(void)makeSelfEditable;
+-(void)makeSelfRotatable;
 -(void)makeSelfUneditable;
--(SKShapeNode *)createRotatePoint;
--(SKShapeNode *)createEditPointTopLeft;
 -(void)adjustSizeWithTouches:(NSSet *)touches;
 -(void)adjustRotationWithTouches:(NSSet *)touches;
 

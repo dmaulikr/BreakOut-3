@@ -16,6 +16,8 @@ extern NSString * const powerUpName;
 extern NSString * const backgroundName;
 extern NSString * const bottomOptionsName;
 extern NSString * const rightOptionsName;
+extern NSString * const hitPointsLabelName;
+
 
 extern uint32_t const ballCategory;
 extern uint32_t const blockCategory;

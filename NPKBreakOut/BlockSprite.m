@@ -7,6 +7,7 @@
 //
 
 #import "BlockSprite.h"
+#import "Constants.h"
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
 static NSString * const currentSizeKey  = @"currentSize";
@@ -131,28 +132,23 @@ static double editPointRadius = 7.5;
 {
     [self removeAllChildren];
     
-    self.physicsBody.dynamic = NO;
     self.isEditable          = NO;
-    
-    //[self addChild:[self createMovePoint]];
 
 }
 
--(void)makeSelfEditable
-{
 
-    self.isEditable          = YES;
-    self.physicsBody.dynamic = NO;
+
+-(void)makeSelfRotatable
+{
+    self.isEditable = YES;
     
     [self removeAllChildren];
-    
-    [self addChild:[self createEditPointTopLeft]];
-    [self addChild:[self createRotatePoint]];
-    
-
+    [self createRotatePoint];
 }
 
--(SKShapeNode *)createRotatePoint
+
+
+-(void)createRotatePoint
 {
     SKShapeNode *rotatePoint = [SKShapeNode shapeNodeWithCircleOfRadius:editPointRadius];
     
@@ -161,16 +157,28 @@ static double editPointRadius = 7.5;
     rotatePoint.physicsBody         = [SKPhysicsBody bodyWithCircleOfRadius:rotatePoint.frame.size.height/2];
     rotatePoint.physicsBody.dynamic = NO;
     rotatePoint.zPosition           = 0.5;
-    
     rotatePoint.lineWidth   = 0.01;
     rotatePoint.fillColor   = [SKColor greenColor];
     rotatePoint.strokeColor = [SKColor whiteColor];
     rotatePoint.glowWidth   = 0.0001;
+
     
-    return  rotatePoint;
+    SKLabelNode *label = [SKLabelNode labelNodeWithFontNamed:@"arial"];
+    label.text = [NSString stringWithFormat:@"%d", self.hitPoints];
+    label.fontSize = 18;
+    label.fontColor = [UIColor blackColor];
+    label.name = hitPointsLabelName;
+    label.position = CGPointMake(0, -5);
+    label.zPosition = 3;
+    
+    [self addChild:rotatePoint];
+    [self addChild:label];
+
 }
 
--(SKShapeNode *)createEditPointTopLeft
+/*
+
+-(void)createEditPointTopLeft
 {
     SKShapeNode *editPointTopLeft = [SKShapeNode shapeNodeWithCircleOfRadius:editPointRadius];
     
@@ -185,27 +193,10 @@ static double editPointRadius = 7.5;
     editPointTopLeft.strokeColor = [SKColor whiteColor];
     editPointTopLeft.glowWidth   = 0.0001;
     
-    return editPointTopLeft;
+    [self addChild:editPointTopLeft];
 }
+*/
 
--(SKShapeNode *)createMovePoint
-{
-    SKShapeNode *movePoint = [SKShapeNode shapeNodeWithCircleOfRadius:editPointRadius];
-    
-    movePoint.position            = CGPointMake(0, -self.frame.size.height/2);
-    movePoint.name                = @"movePoint";
-    movePoint.physicsBody         = [SKPhysicsBody bodyWithCircleOfRadius:10];
-    movePoint.physicsBody.dynamic = NO;
-    movePoint.zPosition           = 0.5;
-    
-    movePoint.lineWidth   = 0.01;
-    movePoint.fillColor   = [SKColor blackColor];
-    movePoint.strokeColor = [SKColor whiteColor];
-    movePoint.glowWidth   = 0.0001;
-    
-    return movePoint;
-
-}
 
 -(void)adjustSizeWithTouches:(NSSet *)touches
 {

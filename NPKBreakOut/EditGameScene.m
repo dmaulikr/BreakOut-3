@@ -5,6 +5,7 @@
 //  Created by Nathan Knable on 1/27/15.
 //  Copyright (c) 2015 Nathan Knable. All rights reserved.
 //
+// rotate icon http://cdn.flaticon.com/png/256/22.png
 
 #import "EditGameScene.h"
 #import "BlockSprite.h"
