@@ -24,6 +24,7 @@ static NSString * const overlayPaddleName = @"third";
 static NSString * const rotatePointName = @"rotatePoint";
 static NSString * const editPointTopLeftName =  @"editPointTopLeft";
 static NSString * const playButtonName = @"play";
+static NSString * const saveButtonName = @"save";
 
 
 @interface EditGameScene ()
@@ -57,12 +58,6 @@ static NSString * const playButtonName = @"play";
         
         [self addChild:[super createNodeTree]];
         [super setupSaveFile];
-        //[self childNodeWithName:blockNodeNameSearch].zPosition = 0.5;
-        //[self childNodeWithName:ballNodeNameSearch].zPosition = 0.5;
-        //[self childNodeWithName:paddleNodeNameSearch].zPosition = 0.5;
-        //[self childNodeWithName:optionsNodeNameSearch].zPosition = 1.0;
-        //[self childNodeWithName:backgroundNodeNameSearch].zPosition = 1.0;
-        
         
         SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
 
@@ -158,18 +153,29 @@ static NSString * const playButtonName = @"play";
     rightOptions.anchorPoint = CGPointZero;
     rightOptions.position = CGPointMake(self.frame.size.width, 0);
     rightOptions.name = rightOptionsName;
-    NSLog(@"screen %f x %f", self.frame.size.width, rightOptions.position.x);
+    //NSLog(@"screen %f x %f", self.frame.size.width, rightOptions.position.x);
     
     [[self childNodeWithName: optionsNodeNameSearch] addChild:rightOptions];
     
     SKLabelNode *play        = [SKLabelNode labelNodeWithFontNamed:@"arial"];
     play.text                = @"play";
+    play.fontSize            = 30;
     play.name                = playButtonName;
     play.physicsBody         = [SKPhysicsBody bodyWithRectangleOfSize:play.frame.size];
     play.position            = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height/10);
-    play.fontSize            = 30;
     play.physicsBody.dynamic = NO;
     [rightOptions addChild:play];
+    
+    
+    
+    SKLabelNode *save  = [SKLabelNode labelNodeWithFontNamed:@"arial"];
+    save.text = @"save";
+    save.fontSize = 30;
+    save.name   = saveButtonName;
+    save.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:save.frame.size];
+    save.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height/5.5);
+    save.physicsBody.dynamic = NO;
+    [rightOptions addChild:save];
 }
 
 -(void)createBottomOptions
@@ -217,23 +223,29 @@ static NSString * const playButtonName = @"play";
     SKNode *node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
     
     
-    NSLog(@"touch begins pressed %@", node.name);
+    //NSLog(@"touch begins pressed %@", node.name);
     
     if (![node.name containsString:blockName] && ![node.name containsString:ballName] &&
         ![node.name containsString:paddleName]) {
         node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
     }
     
-    NSLog(@"touch begins pressed %@", node.name);
+    //NSLog(@"touch begins pressed %@", node.name);
 
 
     self.nodePressedAtTouchBegins = node;
  
     if ([node.name isEqualToString:playButtonName]) {
-        
+        NSLog(@"button pressed play");
         if (![self checkSceneForMissingSprites]) {
             [self switchToMainScene];
         }
+    }
+    
+    if ([node.name isEqualToString:saveButtonName]) {
+        NSLog(@"button pressed save");
+        [self switchToStartScene];
+        
     }
 
 }
@@ -257,6 +269,7 @@ static NSString * const playButtonName = @"play";
                                                                   canBeEdited:YES];
         self.nodePressedAtTouchBegins = block;
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
+        [[GameData sharedGameData].saveFile.blocks addObject:block];
     }
     
     if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayBallName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
@@ -267,6 +280,7 @@ static NSString * const playButtonName = @"play";
         ball.physicsBody.dynamic = NO;
         self.nodePressedAtTouchBegins = ball;
         [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
+        [[GameData sharedGameData].saveFile.balls addObject:ball];
         
     }
     
@@ -277,6 +291,7 @@ static NSString * const playButtonName = @"play";
                                                                     name:[self namePaddle]];
         self.nodePressedAtTouchBegins = paddle;
         [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
+        [[GameData sharedGameData].saveFile.paddles addObject:paddle];
     
     }
 
@@ -314,13 +329,14 @@ static NSString * const playButtonName = @"play";
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"ended");
+    //NSLog(@"ended");
     if (self.isAdjustingBackground) {
         [self adjustOptionMenusToRest];
     }
+    [[GameData sharedGameData]  archiveSaveFile];
     
     if ([self.nodePressedAtTouchBegins.name containsString:blockName]) {
-        NSLog(@"a node was created/moved");
+        //NSLog(@"a node was created/moved");
     }
 
     self.nodePressedAtTouchBegins = 0;
@@ -361,7 +377,7 @@ static NSString * const playButtonName = @"play";
 
 -(void)adjustOptionMenusToRest
 {
-    NSLog(@"rest");
+    //NSLog(@"rest");
     SKNode *bottomOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:bottomOptionsName];
     SKNode *rightOptions = [[self childNodeWithName:optionsNodeNameSearch] childNodeWithName:rightOptionsName];
     
@@ -385,27 +401,27 @@ static NSString * const playButtonName = @"play";
     
     
     if (rightOptionsX == screenWidth) {
-        NSLog(@"auto move bottom");
+       // NSLog(@"auto move bottom");
         
         if (bottomOptionsY <= self.bottomOptionsHeightLimit/2) {
             [bottomOptions runAction:slideBottomOptionsDown];
-            NSLog(@"lower ");
+            //NSLog(@"lower ");
         } else if (bottomOptionsY < (self.bottomOptionsHeightLimit + 60) && bottomOptionsY > (self.bottomOptionsHeightLimit/2)) {
             [bottomOptions runAction:slideBottomOptionsUp];
-            NSLog(@"upper");
+           // NSLog(@"upper");
         }
         
     }
     
     //NSLog(@"x %f  buffer %f", rightOptionsX, self.rightOptionsWidthLimit + 45);
     if (bottomOptionsY == 0) {
-        NSLog(@"auto move right");
+        //NSLog(@"auto move right");
         if (rightOptionsX >=  self.rightOptionsWidthLimit + 45) {
-            NSLog(@"right move to 0");
+           // NSLog(@"right move to 0");
             [rightOptions runAction:SlideRightOptionsRight];
         
         } else if (rightOptionsX < self.rightOptionsWidthLimit + 45) {
-            NSLog(@"right move onto screen");
+           // NSLog(@"right move onto screen");
             [rightOptions runAction:slideRightOptionsLeft];
         }
 
@@ -446,14 +462,14 @@ static NSString * const playButtonName = @"play";
 
  
     if (!self.isAdjustingBackground) {
-        NSLog(@"non adjust");
+        //NSLog(@"non adjust");
         // this runs on the first time here
         // if the touch is within a boundary to move it turns adjusting on and figures out what should move
         if (touchLocation.y < bottomOptionsY + self.bottomOptionsBuffer && rightOptionsX == screenWidth) {
             
             self.shouldMoveBottomOptions = YES;
             self.isAdjustingBackground = YES;
-            NSLog(@"move botom");
+           // NSLog(@"move botom");
             
         }
         
@@ -463,7 +479,7 @@ static NSString * const playButtonName = @"play";
             
             self.shouldMoveRightOptions = YES;
             self.isAdjustingBackground = YES;
-            NSLog(@"move right ");
+           // NSLog(@"move right ");
             
         }
         
@@ -619,7 +635,7 @@ static NSString * const playButtonName = @"play";
                     if    ((block.position.x - xBuffer) < blockComparitor.position.x && blockComparitor.position.x < (block.position.x + xBuffer)
                         && (block.position.x - xBuffer) < blockPressed.position.x    && blockPressed.position.x    < (block.position.x + xBuffer)) {
                         
-                        NSLog(@"in the same line as two other blocks");
+                      //  NSLog(@"in the same line as two other blocks");
                     
                         if (block.position.y > blockComparitor.position.y) {
                             //NSLog(@"first b y:%f bc y : %f",block.position.y, blockComparitor.position.y);
@@ -627,7 +643,7 @@ static NSString * const playButtonName = @"play";
                             middleY = blockComparitor.position.y + (block.position.y - blockComparitor.position.y);
                         
                             if (blockPressed.position.y < block.position.y && blockPressed.position.y > blockComparitor.position.y) {
-                                NSLog(@"is inbetween");
+                              //  NSLog(@"is inbetween");
                                 if ((middleY - yBuffer) < blockPressed.position.y && blockPressed.position.y < (middleY + yBuffer)) {
                                     yPosition = middleY;
                                     break;
@@ -635,18 +651,18 @@ static NSString * const playButtonName = @"play";
                             }
                         
                         } else if (block.position.y < blockComparitor.position.y) {
-                            NSLog(@"second b y:%f bc y : %f",block.position.y, blockComparitor.position.y);
+                          //  NSLog(@"second b y:%f bc y : %f",block.position.y, blockComparitor.position.y);
                             middleY = block.position.y + (blockComparitor.position.y - block.position.y);
                         
                             if (blockPressed.position.y < blockComparitor.position.y && blockPressed.position.y > block.position.y) {
-                                NSLog(@"in between");
+                              //  NSLog(@"in between");
                             }
                         }
                     }
                 }
             }
             if (middleY) {
-                NSLog(@"good a Y exists");
+               // NSLog(@"good a Y exists");
                 break;
             }
         }
@@ -680,33 +696,55 @@ static NSString * const playButtonName = @"play";
 
 -(void)switchToMainScene
 {
+    NSLog(@"switch to main scene");
+    [self prepareForSceneChange];
     
+    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size];
+
+    [self.view presentScene:mainScene];
+}
+
+-(void)switchToStartScene
+{
+    NSLog(@"switch to start scene");
+    [self prepareForSceneChange];
+    
+    StartScene *startScene = [[StartScene alloc] initWithSize:self.frame.size];
+    [self.view presentScene:startScene];
+    
+}
+
+-(void)prepareForSceneChange
+{
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
         [[GameData sharedGameData].saveFile.blocks removeObject:node];
         BlockSprite *block = (BlockSprite *)node;
         block.isEditable = NO;
         [block updateSelf];
         block.canBeEdited = NO;
-        [block removeFromParent];
         [[GameData sharedGameData].saveFile.blocks addObject:block];
+        [block removeFromParent];
+
     }];
     
     [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
         [[GameData sharedGameData].saveFile.balls removeObject:node];
         BallSprite *ball = (BallSprite * )node;
-        [ball removeFromParent];
+        ball.physicsBody.dynamic = YES;
         [[GameData sharedGameData].saveFile.balls addObject:ball];
+        [ball removeFromParent];
+        
     }];
     
     [[self childNodeWithName:paddleNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
         [[GameData sharedGameData].saveFile.paddles removeObject:node];
         PaddleSprite *paddle = (PaddleSprite *)node;
-        [paddle removeFromParent];
         [[GameData sharedGameData].saveFile.paddles addObject:paddle];
+        [paddle removeFromParent];
+
     }];
     
-    
-    MainScene *mainScene = [[MainScene alloc] initWithSize:self.frame.size];
+    [[GameData sharedGameData] archiveSaveFile];
     
     if ([self.view gestureRecognizers]) {
         [self.view removeGestureRecognizer:[self.view.gestureRecognizers lastObject]];
@@ -714,9 +752,8 @@ static NSString * const playButtonName = @"play";
     }
     
     [self removeAllChildren];
-    [self.view presentScene:mainScene];
+    
 }
-
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)sender
 {

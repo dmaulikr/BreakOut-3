@@ -8,7 +8,7 @@
 
 #import "GamePiece.h"
 
-@interface PowerUpSprite : GamePiece
+@interface PowerUpSprite : GamePiece <NSCoding>
 
 @property (nonatomic) NSString *type;
 

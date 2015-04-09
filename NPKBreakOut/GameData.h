@@ -20,6 +20,7 @@
 -(GameSaveFile *)loadSaveFileWithFileName:(NSString *)fileName;
 
 -(BOOL)doesSaveFileExist:(NSString *)fileName;
+-(void)resetData;
 -(void)archiveSaveFile;
 -(void)deleteSaveFileNamed:(NSString *)fileName;
 -(NSMutableArray *)loadSaveFiles;

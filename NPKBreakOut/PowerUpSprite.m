@@ -8,6 +8,11 @@
 
 #import "PowerUpSprite.h"
 
+
+static NSString * const positionKey = @"position";
+static NSString * const typeKey     = @"type";
+static NSString * const nameKey     = @"name";
+
 @interface PowerUpSprite ()
 
 @end
@@ -34,6 +39,28 @@
     return self;
 }
 
+-(instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder]) {
+        NSLog(@"decode power");
+        PowerUpSprite *power = [[PowerUpSprite alloc] initWithLocation:[[aDecoder decodeObjectForKey:positionKey] CGPointValue]
+                                                                  type:[aDecoder decodeObjectForKey:typeKey]
+                                                                  name:[aDecoder decodeObjectForKey:nameKey]];
+        self = power;
+    }
+    
+    return self;
+    
+}
+
+-(void)encodeWithCoder:(NSCoder *)aCoder
+{
+    NSLog(@"encode power");
+    [aCoder encodeObject:[NSValue valueWithCGPoint:self.position] forKey:positionKey];
+    [aCoder encodeObject:self.name forKey:nameKey];
+    [aCoder encodeObject:self.type forKey:typeKey];
+    
+}
 -(void)createAnimation
 {
     SKSpriteNode *letterP = [SKSpriteNode spriteNodeWithImageNamed:@"powerUpP.png"];

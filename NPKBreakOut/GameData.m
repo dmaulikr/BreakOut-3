@@ -53,6 +53,10 @@
     
 }
 
+-(void)resetData
+{
+    self.saveFile = [[GameSaveFile alloc] init];
+}
 
 -(void)archiveSaveFile
 {
@@ -61,7 +65,7 @@
     BOOL success = [NSKeyedArchiver archiveRootObject:self.saveFile toFile:filePath];
     
     if (success) {
-        NSLog(@"saved %@ ", self.saveFile);
+        NSLog(@"saved %@ ", self.saveFile.saveFileName);
     } else {
         NSLog(@"couldnt save");
     }

@@ -40,6 +40,7 @@
 -(void)createSceneContents
 {
     [[self childNodeWithName:backLabelName] removeFromParent];
+    [[GameData sharedGameData] resetData];
     [self createTitle];
     [self createPlayButton];
     [self createEditButton];
