@@ -73,12 +73,13 @@ static NSString * const saveButtonName = @"save";
         //self.anchorPoint                 = CGPointZero;
         self.shouldAutoAdjustMovingBlocks = NO;
 
-        self.bottomOptionsHeightLimit = 110.0;
+        self.blockHeight              = [[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height;
+        self.bottomOptionsHeight      = [[SKSpriteNode alloc] initWithImageNamed:@"bottomOptions.png"].frame.size.height;
+        self.bottomOptionsHeightLimit = 90;
         self.rightOptionsWidthLimit   = self.frame.size.width - 90.0;
         self.bottomOptionsBuffer      = 100;
         self.rightOptionsBuffer       = 100;
-        self.blockHeight              = [[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height;
-        self.bottomOptionsHeight      = [[SKSpriteNode alloc] initWithImageNamed:@"bottomOptions.png"].frame.size.height;
+
         
         [self createBackground];
         [self createContents];
@@ -466,9 +467,7 @@ static NSString * const saveButtonName = @"save";
     SKAction *slideRightOptionsLeft = [SKAction moveTo:CGPointMake(self.rightOptionsWidthLimit, 0.0) duration:0.5];
     SKAction *SlideRightOptionsRight = [SKAction moveTo:CGPointMake(screenWidth, 0) duration:0.5];
     
-    
-    if (rightOptionsX == screenWidth) {
-       // NSLog(@"auto move bottom");
+
         
         if (bottomOptionsY <= self.bottomOptionsHeightLimit/2) {
             [bottomOptions runAction:slideBottomOptionsDown];
@@ -478,10 +477,9 @@ static NSString * const saveButtonName = @"save";
            // NSLog(@"upper");
         }
         
-    }
+    
     
     //NSLog(@"x %f  buffer %f", rightOptionsX, self.rightOptionsWidthLimit + 45);
-    if (bottomOptionsY == 0) {
         //NSLog(@"auto move right");
         if (rightOptionsX >=  self.rightOptionsWidthLimit + 45) {
            // NSLog(@"right move to 0");
@@ -492,7 +490,7 @@ static NSString * const saveButtonName = @"save";
             [rightOptions runAction:slideRightOptionsLeft];
         }
 
-    }
+    
     
 
     
@@ -529,10 +527,10 @@ static NSString * const saveButtonName = @"save";
 
  
     if (!self.isAdjustingBackground) {
-        //NSLog(@"non adjust");
+        NSLog(@"non adjust");
         // this runs on the first time here
         // if the touch is within a boundary to move it turns adjusting on and figures out what should move
-        if (touchLocation.y < bottomOptionsY + self.bottomOptionsBuffer && rightOptionsX == screenWidth) {
+        if (touchLocation.y < bottomOptionsY + self.bottomOptionsBuffer) {
             
             self.shouldMoveBottomOptions = YES;
             self.isAdjustingBackground = YES;
@@ -542,7 +540,7 @@ static NSString * const saveButtonName = @"save";
         
        //NSLog(@"touch location %f buffer position %f", touchLocation.x, rightOptionsX - self.rightOptionsBuffer);
         
-       if (touchLocation.x > rightOptionsX - self.rightOptionsBuffer && bottomOptionsY == 0) {
+       if (touchLocation.x > rightOptionsX - self.rightOptionsBuffer) {
             
             self.shouldMoveRightOptions = YES;
             self.isAdjustingBackground = YES;
@@ -550,6 +548,7 @@ static NSString * const saveButtonName = @"save";
             
         }
         
+        //this prevents two from moving at the same time
         if (touchDistanceToBottom < touchDistanecToRight)      self.shouldMoveRightOptions = NO;
         else if (touchDistanecToRight < touchDistanceToBottom) self.shouldMoveBottomOptions = NO;
         
