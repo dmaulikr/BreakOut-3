@@ -16,7 +16,12 @@ extern NSString * const powerUpName;
 extern NSString * const backgroundName;
 extern NSString * const bottomOptionsName;
 extern NSString * const rightOptionsName;
+extern NSString * const rotateButtonName;
+extern NSString * const rotatePointName;
+extern NSString * const hitPointsButtonName;
 extern NSString * const hitPointsLabelName;
+extern NSString * const gridButtonName;
+
 
 
 extern uint32_t const ballCategory;

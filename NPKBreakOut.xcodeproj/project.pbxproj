@@ -13,6 +13,14 @@
 		500D6B691AC0B19C00628A95 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B681AC0B19C00628A95 /* ViewController.m */; };
 		500D6B6C1AC4A80900628A95 /* GameSaveFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B6B1AC4A80900628A95 /* GameSaveFile.m */; };
 		500D6B6E1AD6F62600628A95 /* rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B6D1AD6F62600628A95 /* rotate.png */; };
+		500D6B721AD6F82300628A95 /* RotateSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B711AD6F82300628A95 /* RotateSprite.m */; };
+		500D6B741AD6FF9200628A95 /* rotateOutline.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B731AD6FF9200628A95 /* rotateOutline.png */; };
+		500D6B7A1AD720C200628A95 /* HitPointSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B791AD720C200628A95 /* HitPointSprite.m */; };
+		500D6B7C1AD7216300628A95 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B7B1AD7216300628A95 /* button.png */; };
+		500D6B801AD72B7600628A95 /* hitPointsButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B7F1AD72B7600628A95 /* hitPointsButton.png */; };
+		500D6B821ADC5AB300628A95 /* GridRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B811ADC5AB300628A95 /* GridRed.png */; };
+		500D6B841ADC5ABB00628A95 /* Grid.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B831ADC5ABB00628A95 /* Grid.png */; };
+		500D6B871ADC5BE800628A95 /* GridSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B861ADC5BE800628A95 /* GridSprite.m */; };
 		5058D6A81A9BDF1D00025597 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 5058D6A71A9BDF1D00025597 /* Constants.m */; };
 		5058D6AA1A9BE41F00025597 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5058D6A91A9BE41E00025597 /* CloudKit.framework */; };
 		5058D6AD1A9C240D00025597 /* GameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 5058D6AC1A9C240D00025597 /* GameScene.m */; };
@@ -68,7 +76,17 @@
 		500D6B6A1AC4A80900628A95 /* GameSaveFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameSaveFile.h; sourceTree = "<group>"; };
 		500D6B6B1AC4A80900628A95 /* GameSaveFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameSaveFile.m; sourceTree = "<group>"; };
 		500D6B6D1AD6F62600628A95 /* rotate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rotate.png; sourceTree = "<group>"; };
-		500D6B6F1AD6F62C00628A95 /* rotateOutline.pxm */ = {isa = PBXFileReference; lastKnownFileType = file; path = rotateOutline.pxm; sourceTree = "<group>"; };
+		500D6B701AD6F82300628A95 /* RotateSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateSprite.h; sourceTree = "<group>"; };
+		500D6B711AD6F82300628A95 /* RotateSprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotateSprite.m; sourceTree = "<group>"; };
+		500D6B731AD6FF9200628A95 /* rotateOutline.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rotateOutline.png; sourceTree = "<group>"; };
+		500D6B781AD720C200628A95 /* HitPointSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HitPointSprite.h; sourceTree = "<group>"; };
+		500D6B791AD720C200628A95 /* HitPointSprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HitPointSprite.m; sourceTree = "<group>"; };
+		500D6B7B1AD7216300628A95 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
+		500D6B7F1AD72B7600628A95 /* hitPointsButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hitPointsButton.png; sourceTree = "<group>"; };
+		500D6B811ADC5AB300628A95 /* GridRed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GridRed.png; sourceTree = "<group>"; };
+		500D6B831ADC5ABB00628A95 /* Grid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Grid.png; sourceTree = "<group>"; };
+		500D6B851ADC5BE800628A95 /* GridSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridSprite.h; sourceTree = "<group>"; };
+		500D6B861ADC5BE800628A95 /* GridSprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridSprite.m; sourceTree = "<group>"; };
 		5058D6A61A9BDEEB00025597 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		5058D6A71A9BDF1D00025597 /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 		5058D6A91A9BE41E00025597 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
@@ -197,6 +215,12 @@
 				50813ED81A708BE400FCB418 /* BallSprite.m */,
 				50813EDA1A7094D800FCB418 /* PowerUpSprite.h */,
 				50813EDB1A7094D800FCB418 /* PowerUpSprite.m */,
+				500D6B701AD6F82300628A95 /* RotateSprite.h */,
+				500D6B711AD6F82300628A95 /* RotateSprite.m */,
+				500D6B781AD720C200628A95 /* HitPointSprite.h */,
+				500D6B791AD720C200628A95 /* HitPointSprite.m */,
+				500D6B851ADC5BE800628A95 /* GridSprite.h */,
+				500D6B861ADC5BE800628A95 /* GridSprite.m */,
 				50813E761A648F8000FCB418 /* Main.storyboard */,
 				50813E791A648F8000FCB418 /* Images.xcassets */,
 				50813E7B1A648F8000FCB418 /* LaunchScreen.xib */,
@@ -211,8 +235,12 @@
 			children = (
 				50813EA01A6DB7AB00FCB418 /* block.png */,
 				50813EBD1A6E075200FCB418 /* powerUpCircle.png */,
+				500D6B811ADC5AB300628A95 /* GridRed.png */,
+				500D6B831ADC5ABB00628A95 /* Grid.png */,
+				500D6B7F1AD72B7600628A95 /* hitPointsButton.png */,
+				500D6B7B1AD7216300628A95 /* button.png */,
 				500D6B6D1AD6F62600628A95 /* rotate.png */,
-				500D6B6F1AD6F62C00628A95 /* rotateOutline.pxm */,
+				500D6B731AD6FF9200628A95 /* rotateOutline.png */,
 				50DAFBA51AAFC68900912F7C /* trashIcon.png */,
 				50813EE01A709B9F00FCB418 /* powerUpP.png */,
 				5058D6C51AA5656000025597 /* bg.png */,
@@ -329,17 +357,22 @@
 				50813EBE1A6E075200FCB418 /* powerUpCircle.png in Resources */,
 				50813EB61A6E037300FCB418 /* powerUp.png in Resources */,
 				50813E781A648F8000FCB418 /* Main.storyboard in Resources */,
+				500D6B741AD6FF9200628A95 /* rotateOutline.png in Resources */,
 				5058D6BB1A9D5DBB00025597 /* bgBlack.png in Resources */,
 				5058D6C61AA5656000025597 /* bg.png in Resources */,
 				500D6B6E1AD6F62600628A95 /* rotate.png in Resources */,
+				500D6B7C1AD7216300628A95 /* button.png in Resources */,
 				50813EA11A6DB7AB00FCB418 /* block.png in Resources */,
 				5058D6C01A9EE63400025597 /* rightOptions.png in Resources */,
 				5058D6C41AA1102B00025597 /* bottomOptions.png in Resources */,
 				50813E9A1A64AC7000FCB418 /* ball.png in Resources */,
 				50813E7D1A648F8000FCB418 /* LaunchScreen.xib in Resources */,
 				50DAFBA61AAFC68900912F7C /* trashIcon.png in Resources */,
+				500D6B821ADC5AB300628A95 /* GridRed.png in Resources */,
 				50813EA91A6DC75B00FCB418 /* paddle.png in Resources */,
 				50813EE11A709B9F00FCB418 /* powerUpP.png in Resources */,
+				500D6B841ADC5ABB00628A95 /* Grid.png in Resources */,
+				500D6B801AD72B7600628A95 /* hitPointsButton.png in Resources */,
 				50813E7A1A648F8000FCB418 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -359,6 +392,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				50813E6F1A648F8000FCB418 /* AppDelegate.m in Sources */,
+				500D6B7A1AD720C200628A95 /* HitPointSprite.m in Sources */,
 				50813ED91A708BE400FCB418 /* BallSprite.m in Sources */,
 				50813ED61A70883D00FCB418 /* PaddleSprite.m in Sources */,
 				50813E721A648F8000FCB418 /* NPKBreakOut.xcdatamodeld in Sources */,
@@ -367,9 +401,11 @@
 				500D6B5D1ABCC52700628A95 /* GameView.m in Sources */,
 				5058D6AD1A9C240D00025597 /* GameScene.m in Sources */,
 				500D6B691AC0B19C00628A95 /* ViewController.m in Sources */,
+				500D6B721AD6F82300628A95 /* RotateSprite.m in Sources */,
 				500D6B631AC0957D00628A95 /* DataTableView.m in Sources */,
 				50813EDC1A7094D800FCB418 /* PowerUpSprite.m in Sources */,
 				5058D6B91A9D387A00025597 /* EditGameScene.m in Sources */,
+				500D6B871ADC5BE800628A95 /* GridSprite.m in Sources */,
 				50DAFBA41AAF9D0A00912F7C /* GameData.m in Sources */,
 				5058D6B01A9C249400025597 /* MainScene.m in Sources */,
 				50813EE71A7841A300FCB418 /* StartScene.m in Sources */,

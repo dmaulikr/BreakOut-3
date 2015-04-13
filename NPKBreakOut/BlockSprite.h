@@ -14,8 +14,9 @@
 @property (nonatomic) int hitPoints;
 @property (nonatomic) BOOL hasPowerup;
 @property (nonatomic) NSString *currentSize;
-@property (nonatomic) BOOL isEditable;
 @property (nonatomic) BOOL canBeEdited;
+@property (nonatomic) BOOL isRotatable;
+@property (nonatomic) BOOL hitPointsCanBeChanged;
 
 
 -(void)updateSelf;
@@ -23,10 +24,9 @@
                         hitPoints:(int)hitPoints name:(NSString *)name
                        hasPowerup:(BOOL)hasPowerup currentSize:(NSString *)currentSize
                       canBeEdited:(BOOL)canBeEdited;
--(void)makeSelfRotatable;
--(void)makeSelfUneditable;
 -(void)adjustSizeWithTouches:(NSSet *)touches;
 -(void)adjustRotationWithTouches:(NSSet *)touches;
+-(void)addHitPoint;
 
 
 @end

@@ -8,14 +8,19 @@
 
 #import <Foundation/Foundation.h>
 
-NSString * const blockName         = @"block";
-NSString * const ballName          = @"ball";
-NSString * const paddleName        = @"paddle";
-NSString * const powerUpName       = @"powerUp";
-NSString * const backgroundName    = @"background";
-NSString * const bottomOptionsName = @"bottomOptions";
-NSString * const rightOptionsName  = @"rightOptions";
-NSString * const hitPointsLabelName  = @"hitPointsLabel";
+NSString * const blockName          = @"block";
+NSString * const ballName           = @"ball";
+NSString * const paddleName         = @"paddle";
+NSString * const powerUpName        = @"powerUp";
+NSString * const backgroundName     = @"background";
+NSString * const bottomOptionsName  = @"bottomOptions";
+NSString * const rightOptionsName   = @"rightOptions";
+NSString * const rotateButtonName   = @"rotateButton";
+NSString * const rotatePointName    = @"rotatePoint";
+NSString * const hitPointsButtonName= @"hitPointButton";
+NSString * const hitPointsLabelName = @"hitPointLabel";
+NSString * const gridButtonName     = @"gridButton";
+
 
 uint32_t const ballCategory     = 0x1 << 0;
 uint32_t const blockCategory    = 0x1 << 2;

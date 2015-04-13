@@ -7,7 +7,10 @@
 //
 
 #import "BlockSprite.h"
+#import "RotateSprite.h"
+#import "HitPointSprite.h"
 #import "Constants.h"
+
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
 static NSString * const currentSizeKey  = @"currentSize";
@@ -20,14 +23,34 @@ static NSString * const blockKey         = @"block";
 
 
 
-static double editPointRadius = 7.5;
+//static double editPointRadius = 7.5;
 
 @interface BlockSprite ()
+
+@property (nonatomic) RotateSprite *rotatePoint;
 
 
 @end
 
 @implementation BlockSprite
+
+
+-(instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    
+    if (self = [super initWithCoder:aDecoder]) {
+        BlockSprite *block = [[BlockSprite alloc]  initWithLocation:[[aDecoder decodeObjectForKey:positionKey] CGPointValue]
+                                                          hitPoints:[aDecoder decodeIntForKey:hitPointsKey]
+                                                               name:[aDecoder decodeObjectForKey:nameKey]
+                                                         hasPowerup:[aDecoder decodeBoolForKey:hasPowerUpKey]
+                                                        currentSize: [aDecoder decodeObjectForKey:currentSizeKey]
+                                                        canBeEdited:[aDecoder decodeObjectForKey:canBeEditedKey]];
+        
+        self = block;
+        
+    }
+    return self;
+}
 
 -(SKSpriteNode *)initWithLocation:(CGPoint)   location
                         hitPoints:(int)       hitPoints
@@ -75,23 +98,21 @@ static double editPointRadius = 7.5;
     
 }
 
--(instancetype)initWithCoder:(NSCoder *)aDecoder
+-(void)addHitPoint
 {
-    
-    if (self = [super initWithCoder:aDecoder]) {
-        BlockSprite *block = [[BlockSprite alloc]  initWithLocation:[[aDecoder decodeObjectForKey:positionKey] CGPointValue]
-                                                           hitPoints:[aDecoder decodeIntForKey:hitPointsKey]
-                                                                name:[aDecoder decodeObjectForKey:nameKey]
-                                                          hasPowerup:[aDecoder decodeBoolForKey:hasPowerUpKey]
-                                                         currentSize: [aDecoder decodeObjectForKey:currentSizeKey]
-                                                         canBeEdited:[aDecoder decodeObjectForKey:canBeEditedKey]];
-        
-        //NSLog(@"init with coder blocksprite decoded block %@", block.name);
-        self = block;
-
+    if (self.hitPointsCanBeChanged) {
+        if (self.hitPoints == 1) {
+            self.hitPoints++;
+        } else if (self.hitPoints == 2) {
+            self.hitPoints++;
+        } else if (self.hitPoints == 3) {
+            self.hitPoints = 1;
+        }
+        [self updateSelf];
     }
-    return self;
+    
 }
+
 
 
 -(void)updateSelf
@@ -113,56 +134,50 @@ static double editPointRadius = 7.5;
         
     }
     
-    if (self.canBeEdited) {
-        
-        if (self.isEditable && self.children.count != 2) {
-            
-            [self makeSelfEditable];
-            
-        } else if (!self.isEditable && self.children.count != 1) {
-
-            [self makeSelfUneditable];
-            
+    RotateSprite *rotatePoint = (RotateSprite *)[self childNodeWithName:rotatePointName];
+    
+    if (self.isRotatable) {
+        if (!rotatePoint) {
+            [self createRotatePoint];
+        }
+    } else {
+        if (rotatePoint) {
+            [rotatePoint removeFromParent];
         }
     }
     
-}
-
--(void)makeSelfUneditable
-{
-    [self removeAllChildren];
+    /*
+    SKLabelNode *hitPointLabel = (SKLabelNode *)[self childNodeWithName:hitPointsLabelName];
     
-    self.isEditable          = NO;
-
+    if (self.hitPointsCanBeChanged) {
+        if (!hitPointLabel) {
+            [self createHitPointLabel];
+        } else {
+            hitPointLabel.text = [NSString stringWithFormat:@"%d",self.hitPoints];
+        }
+    } else {
+        if (hitPointLabel) {
+            [hitPointLabel removeFromParent];
+        }
+    } */
 }
-
-
-
--(void)makeSelfRotatable
-{
-    self.isEditable = YES;
-    
-    [self removeAllChildren];
-    [self createRotatePoint];
-}
-
 
 
 -(void)createRotatePoint
 {
-    SKShapeNode *rotatePoint = [SKShapeNode shapeNodeWithCircleOfRadius:editPointRadius];
+    RotateSprite *rotatePoint = [[RotateSprite alloc] initWithColor:[UIColor blackColor]
+                                                               size:CGSizeMake(20, 20)
+                                                               name:rotatePointName];
+    rotatePoint.position = CGPointMake(0, 1.5);
     
-    rotatePoint.position            = CGPointMake(0, 0);
-    rotatePoint.name                = @"rotatePoint";
-    rotatePoint.physicsBody         = [SKPhysicsBody bodyWithCircleOfRadius:rotatePoint.frame.size.height/2];
-    rotatePoint.physicsBody.dynamic = NO;
-    rotatePoint.zPosition           = 0.5;
-    rotatePoint.lineWidth   = 0.01;
-    rotatePoint.fillColor   = [SKColor greenColor];
-    rotatePoint.strokeColor = [SKColor whiteColor];
-    rotatePoint.glowWidth   = 0.0001;
+    [self addChild:rotatePoint];
 
-    
+}
+
+
+/*
+-(void)createHitPointLabel
+{
     SKLabelNode *label = [SKLabelNode labelNodeWithFontNamed:@"arial"];
     label.text = [NSString stringWithFormat:@"%d", self.hitPoints];
     label.fontSize = 18;
@@ -171,10 +186,10 @@ static double editPointRadius = 7.5;
     label.position = CGPointMake(0, -5);
     label.zPosition = 3;
     
-    [self addChild:rotatePoint];
     [self addChild:label];
 
 }
+ */
 
 /*
 

@@ -16,13 +16,15 @@
 #import "GameScene.h"
 #import "GameData.h"
 #import "GameSaveFile.h"
+#import "RotateSprite.h"
+#import "HitPointSprite.h"
+#import "GridSprite.h"
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
 
 static NSString * const overlayBlockName = @"first";
 static NSString * const overlayBallName = @"second";
 static NSString * const overlayPaddleName = @"third";
-static NSString * const rotatePointName = @"rotatePoint";
 static NSString * const editPointTopLeftName =  @"editPointTopLeft";
 static NSString * const playButtonName = @"play";
 static NSString * const saveButtonName = @"save";
@@ -32,7 +34,7 @@ static NSString * const saveButtonName = @"save";
 
 @property (nonatomic) SKNode *nodePressedAtTouchBegins;
 @property (nonatomic) BlockSprite* rotatingBlock;
-
+@property (nonatomic) BOOL shouldAutoAdjustMovingBlocks;
 
 @property (nonatomic) float bottomOptionsBuffer;
 @property (nonatomic) float rightOptionsBuffer;
@@ -42,6 +44,7 @@ static NSString * const saveButtonName = @"save";
 @property (nonatomic) float bottomOptionsHeight;
 
 @property (nonatomic) BOOL isAdjustingSize;
+@property (nonatomic) BOOL shouldBlocksRotate;
 @property (nonatomic) BOOL isObjectRotating;
 @property (nonatomic) BOOL isAdjustingBackground;
 @property (nonatomic) BOOL shouldMoveBottomOptions;
@@ -68,6 +71,7 @@ static NSString * const saveButtonName = @"save";
         self.physicsWorld.contactDelegate = self;
         self.name                         = @"world";
         //self.anchorPoint                 = CGPointZero;
+        self.shouldAutoAdjustMovingBlocks = NO;
 
         self.bottomOptionsHeightLimit = 110.0;
         self.rightOptionsWidthLimit   = self.frame.size.width - 90.0;
@@ -96,7 +100,7 @@ static NSString * const saveButtonName = @"save";
     longPressRecognizer.minimumPressDuration = 0.5;
     
     
-    [[self view] addGestureRecognizer:tapRecognizer];
+    //[[self view] addGestureRecognizer:tapRecognizer];
     [[self view] addGestureRecognizer:longPressRecognizer];
 }
 
@@ -167,8 +171,6 @@ static NSString * const saveButtonName = @"save";
     play.physicsBody.dynamic = NO;
     [rightOptions addChild:play];
     
-    
-    
     SKLabelNode *save  = [SKLabelNode labelNodeWithFontNamed:@"arial"];
     save.text = @"save";
     save.fontSize = 30;
@@ -177,6 +179,21 @@ static NSString * const saveButtonName = @"save";
     save.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height/5.5);
     save.physicsBody.dynamic = NO;
     [rightOptions addChild:save];
+    
+    RotateSprite *rotateButton = [[RotateSprite alloc] initWithColor:nil size:CGSizeMake(50, 50) name:rotateButtonName];
+    rotateButton.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height - rotateButton.frame.size.height - 30);
+    [rightOptions addChild:rotateButton];
+    
+    HitPointSprite *hitPointsButton = [[HitPointSprite alloc] init];
+    hitPointsButton.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height - 170);
+    [rightOptions addChild:hitPointsButton];
+    
+    GridSprite *gridButton = [[GridSprite alloc] init];
+    gridButton.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height- 230);
+    [rightOptions addChild:gridButton];
+    
+    
+    
 }
 
 -(void)createBottomOptions
@@ -222,33 +239,96 @@ static NSString * const saveButtonName = @"save";
 {
     
     SKNode *node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
-    
-    
-    //NSLog(@"touch begins pressed %@", node.name);
-    
-    if (![node.name containsString:blockName] && ![node.name containsString:ballName] &&
-        ![node.name containsString:paddleName]) {
-        node = [self nodeAtPoint:[[touches anyObject] locationInNode:self]];
-    }
-    
-    //NSLog(@"touch begins pressed %@", node.name);
-
-
     self.nodePressedAtTouchBegins = node;
- 
+
+    
+    NSLog(@"touch begins pressed %@", node.name);
+    
+    if ([node.name isEqualToString:blockNodeName]) {
+        self.nodePressedAtTouchBegins = nil;
+    }
+
+
     if ([node.name isEqualToString:playButtonName]) {
-        NSLog(@"button pressed play");
         if (![self checkSceneForMissingSprites]) {
             [self switchToMainScene];
         }
     }
     
     if ([node.name isEqualToString:saveButtonName]) {
-        NSLog(@"button pressed save");
         [self switchToStartScene];
         
     }
+    
+    if ([node.name isEqualToString:rotateButtonName]) {
+        
+        RotateSprite *button = (RotateSprite*)node;
 
+        [button changeStatus];
+        if (button.isPressed) {
+            [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                BlockSprite *block = (BlockSprite *)node;
+                block.isRotatable = YES;
+                [block updateSelf];
+            }];
+        } else {
+            [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                BlockSprite *block = (BlockSprite*)node;
+                block.isRotatable = NO;
+                [block updateSelf];
+            }];
+
+        }
+        
+    }
+
+    if ([node.name isEqualToString:hitPointsButtonName] || [node.name isEqualToString:hitPointsLabelName]) {
+        HitPointSprite *button;
+        if ([node.name isEqualToString:hitPointsButtonName]) {
+            button = (HitPointSprite *)node;
+        } else if ([[node parent].name isEqualToString:hitPointsButtonName]){
+            button = (HitPointSprite *)[node parent];
+        }
+        
+        [button changeStatus];
+        
+        
+        if (button.isPressed) {
+            [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                BlockSprite *block = (BlockSprite *)node;
+                block.hitPointsCanBeChanged = YES;
+                [block updateSelf];
+            }];
+        } else {
+            [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                BlockSprite *block = (BlockSprite *)node;
+                block.hitPointsCanBeChanged = NO;
+                [block updateSelf];
+            }];
+            
+        }
+    }
+    
+    if ([node.name containsString:blockName]) {
+        BlockSprite *block = (BlockSprite *)node;
+
+        if (block.hitPointsCanBeChanged) {
+            [block addHitPoint];
+            self.nodePressedAtTouchBegins = nil;
+        }
+    }
+    
+    if ([node.name isEqualToString:gridButtonName]) {
+        GridSprite *button = (GridSprite *)node;
+        [button changeStatus];
+        if (button.isPressed) {
+            self.shouldAutoAdjustMovingBlocks = YES;
+        } else {
+            self.shouldAutoAdjustMovingBlocks = NO;
+        }
+    }
+    
+    
 }
 
 
@@ -260,7 +340,7 @@ static NSString * const saveButtonName = @"save";
     CGPoint touchLocation     = [touch locationInNode:self];
     SKNode  *nodeAtTouch      = [self.physicsWorld bodyAtPoint:touchLocation].node;
  
-    
+    //NSLog(@"node named %@", self.nodePressedAtTouchBegins.name);
     if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayBlockName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
         BlockSprite *block            = [[BlockSprite alloc] initWithLocation:touchLocation
                                                                     hitPoints:1
@@ -296,23 +376,32 @@ static NSString * const saveButtonName = @"save";
     
     }
 
-    if ([self.nodePressedAtTouchBegins.name containsString:ballName]) {
+    if ([self.nodePressedAtTouchBegins.name containsString:ballName]
+        && ![self.nodePressedAtTouchBegins.name isEqualToString:ballNodeName]) {
         self.nodePressedAtTouchBegins.position = touchLocation;
     }
     
-    if ([self.nodePressedAtTouchBegins.name containsString:paddleName]) {
+    if ([self.nodePressedAtTouchBegins.name containsString:paddleName]
+        && ![self.nodePressedAtTouchBegins.name isEqualToString:paddleNodeName]) {
         self.nodePressedAtTouchBegins.position = touchLocation;
     }
     
     
-    if ([self.nodePressedAtTouchBegins.name containsString:blockName]) {
+    if ([self.nodePressedAtTouchBegins.name containsString:blockName]
+        && ![self.nodePressedAtTouchBegins.name isEqualToString:blockNodeName]) {
         
-        [self moveBlockWithTouchLocation:touchLocation];
+        if (self.shouldAutoAdjustMovingBlocks) {
+            [self moveBlockWithTouchLocation:touchLocation];
+        } else {
+            self.nodePressedAtTouchBegins.position = touchLocation;
+        }
     
     }else if ([self.nodePressedAtTouchBegins.name isEqualToString:rotatePointName]) {
         
-        BlockSprite *block = (BlockSprite *)self.nodePressedAtTouchBegins.parent;
-        [block adjustRotationWithTouches:touches];
+        if ([self.nodePressedAtTouchBegins.parent.name containsString:blockName]) {
+            BlockSprite *block = (BlockSprite *)self.nodePressedAtTouchBegins.parent;
+            [block adjustRotationWithTouches:touches];
+        }
         
     } else if ([self.nodePressedAtTouchBegins.name isEqualToString:editPointTopLeftName]) {
         
@@ -352,29 +441,6 @@ static NSString * const saveButtonName = @"save";
     
 }
 
--(void)didFinishUpdate
-{
-    SKNode *node = self.nodePressedAtTouchBegins;
-    
-    if ([node.name  containsString:blockName]) {
-        
-        if (![[GameData sharedGameData].saveFile.blocks containsObject:node]) [[GameData sharedGameData].saveFile.blocks addObject:node];
-
-    }
-    
-    if ([node.name containsString:paddleName]) {
-        
-        if (![[GameData sharedGameData].saveFile.paddles containsObject:node]) [[GameData sharedGameData].saveFile.paddles addObject:node];
-        
-    }
-    
-    if ([node.name containsString:ballName]) {
-        
-        if (![[GameData sharedGameData].saveFile.balls containsObject:node]) [[GameData sharedGameData].saveFile.balls addObject:node];
-        
-    }
-    
-}
 
 -(void)adjustOptionMenusToRest
 {
@@ -546,134 +612,131 @@ static NSString * const saveButtonName = @"save";
     float yPosition = 0;
     float middleY = 0;
 
+    blockPressed.position = touchLocation;
     
-    if (!blockPressed.isEditable) {
+    for (BlockSprite *block in [self childNodeWithName:blockNodeNameSearch].children) {
         
-        blockPressed.position = touchLocation;
         
-        for (BlockSprite *block in [self childNodeWithName:blockNodeNameSearch].children) {
-            
-            
-            float blockWidth         = block.frame.size.width/2;
-            float blockHeight        = block.frame.size.height/2;
-            float blockPressedWidth  = blockPressed.frame.size.width/2;
-            float blockPressedHeight = blockPressed.frame.size.height/2;
-            
-            float blockOffsetXLeft  = block.position.x - blockWidth;
-            float blockOffsetXRight = block.position.x + blockWidth;
-            float blockOffsetYUp    = block.position.y + blockHeight;
-            float blockOffsetYDown  = block.position.y - blockHeight;
-            
-            float blockPressedOffsetXLeft  = blockPressed.position.x - blockPressedWidth;
-            float blockPressedOffsetXRight = blockPressed.position.x + blockPressedWidth;
-            float blockPressedOffsetYUp    = blockPressed.position.y + blockPressedHeight;
-            float blockPressedOffsetYDown  = blockPressed.position.y - blockPressedHeight;
+        float blockWidth         = block.frame.size.width/2;
+        float blockHeight        = block.frame.size.height/2;
+        float blockPressedWidth  = blockPressed.frame.size.width/2;
+        float blockPressedHeight = blockPressed.frame.size.height/2;
         
+        float blockOffsetXLeft  = block.position.x - blockWidth;
+        float blockOffsetXRight = block.position.x + blockWidth;
+        float blockOffsetYUp    = block.position.y + blockHeight;
+        float blockOffsetYDown  = block.position.y - blockHeight;
+        
+        float blockPressedOffsetXLeft  = blockPressed.position.x - blockPressedWidth;
+        float blockPressedOffsetXRight = blockPressed.position.x + blockPressedWidth;
+        float blockPressedOffsetYUp    = blockPressed.position.y + blockPressedHeight;
+        float blockPressedOffsetYDown  = blockPressed.position.y - blockPressedHeight;
+    
+        
+        float xBuffer           = block.frame.size.width * autoPositionXBuffer;
+        float yBuffer           = block.frame.size.height * autoPositionYBuffer;
+        
+        
+        if (![blockPressed.name isEqualToString:block.name]) {
             
-            float xBuffer           = block.frame.size.width * autoPositionXBuffer;
-            float yBuffer           = block.frame.size.height * autoPositionYBuffer;
-            
-            
-            if (![blockPressed.name isEqualToString:block.name]) {
+            if ((block.position.x - xBuffer) < blockPressed.position.x  && blockPressed.position.x < (block.position.x + xBuffer)) {
+                // center X auto position
+                xPosition = block.position.x;
                 
-                if ((block.position.x - xBuffer) < blockPressed.position.x  && blockPressed.position.x < (block.position.x + xBuffer)) {
-                    // center X auto position
-                    xPosition = block.position.x;
-                    
-                } else if ((blockOffsetXLeft - xBuffer) < blockPressed.position.x  && blockPressed.position.x < (blockOffsetXLeft + xBuffer)) {
-                    // 1/4 X auto position
-                    xPosition = blockOffsetXLeft;
-                    
-                } else if ((blockOffsetXRight - xBuffer) < blockPressed.position.x && blockPressed.position.x < (blockOffsetXRight + xBuffer)) {
-                    // 3/4 x auto position
-                    xPosition = blockOffsetXRight;
-                    
-                } else if ((blockOffsetXLeft - xBuffer) < blockPressedOffsetXRight && blockPressedOffsetXRight < (blockOffsetXLeft + xBuffer)) {
-                    // 0/4 x auto position
-                    xPosition = blockOffsetXLeft - blockWidth;
-                    
-                } else if ((blockOffsetXRight - xBuffer) < blockPressedOffsetXLeft && blockPressedOffsetXLeft < (blockOffsetXRight + xBuffer)) {
-                    // 4/4 x auto position
-                    xPosition = blockOffsetXRight + blockWidth;
-                    
-                }
+            } else if ((blockOffsetXLeft - xBuffer) < blockPressed.position.x  && blockPressed.position.x < (blockOffsetXLeft + xBuffer)) {
+                // 1/4 X auto position
+                xPosition = blockOffsetXLeft;
                 
-                if ( (block.position.y - yBuffer) < blockPressed.position.y  && blockPressed.position.y < (block.position.y + yBuffer) ) {
-                    // center Y auto position
-                    yPosition = block.position.y;
-                } else if ((blockOffsetYUp - yBuffer) < blockPressed.position.y && blockPressed.position.y < (blockOffsetYUp + yBuffer)) {
-                    // 1/4 Y auto position
-                    yPosition = blockOffsetYUp;
-                    
-                } else if ((blockOffsetYDown - yBuffer) < blockPressed.position.y && blockPressed.position.y < (blockOffsetYDown + yBuffer)) {
-                    // 3/4 y auto position
-                    yPosition = blockOffsetYDown;
-                    
-                } else if ((blockOffsetYUp - yBuffer) < blockPressedOffsetYDown && blockPressedOffsetYDown < (blockOffsetYUp + yBuffer)) {
-                    // 0/4 y auto position
-                    yPosition = blockOffsetYUp + blockHeight;
-                    
-                } else if ((blockOffsetYDown - yBuffer) < blockPressedOffsetYUp &&  blockPressedOffsetYUp < (blockOffsetYDown + yBuffer)) {
-                    // 4/4 y auto position
-                    yPosition = blockOffsetYDown - blockHeight;
-                }
+            } else if ((blockOffsetXRight - xBuffer) < blockPressed.position.x && blockPressed.position.x < (blockOffsetXRight + xBuffer)) {
+                // 3/4 x auto position
+                xPosition = blockOffsetXRight;
+                
+            } else if ((blockOffsetXLeft - xBuffer) < blockPressedOffsetXRight && blockPressedOffsetXRight < (blockOffsetXLeft + xBuffer)) {
+                // 0/4 x auto position
+                xPosition = blockOffsetXLeft - blockWidth;
+                
+            } else if ((blockOffsetXRight - xBuffer) < blockPressedOffsetXLeft && blockPressedOffsetXLeft < (blockOffsetXRight + xBuffer)) {
+                // 4/4 x auto position
+                xPosition = blockOffsetXRight + blockWidth;
                 
             }
-        }
-        
-        
-        for (BlockSprite *block in [self childNodeWithName:blockNodeNameSearch].children) {
             
-            float xBuffer           = block.frame.size.width * autoPositionXBuffer;
-            float yBuffer           = block.frame.size.height * autoPositionYBuffer;
-            
-            for (BlockSprite *blockComparitor in [self childNodeWithName:blockNodeNameSearch].children) {
+            if ( (block.position.y - yBuffer) < blockPressed.position.y  && blockPressed.position.y < (block.position.y + yBuffer) ) {
+                // center Y auto position
+                yPosition = block.position.y;
+            } else if ((blockOffsetYUp - yBuffer) < blockPressed.position.y && blockPressed.position.y < (blockOffsetYUp + yBuffer)) {
+                // 1/4 Y auto position
+                yPosition = blockOffsetYUp;
                 
-                if (![blockComparitor.name  isEqualToString:block.name] && ![blockComparitor.name isEqualToString:blockPressed.name]
-                                                                        && ![block.name isEqualToString:blockPressed.name]) {
-                    //NSLog(@"%f, %f ", block.position.x, blockComparitor.position.x);
+            } else if ((blockOffsetYDown - yBuffer) < blockPressed.position.y && blockPressed.position.y < (blockOffsetYDown + yBuffer)) {
+                // 3/4 y auto position
+                yPosition = blockOffsetYDown;
+                
+            } else if ((blockOffsetYUp - yBuffer) < blockPressedOffsetYDown && blockPressedOffsetYDown < (blockOffsetYUp + yBuffer)) {
+                // 0/4 y auto position
+                yPosition = blockOffsetYUp + blockHeight;
+                
+            } else if ((blockOffsetYDown - yBuffer) < blockPressedOffsetYUp &&  blockPressedOffsetYUp < (blockOffsetYDown + yBuffer)) {
+                // 4/4 y auto position
+                yPosition = blockOffsetYDown - blockHeight;
+            }
+            
+        }
+    }
+    
+    
+    for (BlockSprite *block in [self childNodeWithName:blockNodeNameSearch].children) {
+        
+        float xBuffer           = block.frame.size.width * autoPositionXBuffer;
+        float yBuffer           = block.frame.size.height * autoPositionYBuffer;
+        
+        for (BlockSprite *blockComparitor in [self childNodeWithName:blockNodeNameSearch].children) {
+            
+            if (![blockComparitor.name  isEqualToString:block.name] && ![blockComparitor.name isEqualToString:blockPressed.name]
+                                                                    && ![block.name isEqualToString:blockPressed.name]) {
+                //NSLog(@"%f, %f ", block.position.x, blockComparitor.position.x);
+                
+                if    ((block.position.x - xBuffer) < blockComparitor.position.x && blockComparitor.position.x < (block.position.x + xBuffer)
+                    && (block.position.x - xBuffer) < blockPressed.position.x    && blockPressed.position.x    < (block.position.x + xBuffer)) {
                     
-                    if    ((block.position.x - xBuffer) < blockComparitor.position.x && blockComparitor.position.x < (block.position.x + xBuffer)
-                        && (block.position.x - xBuffer) < blockPressed.position.x    && blockPressed.position.x    < (block.position.x + xBuffer)) {
-                        
-                      //  NSLog(@"in the same line as two other blocks");
+                  //  NSLog(@"in the same line as two other blocks");
+                
+                    if (block.position.y > blockComparitor.position.y) {
+                        //NSLog(@"first b y:%f bc y : %f",block.position.y, blockComparitor.position.y);
                     
-                        if (block.position.y > blockComparitor.position.y) {
-                            //NSLog(@"first b y:%f bc y : %f",block.position.y, blockComparitor.position.y);
-                        
-                            middleY = blockComparitor.position.y + (block.position.y - blockComparitor.position.y);
-                        
-                            if (blockPressed.position.y < block.position.y && blockPressed.position.y > blockComparitor.position.y) {
-                              //  NSLog(@"is inbetween");
-                                if ((middleY - yBuffer) < blockPressed.position.y && blockPressed.position.y < (middleY + yBuffer)) {
-                                    yPosition = middleY;
-                                    break;
-                                }
+                        middleY = blockComparitor.position.y + (block.position.y - blockComparitor.position.y);
+                    
+                        if (blockPressed.position.y < block.position.y && blockPressed.position.y > blockComparitor.position.y) {
+                          //  NSLog(@"is inbetween");
+                            if ((middleY - yBuffer) < blockPressed.position.y && blockPressed.position.y < (middleY + yBuffer)) {
+                                yPosition = middleY;
+                                break;
                             }
-                        
-                        } else if (block.position.y < blockComparitor.position.y) {
-                          //  NSLog(@"second b y:%f bc y : %f",block.position.y, blockComparitor.position.y);
-                            middleY = block.position.y + (blockComparitor.position.y - block.position.y);
-                        
-                            if (blockPressed.position.y < blockComparitor.position.y && blockPressed.position.y > block.position.y) {
-                              //  NSLog(@"in between");
-                            }
+                        }
+                    
+                    } else if (block.position.y < blockComparitor.position.y) {
+                      //  NSLog(@"second b y:%f bc y : %f",block.position.y, blockComparitor.position.y);
+                        middleY = block.position.y + (blockComparitor.position.y - block.position.y);
+                    
+                        if (blockPressed.position.y < blockComparitor.position.y && blockPressed.position.y > block.position.y) {
+                          //  NSLog(@"in between");
                         }
                     }
                 }
             }
-            if (middleY) {
-               // NSLog(@"good a Y exists");
-                break;
-            }
         }
-        
-        if(xPosition && yPosition) blockPressed.position = CGPointMake(xPosition, yPosition);
-        else if (xPosition) blockPressed.position = CGPointMake(xPosition, touchLocation.y);
-        else if (yPosition) blockPressed.position = CGPointMake(touchLocation.x, yPosition);
-        //SKShapeNode *line = [SKShapeNode shapeNodeWithPath:CGPathRef ]
-        
+        if (middleY) {
+           // NSLog(@"good a Y exists");
+            break;
+        }
     }
+    
+    if(xPosition && yPosition) blockPressed.position = CGPointMake(xPosition, yPosition);
+    else if (xPosition) blockPressed.position = CGPointMake(xPosition, touchLocation.y);
+    else if (yPosition) blockPressed.position = CGPointMake(touchLocation.x, yPosition);
+    //SKShapeNode *line = [SKShapeNode shapeNodeWithPath:CGPathRef ]
+        
+    
 }
 
 -(NSString*)nameBlock
@@ -720,7 +783,7 @@ static NSString * const saveButtonName = @"save";
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
         [[GameData sharedGameData].saveFile.blocks removeObject:node];
         BlockSprite *block = (BlockSprite *)node;
-        block.isEditable = NO;
+        //block.isEditable = NO;
         [block updateSelf];
         block.canBeEdited = NO;
         [[GameData sharedGameData].saveFile.blocks addObject:block];
@@ -812,6 +875,7 @@ static NSString * const saveButtonName = @"save";
 
 - (void)handleDoubleTap:(UITapGestureRecognizer *)sender
 {
+    /*
     CGPoint reversedPoint = [sender locationInView:[self view]];
     reversedPoint.y       = self.frame.size.height - reversedPoint.y;
     SKNode  *nodePressed = [[self.physicsWorld bodyAtPoint:reversedPoint] node];
@@ -837,7 +901,7 @@ static NSString * const saveButtonName = @"save";
     
     if ([sender state] == UIGestureRecognizerStateEnded) {
         self.nodePressedAtTouchBegins = 0;
-    }
+    } */
 
 }
 
@@ -897,12 +961,30 @@ static NSString * const saveButtonName = @"save";
     }
     
     return missingObject;
+}  
+
+-(void)didFinishUpdate
+{
+    SKNode *node = self.nodePressedAtTouchBegins;
     
+    if ([node.name  containsString:blockName]) {
+        
+        if (![[GameData sharedGameData].saveFile.blocks containsObject:node]) [[GameData sharedGameData].saveFile.blocks addObject:node];
+        
+    }
+    
+    if ([node.name containsString:paddleName]) {
+        
+        if (![[GameData sharedGameData].saveFile.paddles containsObject:node]) [[GameData sharedGameData].saveFile.paddles addObject:node];
+        
+    }
+    
+    if ([node.name containsString:ballName]) {
+        
+        if (![[GameData sharedGameData].saveFile.balls containsObject:node]) [[GameData sharedGameData].saveFile.balls addObject:node];
+        
+    }
     
 }
-
-
-
-
 
 @end
