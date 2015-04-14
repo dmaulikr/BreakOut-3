@@ -12,6 +12,8 @@
 static NSString * const positionKey = @"position";
 static NSString * const typeKey     = @"type";
 static NSString * const nameKey     = @"name";
+static NSString * const shouldMoveKey     = @"shouldMove";
+
 
 @interface PowerUpSprite ()
 
@@ -19,7 +21,7 @@ static NSString * const nameKey     = @"name";
 
 @implementation PowerUpSprite
 
--(PowerUpSprite *)initWithLocation:(CGPoint)location type:(NSString *)type name:(NSString*)name
+-(PowerUpSprite *)initWithLocation:(CGPoint)location type:(NSString *)type name:(NSString*)name shouldMove:(BOOL)shouldMove
 {
     if (self == [super initWithImageNamed:@"powerUpCircle.png"]) {
         self.position = location;
@@ -30,11 +32,14 @@ static NSString * const nameKey     = @"name";
         //testing
         self.physicsBody.linearDamping = 0.0;
         self.physicsBody.restitution = 1.0;
+        self.shouldMove = shouldMove;
 
         //self.physicsBody.dynamic = NO;
         self.name = name;
         self.type = type;
-        [self createAnimation];
+        if (self.shouldMove) {
+            [self createAnimation];
+        }
     }
     return self;
 }
@@ -45,7 +50,8 @@ static NSString * const nameKey     = @"name";
         NSLog(@"decode power");
         PowerUpSprite *power = [[PowerUpSprite alloc] initWithLocation:[[aDecoder decodeObjectForKey:positionKey] CGPointValue]
                                                                   type:[aDecoder decodeObjectForKey:typeKey]
-                                                                  name:[aDecoder decodeObjectForKey:nameKey]];
+                                                                  name:[aDecoder decodeObjectForKey:nameKey]
+                                                            shouldMove:[aDecoder decodeBoolForKey:shouldMoveKey]];
         self = power;
     }
     
@@ -59,6 +65,7 @@ static NSString * const nameKey     = @"name";
     [aCoder encodeObject:[NSValue valueWithCGPoint:self.position] forKey:positionKey];
     [aCoder encodeObject:self.name forKey:nameKey];
     [aCoder encodeObject:self.type forKey:typeKey];
+    [aCoder encodeBool:self.shouldMove forKey:shouldMoveKey];
     
 }
 -(void)createAnimation

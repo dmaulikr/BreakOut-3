@@ -11,7 +11,8 @@
 @interface PowerUpSprite : GamePiece <NSCoding>
 
 @property (nonatomic) NSString *type;
+@property (nonatomic) BOOL shouldMove;
 
--(PowerUpSprite *)initWithLocation:(CGPoint)location type:(NSString *)type name:(NSString *)name;
+-(PowerUpSprite *)initWithLocation:(CGPoint)location type:(NSString *)type name:(NSString*)name shouldMove:(BOOL)shouldMove;
 
 @end

@@ -223,7 +223,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
 {
     PowerUpSprite *powerUpSprite                  = [[PowerUpSprite alloc] initWithLocation:location
                                                                                        type:@"bigBall"
-                                                                                       name:powerUpName];
+                                                                                       name:powerUpName
+                                                                                 shouldMove:YES];
     powerUpSprite.physicsBody.categoryBitMask     = powerUpCategory;
     powerUpSprite.physicsBody.collisionBitMask    = paddleCategory | bottomCategory;
     powerUpSprite.physicsBody.contactTestBitMask  = paddleCategory | bottomCategory;

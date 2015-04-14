@@ -11,6 +11,7 @@
 #import "BlockSprite.h"
 #import "BallSprite.h"
 #import "PaddleSprite.h"
+#import "PowerUpSprite.h"
 #import "MainScene.h"
 #import "Constants.h"
 #import "GameScene.h"
@@ -19,12 +20,15 @@
 #import "RotateSprite.h"
 #import "HitPointSprite.h"
 #import "GridSprite.h"
+#import "PowerSprite.h"
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
 
 static NSString * const overlayBlockName = @"first";
 static NSString * const overlayBallName = @"second";
 static NSString * const overlayPaddleName = @"third";
+static NSString * const overlayPowerUpName = @"fourth";
+
 static NSString * const editPointTopLeftName =  @"editPointTopLeft";
 static NSString * const playButtonName = @"play";
 static NSString * const saveButtonName = @"save";
@@ -193,6 +197,10 @@ static NSString * const saveButtonName = @"save";
     gridButton.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height- 230);
     [rightOptions addChild:gridButton];
     
+    PowerSprite *power = [[PowerSprite alloc] init];
+    power.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height - 330);
+    [rightOptions addChild:power];
+    
     
     
 }
@@ -208,8 +216,17 @@ static NSString * const saveButtonName = @"save";
     
     
     [[self childNodeWithName:optionsNodeNameSearch] addChild:bottomOptions];
+    [self createBottomOptionsOverlayObjects];
     
-    BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake(bottomOptions.size.width/4, 100)
+
+}
+
+-(void)createBottomOptionsOverlayObjects
+{
+    SKSpriteNode *bottomOptions = (SKSpriteNode *)[self childNodeWithName:[NSString stringWithFormat:@"//%@", bottomOptionsName]];
+    
+    [bottomOptions removeAllChildren];
+    BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/4, 100)
                                                      hitPoints:1
                                                           name:overlayBlockName
                                                     hasPowerup:NO
@@ -217,7 +234,7 @@ static NSString * const saveButtonName = @"save";
                                                    canBeEdited:NO];
     block.zPosition = 100;
     
-    BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(bottomOptions.size.width/2, 100)
+    BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/2, 100)
                                                 currentSize:@"normal"
                                                      status:@"normal"
                                                        name:overlayBallName];
@@ -225,17 +242,28 @@ static NSString * const saveButtonName = @"save";
     ball.physicsBody.dynamic = NO;
     
     PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
-                                                            position:CGPointMake(bottomOptions.size.width * 3/4, 100)
+                                                            position:CGPointMake(self.frame.size.width * 3/4, 100)
                                                               status:@"normal"
                                                                 name:overlayPaddleName];
     paddle.zPosition = 100;
-    [bottomOptions addChild:paddle];
+    
+    [bottomOptions addChild:block];
     [bottomOptions addChild:ball];
-    [bottomOptions  addChild:block];
+    [bottomOptions addChild:paddle];
 }
 
-
-
+-(void)createBottomOptionsPowerUps
+{
+    SKSpriteNode *bottomOptions = (SKSpriteNode *)[self childNodeWithName:[NSString stringWithFormat:@"//%@", bottomOptionsName]];
+    [bottomOptions removeAllChildren];
+    
+    PowerUpSprite *powerUp = [[PowerUpSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/2, 100)
+                                                                type:@"normal"
+                                                                name:overlayPowerUpName
+                                                          shouldMove:NO];
+    [bottomOptions addChild:powerUp];
+    
+}
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
@@ -326,6 +354,16 @@ static NSString * const saveButtonName = @"save";
             self.shouldAutoAdjustMovingBlocks = YES;
         } else {
             self.shouldAutoAdjustMovingBlocks = NO;
+        }
+    }
+    
+    if ([node.name isEqualToString:powerButtonName]) {
+        PowerSprite *button = (PowerSprite *)node;
+        [button changeStatus];
+        if (button.isPressed) {
+            [self createBottomOptionsPowerUps];
+        } else {
+            [self createBottomOptionsOverlayObjects];
         }
     }
     
