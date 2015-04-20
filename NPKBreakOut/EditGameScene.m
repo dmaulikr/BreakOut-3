@@ -27,7 +27,9 @@
 static NSString * const overlayBlockName = @"first";
 static NSString * const overlayBallName = @"second";
 static NSString * const overlayPaddleName = @"third";
-static NSString * const overlayPowerUpName = @"fourth";
+static NSString * const overlayPowerUpBigName = @"fourth";
+static NSString * const overlayPowerUpDoubleName = @"fifth";
+
 
 static NSString * const editPointTopLeftName =  @"editPointTopLeft";
 static NSString * const playButtonName = @"play";
@@ -229,7 +231,7 @@ static NSString * const saveButtonName = @"save";
     BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/4, 100)
                                                      hitPoints:1
                                                           name:overlayBlockName
-                                                    hasPowerup:NO
+                                                    hasPowerupType:@""
                                                    currentSize:@"normal"
                                                    canBeEdited:NO];
     block.zPosition = 100;
@@ -257,11 +259,17 @@ static NSString * const saveButtonName = @"save";
     SKSpriteNode *bottomOptions = (SKSpriteNode *)[self childNodeWithName:[NSString stringWithFormat:@"//%@", bottomOptionsName]];
     [bottomOptions removeAllChildren];
     
-    PowerUpSprite *powerUp = [[PowerUpSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/2, 100)
-                                                                type:@"normal"
-                                                                name:overlayPowerUpName
+    PowerUpSprite *powerUpRed = [[PowerUpSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, 100)
+                                                                type:powerUpBigBall
+                                                                name:overlayPowerUpBigName
                                                           shouldMove:NO];
-    [bottomOptions addChild:powerUp];
+    
+    PowerUpSprite *powerUpBlue = [[PowerUpSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/2, 100)
+                                                                type:powerUpDoubleBall
+                                                                name:overlayPowerUpDoubleName
+                                                          shouldMove:NO];
+    [bottomOptions addChild:powerUpRed];
+    [bottomOptions addChild:powerUpBlue];
     
 }
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -362,7 +370,17 @@ static NSString * const saveButtonName = @"save";
         [button changeStatus];
         if (button.isPressed) {
             [self createBottomOptionsPowerUps];
+            [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                BlockSprite *block = (BlockSprite *)node;
+                block.showPowerUp = YES;
+                [block updateSelf];
+            }];
         } else {
+            [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                BlockSprite *block = (BlockSprite *)node;
+                block.showPowerUp = NO;
+                [block updateSelf];
+            }];
             [self createBottomOptionsOverlayObjects];
         }
     }
@@ -384,12 +402,32 @@ static NSString * const saveButtonName = @"save";
         BlockSprite *block            = [[BlockSprite alloc] initWithLocation:touchLocation
                                                                     hitPoints:1
                                                                          name:[self nameBlock]
-                                                                   hasPowerup:NO
+                                                                   hasPowerupType:@""
                                                                   currentSize:@"normal"
                                                                   canBeEdited:YES];
         self.nodePressedAtTouchBegins = block;
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
         [[GameData sharedGameData].saveFile.blocks addObject:block];
+    }
+    
+    if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayPowerUpBigName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
+        PowerUpSprite *powerUp = [[PowerUpSprite alloc]  initWithLocation:touchLocation
+                                                                     type:powerUpBigBall
+                                                                     name:powerUpName
+                                                               shouldMove:NO];
+        self.nodePressedAtTouchBegins = powerUp;
+        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
+        [[GameData sharedGameData].saveFile.powerUps addObject:powerUp];
+    }
+    
+    if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayPowerUpDoubleName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
+        PowerUpSprite *powerUp = [[PowerUpSprite alloc] initWithLocation:touchLocation
+                                                                    type:powerUpDoubleBall
+                                                                    name:powerUpName
+                                                              shouldMove:NO];
+        self.nodePressedAtTouchBegins = powerUp;
+        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
+        [[GameData sharedGameData].saveFile.powerUps addObject:powerUp];
     }
     
     if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayBallName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
@@ -413,6 +451,9 @@ static NSString * const saveButtonName = @"save";
         [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
         [[GameData sharedGameData].saveFile.paddles addObject:paddle];
     
+    }
+    if ([self.nodePressedAtTouchBegins.name isEqualToString:powerUpName]) {
+        self.nodePressedAtTouchBegins.position = touchLocation;
     }
 
     if ([self.nodePressedAtTouchBegins.name containsString:ballName]
@@ -897,7 +938,7 @@ static NSString * const saveButtonName = @"save";
             BlockSprite *block            = [[BlockSprite alloc] initWithLocation:locationForNewBlock
                                                                         hitPoints:1
                                                                              name:[self nameBlock]
-                                                                       hasPowerup:NO
+                                                                       hasPowerupType:@""
                                                                       currentSize:@"normal"
                                                                       canBeEdited:YES];
             self.nodePressedAtTouchBegins = block;

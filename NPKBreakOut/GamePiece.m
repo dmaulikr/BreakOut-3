@@ -44,7 +44,10 @@
         if (selfWidth == testWidth) {
             //NSLog(@"%@ one too small growing!!", self.name);
             SKAction *grow = [SKAction scaleBy:2 duration:1];
-            [self runAction:grow];
+            SKAction *wait = [SKAction waitForDuration:15];
+            SKAction *shrink = [SKAction scaleBy:0.5 duration:1];
+            SKAction *growWaitShrink = [SKAction sequence:@[grow, wait, shrink]];
+            [self runAction:growWaitShrink];
         } else if (selfWidth < testWidth) {
             //NSLog(@"%@ two too small",self.name);
         } else if (selfWidth > testWidth) {

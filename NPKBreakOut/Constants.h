@@ -22,6 +22,8 @@ extern NSString * const hitPointsButtonName;
 extern NSString * const hitPointsLabelName;
 extern NSString * const gridButtonName;
 extern NSString * const powerButtonName;
+extern NSString * const powerUpBigBall;
+extern NSString * const powerUpDoubleBall;
 
 extern uint32_t const ballCategory;
 extern uint32_t const blockCategory;

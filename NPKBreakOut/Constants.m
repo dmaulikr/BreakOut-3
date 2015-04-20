@@ -21,6 +21,8 @@ NSString * const hitPointsButtonName= @"hitPointButton";
 NSString * const hitPointsLabelName = @"hitPointLabel";
 NSString * const gridButtonName     = @"gridButton";
 NSString * const powerButtonName    = @"powerButton";
+NSString * const powerUpBigBall     = @"powerUPBigBall";
+NSString * const powerUpDoubleBall  = @"powerUpDoubleBall";
 
 
 uint32_t const ballCategory     = 0x1 << 0;

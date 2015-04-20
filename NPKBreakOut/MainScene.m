@@ -158,15 +158,54 @@ static NSString * const pausedScreenName = @"pausedScreen";
     BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
                                                 currentSize:@"normal"
                                                      status:@"normal"
-                                                       name:ballName];
+                                                       name:[self nameBall]];
     
     
     ball.physicsBody.categoryBitMask    = ballCategory;
     ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
-    ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory;
+    ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
     
     [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
     [[GameData sharedGameData].saveFile.balls addObject:ball];
+}
+
+-(void)createDoubleBall
+{
+    if ([self childNodeWithName:ballNodeNameSearch].children.count <= 1) {
+        
+        BallSprite *originalBall = (BallSprite *)[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:@"*"];
+        CGPoint originalPosition;
+        CGVector originalVector;
+        
+        if (originalBall) {
+            NSLog(@"there is original");
+            originalPosition = originalBall.position;
+            originalVector = originalBall.physicsBody.velocity;
+        }
+
+        
+        BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
+                                                    currentSize:@"normal"
+                                                         status:@"normal"
+                                                           name:[self nameBall]];
+        
+        if (originalBall) {
+            NSLog(@"there is original");
+            originalPosition = originalBall.position;
+            originalVector = originalBall.physicsBody.velocity;
+            ball.position = CGPointMake(originalPosition.x - 20, originalPosition.y - 20);
+            ball.physicsBody.velocity = originalVector;
+        }
+
+        
+        ball.physicsBody.categoryBitMask    = ballCategory;
+        ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
+        ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
+        
+        [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
+        [[GameData sharedGameData].saveFile.balls addObject:ball];
+    }
+
 }
 
 -(void)createDefaultPaddle
@@ -201,11 +240,19 @@ static NSString * const pausedScreenName = @"pausedScreen";
                 
             }
         }
+        NSString *hasPowerUpType = @"";
+        if (hasPowerup) {
+            if ([GameScene getYesOrNo]) {
+                hasPowerUpType = powerUpBigBall;
+            } else {
+                hasPowerUpType = powerUpDoubleBall;
+            }
+        }
         float xOffset      = (self.frame.size.width - (blockWidth * numberOfBlocks + padding * (numberOfBlocks-1))) / 2;
         BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake((i-0.5)*blockWidth + (i-1)*padding + xOffset,locationY)
                                                          hitPoints:hitPoints
                                                               name:[self nameBlock]
-                                                        hasPowerup:hasPowerup
+                                                        hasPowerupType:hasPowerUpType
                                                        currentSize:@"normal"
                                                        canBeEdited:NO];
         
@@ -219,20 +266,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 
 
--(void)createPowerUpWithLocation:(CGPoint)location
-{
-    PowerUpSprite *powerUpSprite                  = [[PowerUpSprite alloc] initWithLocation:location
-                                                                                       type:@"bigBall"
-                                                                                       name:powerUpName
-                                                                                 shouldMove:YES];
-    powerUpSprite.physicsBody.categoryBitMask     = powerUpCategory;
-    powerUpSprite.physicsBody.collisionBitMask    = paddleCategory | bottomCategory;
-    powerUpSprite.physicsBody.contactTestBitMask  = paddleCategory | bottomCategory;
-    
-    [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUpSprite];
-    [[GameData sharedGameData].saveFile.powerUps addObject:powerUpSprite];
-    
-}
 
 
 -(void)startGameIsFirstTime:(BOOL)isFirstTime
@@ -481,13 +514,20 @@ static NSString * const pausedScreenName = @"pausedScreen";
     if (firstBody.categoryBitMask == paddleCategory && secondBody.categoryBitMask == powerUpCategory) {
         PowerUpSprite *powerUp = (PowerUpSprite *)secondBody.node;
         
+        if ([powerUp.type isEqualToString:powerUpDoubleBall]) {
+            [self createDoubleBall];
+        } else if ([powerUp.type isEqualToString:powerUpBigBall]) {
+            NSLog(@"big ball powerup");
+            BallSprite *ball = (BallSprite *)[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:@"*"];
+            ball.currentSize = @"big";
+            
+            [ball updateSelf];
+        }
+        
         [powerUp removeFromParent];
         [[GameData sharedGameData].saveFile.powerUps removeObject:powerUp];
         
-        BallSprite *ball = (BallSprite *)[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:ballName];
-        ball.currentSize = @"big";
-        
-        [ball updateSelf];
+
         [[GameData sharedGameData] archiveSaveFile];
     }
     
@@ -503,8 +543,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
             block.hitPoints--;
             [block updateSelf];
         } else if (block.hitPoints == 1) {
-            if (block.hasPowerup) {
-                [self createPowerUpWithLocation:block.position];
+            if (![block.hasPowerupType isEqualToString:@""]) {
+                [self createPowerUpWithLocation:block.position type:block.hasPowerupType];
             }
             [block removeFromParent];
             [[GameData sharedGameData].saveFile.blocks removeObject:block];
@@ -512,7 +552,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
         
         if ([self childNodeWithName:blockNodeNameSearch].children.count <= 0) {
             GameOverScene *gameWonScene = [[GameOverScene alloc]
-                                           initWithSize:self.frame.size playerWon:YES];
+                                            initWithSize:self.frame.size playerWon:YES];
             [self.view presentScene:gameWonScene];
         }
         
@@ -569,6 +609,16 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
 }
 
+-(NSString *)nameBall
+{
+    int count = (int)[self childNodeWithName:ballNodeNameSearch].children.count;
+    if (count <=0) {
+        count = 1;
+    }
+    return [NSString stringWithFormat:@"ball%d", count];
+}
+
+
 -(NSMutableArray *)selectRandomBlocksWithAmount:(int)amount
 {
     NSMutableArray *tempNumbers = [[NSMutableArray alloc] init];
@@ -594,6 +644,21 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
 }
 
+
+-(void)createPowerUpWithLocation:(CGPoint)location type:(NSString *)type
+{
+    PowerUpSprite *powerUpSprite                  = [[PowerUpSprite alloc] initWithLocation:location
+                                                                                       type:type
+                                                                                       name:powerUpName
+                                                                                 shouldMove:YES];
+    powerUpSprite.physicsBody.categoryBitMask     = powerUpCategory;
+    powerUpSprite.physicsBody.collisionBitMask    = paddleCategory | bottomCategory;
+    powerUpSprite.physicsBody.contactTestBitMask  = paddleCategory | bottomCategory;
+    
+    [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUpSprite];
+    [[GameData sharedGameData].saveFile.powerUps addObject:powerUpSprite];
+    
+}
 
 
     

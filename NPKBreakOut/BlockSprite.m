@@ -9,6 +9,7 @@
 #import "BlockSprite.h"
 #import "RotateSprite.h"
 #import "HitPointSprite.h"
+#import "PowerUpSprite.h"
 #import "Constants.h"
 
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
@@ -42,7 +43,7 @@ static NSString * const blockKey         = @"block";
         BlockSprite *block = [[BlockSprite alloc]  initWithLocation:[[aDecoder decodeObjectForKey:positionKey] CGPointValue]
                                                           hitPoints:[aDecoder decodeIntForKey:hitPointsKey]
                                                                name:[aDecoder decodeObjectForKey:nameKey]
-                                                         hasPowerup:[aDecoder decodeBoolForKey:hasPowerUpKey]
+                                                         hasPowerupType:[aDecoder decodeObjectForKey:hasPowerUpKey]
                                                         currentSize: [aDecoder decodeObjectForKey:currentSizeKey]
                                                         canBeEdited:[aDecoder decodeObjectForKey:canBeEditedKey]];
         
@@ -55,7 +56,7 @@ static NSString * const blockKey         = @"block";
 -(SKSpriteNode *)initWithLocation:(CGPoint)   location
                         hitPoints:(int)       hitPoints
                              name:(NSString *)name
-                       hasPowerup:(BOOL)      hasPowerup
+                       hasPowerupType:(NSString *)      hasPowerupType
                       currentSize:(NSString *)currentSize
                      canBeEdited:(BOOL)       canBeEdited
 {
@@ -71,7 +72,7 @@ static NSString * const blockKey         = @"block";
         
         self.currentSize = currentSize;
         self.hitPoints   = hitPoints;
-        self.hasPowerup  = hasPowerup;
+        self.hasPowerupType  = hasPowerupType;
         self.canBeEdited = canBeEdited;
 
         [self updateSelf];
@@ -90,7 +91,7 @@ static NSString * const blockKey         = @"block";
  
     [aCoder encodeObject:self.currentSize forKey:currentSizeKey];
     [aCoder encodeInteger:self.hitPoints forKey:hitPointsKey];
-    [aCoder encodeBool:self.hasPowerup forKey:hasPowerUpKey];
+    [aCoder encodeObject:self.hasPowerupType forKey:hasPowerUpKey];
     [aCoder encodeBool:self.canBeEdited forKey:canBeEditedKey];
     [aCoder encodeObject:self.name forKey:nameKey];
     [aCoder encodeObject:position forKey:positionKey];
@@ -146,6 +147,13 @@ static NSString * const blockKey         = @"block";
         }
     }
     
+    if (self.showPowerUp) {
+        self.texture = [SKTexture textureWithImageNamed:@"greyBlock.png"];
+        [self createPowerUp];
+    } else {
+        self.texture = [SKTexture textureWithImageNamed:@"block.png"];
+    }
+    
     /*
     SKLabelNode *hitPointLabel = (SKLabelNode *)[self childNodeWithName:hitPointsLabelName];
     
@@ -160,6 +168,16 @@ static NSString * const blockKey         = @"block";
             [hitPointLabel removeFromParent];
         }
     } */
+}
+
+
+-(void)createPowerUp
+{
+    if (self.hasPowerupType) {
+        
+        PowerUpSprite *powerUp = [[PowerUpSprite alloc] initWithLocation:CGPointMake(0, 0) type:self.hasPowerupType name:powerUpName shouldMove:NO];
+        [self addChild:powerUp];
+    }
 }
 
 

@@ -13,5 +13,6 @@
 
 -(SKNode *)createNodeTree;
 -(void)setupSaveFile;
++(BOOL)getYesOrNo;
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "PowerUpSprite.h"
+#import "Constants.h"
 
 
 static NSString * const positionKey = @"position";
@@ -23,7 +24,17 @@ static NSString * const shouldMoveKey     = @"shouldMove";
 
 -(PowerUpSprite *)initWithLocation:(CGPoint)location type:(NSString *)type name:(NSString*)name shouldMove:(BOOL)shouldMove
 {
-    if (self == [super initWithImageNamed:@"powerUpCircle.png"]) {
+    
+    NSString *imageName = @"";
+    if ([type isEqualToString:powerUpBigBall]) {
+        imageName = @"powerUpRed.png";
+    } else if ([type isEqualToString:powerUpDoubleBall]) {
+        imageName = @"powerUpBlue.png";
+    } else {
+        imageName = @"powerUpRed.png";
+    }
+    
+    if (self == [super initWithImageNamed:imageName]) {
         self.position = location;
         self.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:self.size.width/2];
         self.physicsBody.allowsRotation = NO;
