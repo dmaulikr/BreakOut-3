@@ -27,11 +27,12 @@ static NSString * const shouldMoveKey     = @"shouldMove";
     
     NSString *imageName = @"";
     if ([type isEqualToString:powerUpBigBall]) {
-        imageName = @"powerUpRed.png";
-    } else if ([type isEqualToString:powerUpDoubleBall]) {
         imageName = @"powerUpBlue.png";
-    } else {
+
+
+    } else if ([type isEqualToString:powerUpDoubleBall]) {
         imageName = @"powerUpRed.png";
+
     }
     
     if (self == [super initWithImageNamed:imageName]) {
@@ -81,6 +82,7 @@ static NSString * const shouldMoveKey     = @"shouldMove";
 }
 -(void)createAnimation
 {
+    [self removeAllChildren];
     SKSpriteNode *letterP = [SKSpriteNode spriteNodeWithImageNamed:@"powerUpP.png"];
     SKAction *blink = [SKAction sequence:@[
                                            [SKAction fadeOutWithDuration:0.4],

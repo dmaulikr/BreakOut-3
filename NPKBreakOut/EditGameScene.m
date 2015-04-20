@@ -20,7 +20,8 @@
 #import "RotateSprite.h"
 #import "HitPointSprite.h"
 #import "GridSprite.h"
-#import "PowerSprite.h"
+#import "PowerUpButton.h"
+
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 
 
@@ -199,7 +200,7 @@ static NSString * const saveButtonName = @"save";
     gridButton.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height- 230);
     [rightOptions addChild:gridButton];
     
-    PowerSprite *power = [[PowerSprite alloc] init];
+    PowerUpButton *power = [[PowerUpButton alloc] init];
     power.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height - 330);
     [rightOptions addChild:power];
     
@@ -365,8 +366,8 @@ static NSString * const saveButtonName = @"save";
         }
     }
     
-    if ([node.name isEqualToString:powerButtonName]) {
-        PowerSprite *button = (PowerSprite *)node;
+    if ([node.name isEqualToString:powerUpButtonName]) {
+        PowerUpButton *button = (PowerUpButton *)node;
         [button changeStatus];
         if (button.isPressed) {
             [self createBottomOptionsPowerUps];

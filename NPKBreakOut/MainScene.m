@@ -158,7 +158,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
                                                 currentSize:@"normal"
                                                      status:@"normal"
-                                                       name:[self nameBall]];
+                                                       name:[self nameSpriteWithType:ballName]];
     
     
     ball.physicsBody.categoryBitMask    = ballCategory;
@@ -187,7 +187,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
         BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
                                                     currentSize:@"normal"
                                                          status:@"normal"
-                                                           name:[self nameBall]];
+                                                           name:[self nameSpriteWithType:ballName]];
         
         if (originalBall) {
             NSLog(@"there is original");
@@ -251,7 +251,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
         float xOffset      = (self.frame.size.width - (blockWidth * numberOfBlocks + padding * (numberOfBlocks-1))) / 2;
         BlockSprite *block = [[BlockSprite alloc] initWithLocation:CGPointMake((i-0.5)*blockWidth + (i-1)*padding + xOffset,locationY)
                                                          hitPoints:hitPoints
-                                                              name:[self nameBlock]
+                                                              name:[self nameSpriteWithType:blockName]
                                                         hasPowerupType:hasPowerUpType
                                                        currentSize:@"normal"
                                                        canBeEdited:NO];
@@ -599,23 +599,19 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 
 
--(NSString*)nameBlock
+-(NSString *)nameSpriteWithType:(NSString *)type
 {
-    int count = (int)[self childNodeWithName:blockNodeNameSearch].children.count;
-    if (count <= 0) {
-        count = 1;
-    }
-    return [NSString stringWithFormat:@"block%d",count];
+    int count = 0;
     
-}
-
--(NSString *)nameBall
-{
-    int count = (int)[self childNodeWithName:ballNodeNameSearch].children.count;
-    if (count <=0) {
-        count = 1;
+    if ([type isEqualToString:blockName]) {
+        count = (int)[self childNodeWithName:blockNodeNameSearch].children.count;
+    } else if ([type isEqualToString:ballName]) {
+        count = (int)[self childNodeWithName:ballNodeNameSearch].children.count;
+    } else if ([type isEqualToString:powerUpName]) {
+        count = (int)[self childNodeWithName:powerUpNodeNameSearch].children.count;
     }
-    return [NSString stringWithFormat:@"ball%d", count];
+    
+    return [NSString stringWithFormat:@"%@%d",type, count];
 }
 
 

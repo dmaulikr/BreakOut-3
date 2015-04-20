@@ -17,7 +17,7 @@
     if (self) {
         self.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:self.frame.size];
         self.physicsBody.dynamic = NO;
-        self.name = powerButtonName;
+        self.name = powerUpButtonName;
         self.isPressed = NO;
     }
     return self;

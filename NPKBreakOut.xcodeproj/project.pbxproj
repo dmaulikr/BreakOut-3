@@ -21,9 +21,6 @@
 		500D6B821ADC5AB300628A95 /* GridRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B811ADC5AB300628A95 /* GridRed.png */; };
 		500D6B841ADC5ABB00628A95 /* Grid.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B831ADC5ABB00628A95 /* Grid.png */; };
 		500D6B871ADC5BE800628A95 /* GridSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B861ADC5BE800628A95 /* GridSprite.m */; };
-		500D6B8A1ADC809500628A95 /* PowerSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 500D6B891ADC809500628A95 /* PowerSprite.m */; };
-		500D6B8C1ADD99D500628A95 /* powerUpRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B8B1ADD99D500628A95 /* powerUpRed.png */; };
-		500D6B901ADDAA7B00628A95 /* powerUpBlue.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B8F1ADDAA7B00628A95 /* powerUpBlue.png */; };
 		500D6B921ADDB94200628A95 /* greyBlock.png in Resources */ = {isa = PBXBuildFile; fileRef = 500D6B911ADDB94200628A95 /* greyBlock.png */; };
 		5058D6A81A9BDF1D00025597 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 5058D6A71A9BDF1D00025597 /* Constants.m */; };
 		5058D6AA1A9BE41F00025597 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5058D6A91A9BE41E00025597 /* CloudKit.framework */; };
@@ -45,7 +42,6 @@
 		50813E9F1A6B0F4600FCB418 /* GameOverScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813E9E1A6B0F4600FCB418 /* GameOverScene.m */; };
 		50813EA11A6DB7AB00FCB418 /* block.png in Resources */ = {isa = PBXBuildFile; fileRef = 50813EA01A6DB7AB00FCB418 /* block.png */; };
 		50813EA91A6DC75B00FCB418 /* paddle.png in Resources */ = {isa = PBXBuildFile; fileRef = 50813EA81A6DC75B00FCB418 /* paddle.png */; };
-		50813EB61A6E037300FCB418 /* powerUp.png in Resources */ = {isa = PBXBuildFile; fileRef = 50813EB51A6E037300FCB418 /* powerUp.png */; };
 		50813ECD1A707B6700FCB418 /* GamePiece.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813ECC1A707B6700FCB418 /* GamePiece.m */; };
 		50813ED31A707D9200FCB418 /* BlockSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813ED21A707D9200FCB418 /* BlockSprite.m */; };
 		50813ED61A70883D00FCB418 /* PaddleSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 50813ED51A70883D00FCB418 /* PaddleSprite.m */; };
@@ -56,6 +52,10 @@
 		50DAFBA41AAF9D0A00912F7C /* GameData.m in Sources */ = {isa = PBXBuildFile; fileRef = 50DAFBA31AAF9D0A00912F7C /* GameData.m */; };
 		50DAFBA61AAFC68900912F7C /* trashIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 50DAFBA51AAFC68900912F7C /* trashIcon.png */; };
 		50FDABCB1AE595E400EA1E7C /* PowerUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 50FDABCA1AE595E400EA1E7C /* PowerUpButton.m */; };
+		50FDABCE1AE5B25500EA1E7C /* powerUpCircleBlue.png in Resources */ = {isa = PBXBuildFile; fileRef = 50FDABCC1AE5B25500EA1E7C /* powerUpCircleBlue.png */; };
+		50FDABCF1AE5B25500EA1E7C /* powerUpCircleRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 50FDABCD1AE5B25500EA1E7C /* powerUpCircleRed.png */; };
+		50FDABD11AE5B2A900EA1E7C /* powerUpRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 50FDABD01AE5B2A900EA1E7C /* powerUpRed.png */; };
+		50FDABD31AE5B41A00EA1E7C /* powerUpBlue.png in Resources */ = {isa = PBXBuildFile; fileRef = 50FDABD21AE5B41A00EA1E7C /* powerUpBlue.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,10 +91,6 @@
 		500D6B831ADC5ABB00628A95 /* Grid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Grid.png; sourceTree = "<group>"; };
 		500D6B851ADC5BE800628A95 /* GridSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridSprite.h; sourceTree = "<group>"; };
 		500D6B861ADC5BE800628A95 /* GridSprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridSprite.m; sourceTree = "<group>"; };
-		500D6B881ADC809500628A95 /* PowerSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PowerSprite.h; sourceTree = "<group>"; };
-		500D6B891ADC809500628A95 /* PowerSprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PowerSprite.m; sourceTree = "<group>"; };
-		500D6B8B1ADD99D500628A95 /* powerUpRed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpRed.png; sourceTree = "<group>"; };
-		500D6B8F1ADDAA7B00628A95 /* powerUpBlue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpBlue.png; sourceTree = "<group>"; };
 		500D6B911ADDB94200628A95 /* greyBlock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = greyBlock.png; sourceTree = "<group>"; };
 		5058D6A61A9BDEEB00025597 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		5058D6A71A9BDF1D00025597 /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
@@ -127,7 +123,6 @@
 		50813E9E1A6B0F4600FCB418 /* GameOverScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameOverScene.m; sourceTree = "<group>"; };
 		50813EA01A6DB7AB00FCB418 /* block.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = block.png; sourceTree = "<group>"; };
 		50813EA81A6DC75B00FCB418 /* paddle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = paddle.png; sourceTree = "<group>"; };
-		50813EB51A6E037300FCB418 /* powerUp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUp.png; sourceTree = "<group>"; };
 		50813ECB1A707B6700FCB418 /* GamePiece.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GamePiece.h; sourceTree = "<group>"; };
 		50813ECC1A707B6700FCB418 /* GamePiece.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GamePiece.m; sourceTree = "<group>"; };
 		50813ED11A707D9200FCB418 /* BlockSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockSprite.h; sourceTree = "<group>"; };
@@ -146,6 +141,10 @@
 		50DAFBA51AAFC68900912F7C /* trashIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trashIcon.png; sourceTree = "<group>"; };
 		50FDABC91AE595E400EA1E7C /* PowerUpButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PowerUpButton.h; sourceTree = "<group>"; };
 		50FDABCA1AE595E400EA1E7C /* PowerUpButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PowerUpButton.m; sourceTree = "<group>"; };
+		50FDABCC1AE5B25500EA1E7C /* powerUpCircleBlue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpCircleBlue.png; sourceTree = "<group>"; };
+		50FDABCD1AE5B25500EA1E7C /* powerUpCircleRed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpCircleRed.png; sourceTree = "<group>"; };
+		50FDABD01AE5B2A900EA1E7C /* powerUpRed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpRed.png; sourceTree = "<group>"; };
+		50FDABD21AE5B41A00EA1E7C /* powerUpBlue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpBlue.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,8 +230,6 @@
 				500D6B791AD720C200628A95 /* HitPointSprite.m */,
 				500D6B851ADC5BE800628A95 /* GridSprite.h */,
 				500D6B861ADC5BE800628A95 /* GridSprite.m */,
-				500D6B881ADC809500628A95 /* PowerSprite.h */,
-				500D6B891ADC809500628A95 /* PowerSprite.m */,
 				50FDABC91AE595E400EA1E7C /* PowerUpButton.h */,
 				50FDABCA1AE595E400EA1E7C /* PowerUpButton.m */,
 				50813E761A648F8000FCB418 /* Main.storyboard */,
@@ -253,18 +250,19 @@
 				500D6B831ADC5ABB00628A95 /* Grid.png */,
 				500D6B7F1AD72B7600628A95 /* hitPointsButton.png */,
 				500D6B7B1AD7216300628A95 /* button.png */,
-				500D6B8B1ADD99D500628A95 /* powerUpRed.png */,
-				500D6B8F1ADDAA7B00628A95 /* powerUpBlue.png */,
 				500D6B6D1AD6F62600628A95 /* rotate.png */,
 				500D6B731AD6FF9200628A95 /* rotateOutline.png */,
-				50DAFBA51AAFC68900912F7C /* trashIcon.png */,
+				50FDABCC1AE5B25500EA1E7C /* powerUpCircleBlue.png */,
+				50FDABCD1AE5B25500EA1E7C /* powerUpCircleRed.png */,
 				50813EE01A709B9F00FCB418 /* powerUpP.png */,
+				50FDABD01AE5B2A900EA1E7C /* powerUpRed.png */,
+				50FDABD21AE5B41A00EA1E7C /* powerUpBlue.png */,
+				50DAFBA51AAFC68900912F7C /* trashIcon.png */,
 				5058D6C51AA5656000025597 /* bg.png */,
 				5058D6C31AA1102B00025597 /* bottomOptions.png */,
 				5058D6BF1A9EE63400025597 /* rightOptions.png */,
 				50813E991A64AC7000FCB418 /* ball.png */,
 				5058D6BA1A9D5DBB00025597 /* bgBlack.png */,
-				50813EB51A6E037300FCB418 /* powerUp.png */,
 				50813EA81A6DC75B00FCB418 /* paddle.png */,
 				50813E6A1A648F8000FCB418 /* Info.plist */,
 				50813E971A64A3C300FCB418 /* bg.png */,
@@ -370,28 +368,29 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				50813EB61A6E037300FCB418 /* powerUp.png in Resources */,
 				50813E781A648F8000FCB418 /* Main.storyboard in Resources */,
 				500D6B741AD6FF9200628A95 /* rotateOutline.png in Resources */,
 				5058D6BB1A9D5DBB00025597 /* bgBlack.png in Resources */,
+				50FDABCF1AE5B25500EA1E7C /* powerUpCircleRed.png in Resources */,
 				5058D6C61AA5656000025597 /* bg.png in Resources */,
 				500D6B6E1AD6F62600628A95 /* rotate.png in Resources */,
 				500D6B7C1AD7216300628A95 /* button.png in Resources */,
 				50813EA11A6DB7AB00FCB418 /* block.png in Resources */,
 				5058D6C01A9EE63400025597 /* rightOptions.png in Resources */,
 				5058D6C41AA1102B00025597 /* bottomOptions.png in Resources */,
-				500D6B8C1ADD99D500628A95 /* powerUpRed.png in Resources */,
 				50813E9A1A64AC7000FCB418 /* ball.png in Resources */,
+				50FDABD31AE5B41A00EA1E7C /* powerUpBlue.png in Resources */,
 				50813E7D1A648F8000FCB418 /* LaunchScreen.xib in Resources */,
+				50FDABD11AE5B2A900EA1E7C /* powerUpRed.png in Resources */,
 				50DAFBA61AAFC68900912F7C /* trashIcon.png in Resources */,
 				500D6B821ADC5AB300628A95 /* GridRed.png in Resources */,
 				50813EA91A6DC75B00FCB418 /* paddle.png in Resources */,
 				50813EE11A709B9F00FCB418 /* powerUpP.png in Resources */,
 				500D6B841ADC5ABB00628A95 /* Grid.png in Resources */,
+				50FDABCE1AE5B25500EA1E7C /* powerUpCircleBlue.png in Resources */,
 				500D6B801AD72B7600628A95 /* hitPointsButton.png in Resources */,
 				50813E7A1A648F8000FCB418 /* Images.xcassets in Resources */,
 				500D6B921ADDB94200628A95 /* greyBlock.png in Resources */,
-				500D6B901ADDAA7B00628A95 /* powerUpBlue.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,7 +429,6 @@
 				50813EE71A7841A300FCB418 /* StartScene.m in Sources */,
 				50813E9F1A6B0F4600FCB418 /* GameOverScene.m in Sources */,
 				50813ECD1A707B6700FCB418 /* GamePiece.m in Sources */,
-				500D6B8A1ADC809500628A95 /* PowerSprite.m in Sources */,
 				50813E6C1A648F8000FCB418 /* main.m in Sources */,
 				500D6B6C1AC4A80900628A95 /* GameSaveFile.m in Sources */,
 				50813ED31A707D9200FCB418 /* BlockSprite.m in Sources */,

@@ -21,7 +21,7 @@ extern NSString * const rotatePointName;
 extern NSString * const hitPointsButtonName;
 extern NSString * const hitPointsLabelName;
 extern NSString * const gridButtonName;
-extern NSString * const powerButtonName;
+extern NSString * const powerUpButtonName;
 extern NSString * const powerUpBigBall;
 extern NSString * const powerUpDoubleBall;
 

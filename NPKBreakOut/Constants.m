@@ -20,7 +20,7 @@ NSString * const rotatePointName    = @"rotatePoint";
 NSString * const hitPointsButtonName= @"hitPointButton";
 NSString * const hitPointsLabelName = @"hitPointLabel";
 NSString * const gridButtonName     = @"gridButton";
-NSString * const powerButtonName    = @"powerButton";
+NSString * const powerUpButtonName    = @"powerButton";
 NSString * const powerUpBigBall     = @"powerUPBigBall";
 NSString * const powerUpDoubleBall  = @"powerUpDoubleBall";
 
