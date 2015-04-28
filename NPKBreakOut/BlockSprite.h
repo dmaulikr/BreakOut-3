@@ -12,12 +12,13 @@
 @interface BlockSprite : GamePiece <NSCoding>
 
 @property (nonatomic) int hitPoints;
-@property (nonatomic) NSString * hasPowerupType;
+@property (nonatomic) NSString *powerUpType;
 @property (nonatomic) NSString *currentSize;
 @property (nonatomic) BOOL canBeEdited;
 @property (nonatomic) BOOL isRotatable;
 @property (nonatomic) BOOL hitPointsCanBeChanged;
 @property (nonatomic) BOOL showPowerUp;
+@property (nonatomic) NSString *powerUpName;
 
 
 -(void)updateSelf;

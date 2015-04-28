@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
+
 
 NSString * const blockName          = @"block";
 NSString * const ballName           = @"ball";
@@ -25,11 +27,15 @@ NSString * const powerUpBigBall     = @"powerUPBigBall";
 NSString * const powerUpDoubleBall  = @"powerUpDoubleBall";
 
 
+NSString * const orientationHorizontal = @"horizontal";
+NSString * const orientationVertical = @"vertical";
+
 uint32_t const ballCategory     = 0x1 << 0;
 uint32_t const blockCategory    = 0x1 << 2;
 uint32_t const paddleCategory   = 0x1 << 3;
 uint32_t const bottomCategory   = 0x1 << 1;
 uint32_t const powerUpCategory  = 0x1 << 4;
+uint32_t const borderCategory   = 0x1 << 5;
 
 
 NSString * const gameTitleName = @"gameTitle";

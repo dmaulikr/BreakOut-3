@@ -12,9 +12,11 @@
 
 @property (nonatomic) NSString *currentSize;
 @property (nonatomic) NSString *status;
+@property (nonatomic) BOOL isRotatable;
+@property (nonatomic) NSString *orientation;
+@property (nonatomic) BOOL isMoving;
 
 -(PaddleSprite *)initWithCurrentSize:(NSString *)currentSize position:(CGPoint)position status:(NSString *)status name:(NSString *)name;
--(void)updateSelf;
 
 
 @end

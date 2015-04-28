@@ -7,6 +7,7 @@
 //
 
 #import "BallSprite.h"
+#import "Constants.h"
 
 static NSString * const positionKey     = @"position";
 static NSString * const currentSizeKey  = @"currentSize";
@@ -37,9 +38,8 @@ static NSString * const velocityDyKey     = @"velocityDy";
         self.physicsBody.linearDamping                 = 0.0;
         self.physicsBody.allowsRotation                = NO;
         self.physicsBody.usesPreciseCollisionDetection = YES;
-        
-        [self updateSelf];
-        
+        //self.physicsBody.categoryBitMask               = ballCategory;
+                
     }
     return self;
 }
@@ -71,10 +71,60 @@ static NSString * const velocityDyKey     = @"velocityDy";
     
 
 }
-
 -(void)updateSelf
 {
-    [super updateSizeWithImageNamed:@"ball.png" currentSize:self.currentSize];
+    
+}
+
+
+-(void)updateSize
+{
+    
+    int testWidth = [SKSpriteNode spriteNodeWithImageNamed:@"ball.png"].size.width;
+    int selfWidth = self.frame.size.width;
+    BOOL isSizeNormal = [self.currentSize isEqualToString:@"normal"];
+    BOOL isSizeSmall = [self.currentSize isEqualToString:@"small"];
+    BOOL isSizeBig = [self.currentSize isEqualToString:@"big"];
+    
+    
+    if (isSizeNormal) {
+        if (selfWidth == testWidth) {
+            //NSLog(@"%@ correct size", self.name);
+        } else if (selfWidth < testWidth) {
+            //NSLog(@"%@too small", self.name);
+        } else if (selfWidth > testWidth) {
+            //NSLog(@"%@ too big", self.name);
+        }
+    }
+    
+    if (isSizeSmall) {
+        if (selfWidth == testWidth) {
+            //NSLog(@"%@ one too big", self.name);
+        } else if (selfWidth < testWidth) {
+            //NSLog(@"%@ correct size",self.name);
+        } else if (selfWidth > testWidth) {
+            //NSLog(@"%@ two too big",self.name);
+        }
+    }
+    
+    if (isSizeBig) {
+        if (selfWidth == testWidth) {
+            //NSLog(@"%@ one too small growing!!", self.name);
+            SKAction *grow = [SKAction scaleBy:2 duration:1];
+            SKAction *wait = [SKAction waitForDuration:7];
+            SKAction *shrink = [SKAction scaleBy:0.5 duration:1];
+            SKAction *toNormal = [SKAction runBlock:^{
+                self.currentSize = @"normal";
+            }];
+            SKAction *growWaitShrink = [SKAction sequence:@[grow, wait, shrink, toNormal]];
+            [self runAction:growWaitShrink];
+        } else if (selfWidth < testWidth) {
+            //NSLog(@"%@ two too small",self.name);
+        } else if (selfWidth > testWidth) {
+            //NSLog(@"%@ correct size",self.name);
+        }
+        
+    }
     
 }
 

@@ -26,6 +26,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 @interface MainScene ()
 
 @property (nonatomic) BOOL isGamePlaying;
+@property (nonatomic) int doubleBallDuration;
 @property (nonatomic) NSMutableArray *nodesPressedAtTouchBegins;
 
 
@@ -43,6 +44,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
         
         SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
+        //borderBody.categoryBitMask = borderCategory;
         SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
         CGRect bottomRect         = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 1);
         SKNode *bottom            = [SKNode node];
@@ -55,6 +57,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
         self.userInteractionEnabled       = YES;
         self.physicsBody                  = borderBody;
         self.physicsBody.friction         = 0.0;
+        
+        self.doubleBallDuration = 4;
 
         background.position               = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
         background.name                   = backgroundName;
@@ -97,6 +101,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     //NSLog(@"create blocks from data");
     for (BlockSprite *block in [GameData sharedGameData].saveFile.blocks) {
         block.physicsBody.categoryBitMask = blockCategory;
+        
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
     }
 }
@@ -106,9 +111,10 @@ static NSString * const pausedScreenName = @"pausedScreen";
     for (BallSprite *ball in [GameData sharedGameData].saveFile.balls) {
 
         ball.physicsBody.dynamic = YES;
-        ball.physicsBody.categoryBitMask    = ballCategory;
         ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
-        ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
+        ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory | borderCategory;
+        
+
         
         [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
     }
@@ -117,12 +123,34 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 -(void)createPaddlesFromData
 {
+    
+    CGVector movingAngle;
+    
     for (PaddleSprite *paddle in [GameData sharedGameData].saveFile.paddles) {
         
-        paddle.physicsBody.categoryBitMask    = paddleCategory;
         paddle.physicsBody.contactTestBitMask = powerUpCategory;
+        paddle.physicsBody.collisionBitMask   = blockCategory;
+        paddle.physicsBody.dynamic = YES;
         
         [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
+        
+        if (paddle.zRotation == 0.00 || roundf(paddle.zRotation*100)/100 == roundf(M_PI)) {
+            NSLog(@"horizontal paddle");
+            movingAngle = CGVectorMake(50, 0);
+            
+        } else if (roundf(paddle.zRotation *100)/100 == -roundf((M_PI/2)*100)/100
+                   || roundf(self.zRotation *100)/100 == roundf((M_PI/2)*100)/100) {
+            NSLog(@"vertical paddle");
+            movingAngle = CGVectorMake(0, 50);
+        }
+        
+        SKPhysicsJointSliding *joint = [SKPhysicsJointSliding jointWithBodyA:paddle.physicsBody
+                                                                       bodyB:self.physicsBody
+                                                                      anchor:CGPointZero
+                                                                        axis:CGVectorMake(50, -50)];
+        [self.physicsWorld addJoint:joint];
+        
+        
     }
     
 }
@@ -161,9 +189,8 @@ static NSString * const pausedScreenName = @"pausedScreen";
                                                        name:[self nameSpriteWithType:ballName]];
     
     
-    ball.physicsBody.categoryBitMask    = ballCategory;
     ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
-    ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
+    ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory | borderCategory;
     
     [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
     [[GameData sharedGameData].saveFile.balls addObject:ball];
@@ -177,12 +204,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
         CGPoint originalPosition;
         CGVector originalVector;
         
-        if (originalBall) {
-            NSLog(@"there is original");
-            originalPosition = originalBall.position;
-            originalVector = originalBall.physicsBody.velocity;
-        }
-
         
         BallSprite *ball = [[BallSprite alloc] initWithLocation:CGPointMake(self.frame.size.width/3, self.frame.size.height/3)
                                                     currentSize:@"normal"
@@ -190,7 +211,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
                                                            name:[self nameSpriteWithType:ballName]];
         
         if (originalBall) {
-            NSLog(@"there is original");
             originalPosition = originalBall.position;
             originalVector = originalBall.physicsBody.velocity;
             ball.position = CGPointMake(originalPosition.x - 20, originalPosition.y - 20);
@@ -198,9 +218,17 @@ static NSString * const pausedScreenName = @"pausedScreen";
         }
 
         
-        ball.physicsBody.categoryBitMask    = ballCategory;
         ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
         ball.physicsBody.collisionBitMask   = blockCategory | paddleCategory | ballCategory;
+        SKAction *wait = [SKAction waitForDuration:self.doubleBallDuration];
+        SKAction *fade = [SKAction fadeOutWithDuration:2];
+        SKAction *remove = [SKAction runBlock:^{
+            [ball removeFromParent];
+            [[GameData sharedGameData].saveFile.balls removeObject:ball];
+        }];
+        SKAction *waitThenFade = [SKAction sequence:@[wait,fade,remove]];
+        [ball runAction:waitThenFade];
+
         
         [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
         [[GameData sharedGameData].saveFile.balls addObject:ball];
@@ -213,13 +241,18 @@ static NSString * const pausedScreenName = @"pausedScreen";
     PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
                                                             position:CGPointMake(self.frame.size.width/2, self.frame.size.height * 0.05)
                                                               status:@"normal"
-                                                                name:paddleName];
+                                                                name:[self nameSpriteWithType:paddleName]];
     
-    paddle.physicsBody.categoryBitMask    = paddleCategory;
     paddle.physicsBody.contactTestBitMask = powerUpCategory;
+    paddle.physicsBody.collisionBitMask   = blockCategory;
+    paddle.physicsBody.dynamic = YES;
+
     
     [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
     [[GameData sharedGameData].saveFile.paddles addObject:paddle];
+    
+    
+
     
 }
 
@@ -256,7 +289,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
                                                        currentSize:@"normal"
                                                        canBeEdited:NO];
         
-        block.physicsBody.categoryBitMask = blockCategory;
         
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
         [[GameData sharedGameData].saveFile.blocks addObject:block];
@@ -374,7 +406,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
             node = [self nodeAtPoint:touchLocation];
         }
         
-        //NSLog(@"node at pressed begins %@", node.name);
         
         
         if ([node.name containsString:backgroundName]) {
@@ -385,20 +416,20 @@ static NSString * const pausedScreenName = @"pausedScreen";
             
             [[node parent] removeFromParent];
         
-            NSLog(@"unpausing");
+            //NSLog(@"unpausing");
             
             self.paused = NO;
             [self childNodeWithName:powerUpNodeNameSearch].paused = YES;
 
             if (self.isGamePlaying) {
                 
-                NSLog(@"count down is over ~ run start game");
+                //NSLog(@"count down is over ~ run start game");
                 
                 self.isGamePlaying = NO;
                 [self startGameIsFirstTime:NO];
 
             } else {
-                NSLog(@"countdown on screen ~ resume game");
+                //NSLog(@"countdown on screen ~ resume game");
                 // game is note playing
                 self.physicsWorld.speed = 1.0;
                 
@@ -415,31 +446,32 @@ static NSString * const pausedScreenName = @"pausedScreen";
             [self.view presentScene:startScene];
             
         }
+        
+        if ([node.name isEqualToString:blockNodeName]
+            || [node.name isEqualToString:powerUpNodeName]
+            || [node.name isEqualToString:ballNodeName]
+            || [node.name isEqualToString:paddleNodeName]) {
+            self.nodesPressedAtTouchBegins = nil;
+        }
 
     }
+    NSLog(@"node at pressed begins %@", (SKSpriteNode *)[self.nodesPressedAtTouchBegins firstObject]);
+
     
 }
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
     if (self.nodesPressedAtTouchBegins.count == 1) {
-        //NSLog(@"moving paddle");
-        
-        CGPoint touchLocation = [[touches anyObject] locationInNode:self];
-        CGPoint previousLocation = [[touches anyObject] previousLocationInNode:self];
-        
-        //NSLog(@"more then 0 ");
-        SKNode *firstNodePressed = [self.nodesPressedAtTouchBegins firstObject];
 
-        int paddleX = firstNodePressed.position.x + (touchLocation.x - previousLocation.x);
-        
-        paddleX = MAX(paddleX, firstNodePressed.frame.size.width/2);
-        paddleX = MIN(paddleX, self.size.width - firstNodePressed.frame.size.width/2);
-        
-        firstNodePressed.position = CGPointMake(paddleX, firstNodePressed.position.y);
+        SKSpriteNode *sprite = (SKSpriteNode *)[self.nodesPressedAtTouchBegins firstObject];
+        if ([sprite.name containsString:paddleName]) {
+            [self movePaddle:(PaddleSprite *)sprite withTouches:touches];
+        }
 
     } else if (self.nodesPressedAtTouchBegins.count == 2) {
         NSLog(@"more then one pressed");
+        /*
         
         for (UITouch *touch in touches) {
             CGPoint touchLocation = [touch locationInNode:self];
@@ -460,28 +492,108 @@ static NSString * const pausedScreenName = @"pausedScreen";
                     
                 }
             }
+        } */
+    }
+
+}
+
+-(void)movePaddle:(PaddleSprite*)paddle withTouches:(NSSet *)touches
+{
+    
+    if (paddle.zRotation == 0.00 || roundf(paddle.zRotation*100)/100 == roundf(M_PI)) {
+        NSLog(@"horizontal paddle");
+        [self movePaddle:paddle horizontallyWithTouches:touches];
+        
+    } else if (roundf(paddle.zRotation *100)/100 == -roundf((M_PI/2)*100)/100
+               || roundf(self.zRotation *100)/100 == roundf((M_PI/2)*100)/100) {
+        NSLog(@"vertical paddle");
+    }
+    
+
+    //paddle.position = CGPointMake(touchLocation.x, paddle.position.y);
+    
+}
+
+-(void)movePaddle:(PaddleSprite *)paddle horizontallyWithTouches:(NSSet *)touches
+{
+    CGPoint touchLocation = [[touches anyObject] locationInNode:self];
+    CGPoint previousTouch = [[touches anyObject] previousLocationInNode:self];
+
+    if (touchLocation.x > paddle.size.width/2
+        && touchLocation.x < self.scene.size.width - paddle.size.width/2) {
+        
+        // within the scene so ok to move
+        paddle.position =  CGPointMake(touchLocation.x, paddle.position.y);
+
+        
+        for (BlockSprite *block in [self childNodeWithName:blockNodeNameSearch].children) {
+            // checking to see if there is a block in the way
+            
+            if ((paddle.position.y + paddle.size.height/2) > (block.position.y - block.size.height/2)
+                && paddle.position.y - paddle.size.height/2 < (block.position.y + block.size.height/2)) {
+                //on the same line as a block
+
+                float touchTravelDistance =  previousTouch.x - touchLocation.x;
+                //NSLog(@"were to move to %f", (touchTravelDistance + (paddle.position.x + paddle.size.width/2))+ 10);
+                //NSLog(@"where paddle is %f", paddle.position.x + paddle.size.width/2);
+                //NSLog(@"where block is %f", (block.position.x - block.size.width/2));
+                if ((touchTravelDistance + (paddle.position.x + paddle.size.width/2)) < (block.position.x - block.size.width/2)) {
+                    NSLog(@"moving paddle");
+                    paddle.position =  CGPointMake(touchLocation.x, paddle.position.y);
+            
+                    
+                }
+                    //paddle.position = CGPointMake(touchLocation.x, paddle.position.y);
+
+                
+                
+                //touchTravelDistance + (paddle.position.x - paddle.size.width/2) - 10 < (block.position.x + block.size.width/2)
+                
+                /*
+                if (paddle.position.x + paddle.size.width/2 < ((block.position.x - block.size.width/2)+ 5)
+                    || paddle.position.x - paddle.size.width/2 > ((block.position.x + block.size.width/2) +3)) {
+                    
+                    NSLog(@"block inline but not to close");
+                    
+                    paddle.position = CGPointMake(touchLocation.x, paddle.position.y);
+
+
+                } else  {
+                    NSLog(@"block inline but way to close");
+                    if (paddle.position.x + paddle.size.width/2 < ((block.position.x - block.size.width/2) + 10)
+                        ||paddle.position.x + paddle.size.width/2 < ((block.position.x - block.size.width/2) - 10)) {
+                        //should only move paddle to the left -x value
+                        if ((touchLocation.x - previousTouch.x) <= 0) {
+                            paddle.position = CGPointMake(touchLocation.x, paddle.position.y);
+
+                        }
+                    }
+                } */
+            }
+        }
+        if (touchLocation.x) {
+            
         }
     }
-    //NSMutableArray *nodesPressedAtTouchBegins = self.nodesPressedAtTouchBegins;
-    //SKNode *node = nodesPressedAtTouchBegins[0];
-    
-    
-    /*
-    if ([node.name containsString:paddleName]) {
+}
 
-        PaddleSprite *paddle     = (PaddleSprite *) self.nodesPressedAtTouchBegins;
-        int paddleX              = paddle.position.x + (touchLocation.x - previousLocation.x);
+-(void)movePaddle:(PaddleSprite *)paddle verticallyWithTouches:(NSSet *)touches
+{
+    CGPoint touchLocation = [[touches anyObject] locationInNode:self];
+
+    if (touchLocation.y > paddle.size.width/2
+        && touchLocation.y < self.size.height - paddle.size.width/2) {
+        paddle.position = CGPointMake(paddle.position.x, touchLocation.y);
         
-        paddleX = MAX(paddleX, paddle.size.width/2);
-        paddleX = MIN(paddleX, self.size.width - paddle.size.width/2);
-        
-        paddle.position = CGPointMake(paddleX, paddle.position.y);
-    } */
+    }
+    
 }
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    PaddleSprite *paddle = (PaddleSprite *)[self.nodesPressedAtTouchBegins firstObject];
     self.nodesPressedAtTouchBegins = [[NSMutableArray alloc] init];
+    
     
 }
 
@@ -502,7 +614,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
     if (firstBody.categoryBitMask == ballCategory && secondBody.categoryBitMask == bottomCategory)
     {
-        //GameOverScene *gameOverScene = [[GameOverScene alloc] initWithSize:self.frame.size playerWon:NO];
+        GameOverScene *gameOverScene = [[GameOverScene alloc] initWithSize:self.frame.size playerWon:NO];
         
         //[self.view presentScene:gameOverScene];
     }
@@ -517,11 +629,10 @@ static NSString * const pausedScreenName = @"pausedScreen";
         if ([powerUp.type isEqualToString:powerUpDoubleBall]) {
             [self createDoubleBall];
         } else if ([powerUp.type isEqualToString:powerUpBigBall]) {
-            NSLog(@"big ball powerup");
             BallSprite *ball = (BallSprite *)[[self childNodeWithName:ballNodeNameSearch] childNodeWithName:@"*"];
             ball.currentSize = @"big";
             
-            [ball updateSelf];
+            [ball updateSize];
         }
         
         [powerUp removeFromParent];
@@ -543,8 +654,9 @@ static NSString * const pausedScreenName = @"pausedScreen";
             block.hitPoints--;
             [block updateSelf];
         } else if (block.hitPoints == 1) {
-            if (![block.hasPowerupType isEqualToString:@""]) {
-                [self createPowerUpWithLocation:block.position type:block.hasPowerupType];
+            if (![block.powerUpType isEqualToString:@""]) {
+                [self createPowerUpWithLocation:block.position type:block.powerUpType];
+                
             }
             [block removeFromParent];
             [[GameData sharedGameData].saveFile.blocks removeObject:block];
@@ -607,13 +719,14 @@ static NSString * const pausedScreenName = @"pausedScreen";
         count = (int)[self childNodeWithName:blockNodeNameSearch].children.count;
     } else if ([type isEqualToString:ballName]) {
         count = (int)[self childNodeWithName:ballNodeNameSearch].children.count;
+    } else if ([type isEqualToString:paddleName]) {
+        count = (int)[self childNodeWithName:paddleNodeNameSearch].children.count;
     } else if ([type isEqualToString:powerUpName]) {
         count = (int)[self childNodeWithName:powerUpNodeNameSearch].children.count;
     }
     
     return [NSString stringWithFormat:@"%@%d",type, count];
 }
-
 
 -(NSMutableArray *)selectRandomBlocksWithAmount:(int)amount
 {
@@ -647,9 +760,9 @@ static NSString * const pausedScreenName = @"pausedScreen";
                                                                                        type:type
                                                                                        name:powerUpName
                                                                                  shouldMove:YES];
-    powerUpSprite.physicsBody.categoryBitMask     = powerUpCategory;
     powerUpSprite.physicsBody.collisionBitMask    = paddleCategory | bottomCategory;
     powerUpSprite.physicsBody.contactTestBitMask  = paddleCategory | bottomCategory;
+    powerUpSprite.physicsBody.dynamic = YES;
     
     [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUpSprite];
     [[GameData sharedGameData].saveFile.powerUps addObject:powerUpSprite];

@@ -11,8 +11,9 @@
 #import "HitPointSprite.h"
 #import "PowerUpSprite.h"
 #import "Constants.h"
-
 #define SK_DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
+
+
 
 static NSString * const currentSizeKey  = @"currentSize";
 static NSString * const hitPointsKey    = @"hitPoints";
@@ -69,10 +70,11 @@ static NSString * const blockKey         = @"block";
         self.physicsBody.friction       = 0.0;
         self.physicsBody.dynamic        = NO;
         self.physicsBody.usesPreciseCollisionDetection = YES;
+        self.physicsBody.categoryBitMask = blockCategory;
         
         self.currentSize = currentSize;
         self.hitPoints   = hitPoints;
-        self.hasPowerupType  = hasPowerupType;
+        self.powerUpType  = hasPowerupType;
         self.canBeEdited = canBeEdited;
 
         [self updateSelf];
@@ -91,7 +93,7 @@ static NSString * const blockKey         = @"block";
  
     [aCoder encodeObject:self.currentSize forKey:currentSizeKey];
     [aCoder encodeInteger:self.hitPoints forKey:hitPointsKey];
-    [aCoder encodeObject:self.hasPowerupType forKey:hasPowerUpKey];
+    [aCoder encodeObject:self.powerUpType forKey:hasPowerUpKey];
     [aCoder encodeBool:self.canBeEdited forKey:canBeEditedKey];
     [aCoder encodeObject:self.name forKey:nameKey];
     [aCoder encodeObject:position forKey:positionKey];
@@ -149,7 +151,6 @@ static NSString * const blockKey         = @"block";
     
     if (self.showPowerUp) {
         self.texture = [SKTexture textureWithImageNamed:@"greyBlock.png"];
-        [self createPowerUp];
     } else {
         self.texture = [SKTexture textureWithImageNamed:@"block.png"];
     }
@@ -168,16 +169,6 @@ static NSString * const blockKey         = @"block";
             [hitPointLabel removeFromParent];
         }
     } */
-}
-
-
--(void)createPowerUp
-{
-    if (self.hasPowerupType) {
-        
-        PowerUpSprite *powerUp = [[PowerUpSprite alloc] initWithLocation:CGPointMake(0, 0) type:self.hasPowerupType name:powerUpName shouldMove:NO];
-        [self addChild:powerUp];
-    }
 }
 
 

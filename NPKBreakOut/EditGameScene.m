@@ -50,6 +50,9 @@ static NSString * const saveButtonName = @"save";
 @property (nonatomic) float blockHeight;
 @property (nonatomic) float bottomOptionsHeight;
 
+@property (nonatomic) float powerUpHitTestXBuffer;
+@property (nonatomic) float powerUpHitTestYBuffer;
+
 @property (nonatomic) BOOL isAdjustingSize;
 @property (nonatomic) BOOL shouldBlocksRotate;
 @property (nonatomic) BOOL isObjectRotating;
@@ -86,6 +89,9 @@ static NSString * const saveButtonName = @"save";
         self.rightOptionsWidthLimit   = self.frame.size.width - 90.0;
         self.bottomOptionsBuffer      = 100;
         self.rightOptionsBuffer       = 100;
+        
+        self.powerUpHitTestXBuffer = 10 + ([[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.width / 2);
+        self.powerUpHitTestYBuffer = 10  + ([[SKSpriteNode alloc] initWithImageNamed:@"block.png"].frame.size.height / 2);
 
         
         [self createBackground];
@@ -273,6 +279,25 @@ static NSString * const saveButtonName = @"save";
     [bottomOptions addChild:powerUpBlue];
     
 }
+
+-(void)createBlockPowerUps
+{
+    NSArray *blocks = [self childNodeWithName:blockNodeNameSearch].children;
+    for (BlockSprite *block in blocks) {
+        if (![block.powerUpType isEqualToString:@""]) {
+            PowerUpSprite *powerUp = [[PowerUpSprite alloc] initWithLocation:block.position
+                                                                        type:block.powerUpType
+                                                                        name:block.powerUpName
+                                                                  shouldMove:NO];
+            powerUp.belongsToBlockNamed = block.name;
+            [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
+         
+        }
+    }
+    
+}
+
+
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
@@ -280,10 +305,26 @@ static NSString * const saveButtonName = @"save";
     self.nodePressedAtTouchBegins = node;
 
     
-    NSLog(@"touch begins pressed %@", node.name);
+    //NSLog(@"touch begins pressed %@", node.name);
     
-    if ([node.name isEqualToString:blockNodeName]) {
-        self.nodePressedAtTouchBegins = nil;
+
+    
+    if ([node.name containsString:blockName] && ![node.name isEqualToString:blockNodeName]) {
+        BlockSprite *block = (BlockSprite *)node;
+        block.physicsBody.dynamic = YES;
+        
+        if (block.hitPointsCanBeChanged) {
+            [block addHitPoint];
+            self.nodePressedAtTouchBegins = nil;
+        }
+    }
+    
+    if ([node.name containsString:ballName]) {
+        node.physicsBody.dynamic = YES;
+    }
+    
+    if ([node.name containsString:paddleName]) {
+        node.physicsBody.dynamic = YES;
     }
 
 
@@ -309,11 +350,21 @@ static NSString * const saveButtonName = @"save";
                 block.isRotatable = YES;
                 [block updateSelf];
             }];
+            [[self childNodeWithName:paddleNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                PaddleSprite *paddle = (PaddleSprite *)node;
+                paddle.isRotatable = YES;
+                [paddle updateSelf];
+            }];
         } else {
             [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
                 BlockSprite *block = (BlockSprite*)node;
                 block.isRotatable = NO;
                 [block updateSelf];
+            }];
+            [[self childNodeWithName:paddleNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                PaddleSprite *paddle = (PaddleSprite *)node;
+                paddle.isRotatable = NO;
+                [paddle updateSelf];
             }];
 
         }
@@ -322,6 +373,7 @@ static NSString * const saveButtonName = @"save";
 
     if ([node.name isEqualToString:hitPointsButtonName] || [node.name isEqualToString:hitPointsLabelName]) {
         HitPointSprite *button;
+        NSLog(@"hitpoints button Has been pressed");
         if ([node.name isEqualToString:hitPointsButtonName]) {
             button = (HitPointSprite *)node;
         } else if ([[node parent].name isEqualToString:hitPointsButtonName]){
@@ -347,14 +399,7 @@ static NSString * const saveButtonName = @"save";
         }
     }
     
-    if ([node.name containsString:blockName]) {
-        BlockSprite *block = (BlockSprite *)node;
 
-        if (block.hitPointsCanBeChanged) {
-            [block addHitPoint];
-            self.nodePressedAtTouchBegins = nil;
-        }
-    }
     
     if ([node.name isEqualToString:gridButtonName]) {
         GridSprite *button = (GridSprite *)node;
@@ -371,6 +416,7 @@ static NSString * const saveButtonName = @"save";
         [button changeStatus];
         if (button.isPressed) {
             [self createBottomOptionsPowerUps];
+            [self createBlockPowerUps];
             [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
                 BlockSprite *block = (BlockSprite *)node;
                 block.showPowerUp = YES;
@@ -382,13 +428,37 @@ static NSString * const saveButtonName = @"save";
                 block.showPowerUp = NO;
                 [block updateSelf];
             }];
+            
+            [[self childNodeWithName:powerUpNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+                PowerUpSprite *powerUp = (PowerUpSprite *)node;
+                
+                if (![powerUp.belongsToBlockNamed isEqualToString:@""]) {
+                    [[GameData sharedGameData].saveFile.powerUps removeObject:powerUp];
+                    [powerUp removeFromParent];
+                }
+
+                
+            }];
             [self createBottomOptionsOverlayObjects];
         }
     }
     
+    if ([self.nodePressedAtTouchBegins.name isEqualToString:rotatePointName]) {
+        
+        if ([self.nodePressedAtTouchBegins.parent.name containsString:paddleName]) {
+            PaddleSprite *paddle = (PaddleSprite *)self.nodePressedAtTouchBegins.parent;
+            [paddle adjustRotationWithTouches:touches];            
+        }
+    }
+    
+    if ([node.name isEqualToString:blockNodeName]
+        || [node.name isEqualToString:powerUpNodeName]
+        || [node.name isEqualToString:ballNodeName]
+        || [node.name isEqualToString:paddleNodeName]) {
+        self.nodePressedAtTouchBegins = nil;
+    }
     
 }
-
 
 
 
@@ -402,41 +472,23 @@ static NSString * const saveButtonName = @"save";
     if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayBlockName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
         BlockSprite *block            = [[BlockSprite alloc] initWithLocation:touchLocation
                                                                     hitPoints:1
-                                                                         name:[self nameBlock]
+                                                                         name:[self nameSpriteWithType:blockName]
                                                                    hasPowerupType:@""
                                                                   currentSize:@"normal"
                                                                   canBeEdited:YES];
+        block.physicsBody.dynamic = YES;
         self.nodePressedAtTouchBegins = block;
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
         [[GameData sharedGameData].saveFile.blocks addObject:block];
     }
     
-    if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayPowerUpBigName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
-        PowerUpSprite *powerUp = [[PowerUpSprite alloc]  initWithLocation:touchLocation
-                                                                     type:powerUpBigBall
-                                                                     name:powerUpName
-                                                               shouldMove:NO];
-        self.nodePressedAtTouchBegins = powerUp;
-        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
-        [[GameData sharedGameData].saveFile.powerUps addObject:powerUp];
-    }
-    
-    if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayPowerUpDoubleName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
-        PowerUpSprite *powerUp = [[PowerUpSprite alloc] initWithLocation:touchLocation
-                                                                    type:powerUpDoubleBall
-                                                                    name:powerUpName
-                                                              shouldMove:NO];
-        self.nodePressedAtTouchBegins = powerUp;
-        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
-        [[GameData sharedGameData].saveFile.powerUps addObject:powerUp];
-    }
-    
+
     if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayBallName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
         BallSprite *ball = [[BallSprite alloc] initWithLocation:touchLocation
                                                     currentSize:@"normal"
                                                          status:@"normal"
-                                                           name:[self nameBall]];
-        ball.physicsBody.dynamic = NO;
+                                                           name:[self nameSpriteWithType:ballName]];
+        ball.physicsBody.dynamic = YES;
         self.nodePressedAtTouchBegins = ball;
         [[self childNodeWithName:ballNodeNameSearch] addChild:ball];
         [[GameData sharedGameData].saveFile.balls addObject:ball];
@@ -447,14 +499,37 @@ static NSString * const saveButtonName = @"save";
         PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
                                                                 position:touchLocation
                                                                   status:@"normal"
-                                                                    name:[self namePaddle]];
+                                                                    name:[self nameSpriteWithType:paddleName]];
+        paddle.physicsBody.dynamic = YES;
         self.nodePressedAtTouchBegins = paddle;
         [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
         [[GameData sharedGameData].saveFile.paddles addObject:paddle];
     
     }
-    if ([self.nodePressedAtTouchBegins.name isEqualToString:powerUpName]) {
-        self.nodePressedAtTouchBegins.position = touchLocation;
+    
+    if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayPowerUpBigName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
+        PowerUpSprite *powerUp = [[PowerUpSprite alloc]  initWithLocation:touchLocation
+                                                                     type:powerUpBigBall
+                                                                     name:[self nameSpriteWithType:powerUpName]
+                                                               shouldMove:NO];
+        
+        self.nodePressedAtTouchBegins = powerUp;
+        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
+        [[GameData sharedGameData].saveFile.powerUps addObject:powerUp];
+    }
+    
+    if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayPowerUpDoubleName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
+        PowerUpSprite *powerUp = [[PowerUpSprite alloc] initWithLocation:touchLocation
+                                                                    type:powerUpDoubleBall
+                                                                    name:[self nameSpriteWithType:powerUpName]
+                                                              shouldMove:NO];
+        self.nodePressedAtTouchBegins = powerUp;
+        [[self childNodeWithName:powerUpNodeNameSearch] addChild:powerUp];
+        [[GameData sharedGameData].saveFile.powerUps addObject:powerUp];
+    }
+    
+    if ([self.nodePressedAtTouchBegins.name containsString:powerUpName]) {
+        [self movePowerUpWithTouches:touches];
     }
 
     if ([self.nodePressedAtTouchBegins.name containsString:ballName]
@@ -506,8 +581,10 @@ static NSString * const saveButtonName = @"save";
     }
     [[GameData sharedGameData]  archiveSaveFile];
     
-    if ([self.nodePressedAtTouchBegins.name containsString:blockName]) {
-        //NSLog(@"a node was created/moved");
+    if ([self.nodePressedAtTouchBegins.name containsString:blockName] || [self.nodePressedAtTouchBegins.name containsString:ballName]
+        || [self.nodePressedAtTouchBegins.name containsString:paddleName]) {
+        NSLog(@"reseting node dynamics");
+        self.nodePressedAtTouchBegins.physicsBody.dynamic = NO;
     }
 
     self.nodePressedAtTouchBegins = 0;
@@ -520,6 +597,51 @@ static NSString * const saveButtonName = @"save";
     self.shouldMoveUpOptions      = NO;
 
     
+}
+
+-(void)movePowerUpWithTouches:(NSSet *)touches
+{
+    NSLog(@"moving powerup");
+    UITouch *touch            = [touches anyObject];
+    CGPoint touchLocation     = [touch locationInNode:self];
+    SKNode  *nodeAtTouch      = [self.physicsWorld bodyAtPoint:touchLocation].node;
+    BOOL moveToBlock = NO;
+    
+    BlockSprite *closestBlock = [[BlockSprite alloc] initWithImageNamed:@"block.png"];
+    PowerUpSprite *powerUp = (PowerUpSprite *)self.nodePressedAtTouchBegins;
+    
+    
+    for (BlockSprite *block in [self childNodeWithName:blockNodeNameSearch].children) {
+        if (   touchLocation.x > (block.position.x - self.powerUpHitTestXBuffer)
+            && touchLocation.x < (block.position.x + self.powerUpHitTestXBuffer)
+            && touchLocation.y > (block.position.y - self.powerUpHitTestYBuffer)
+            && touchLocation.y < (block.position.y + self.powerUpHitTestYBuffer)) {
+            NSLog(@"touch is within range of a blokc");
+            moveToBlock = YES;
+            closestBlock = block;
+            
+        }
+    }
+    if (moveToBlock) {
+        closestBlock.powerUpType = powerUp.type;
+        closestBlock.powerUpName = powerUp.name;
+        powerUp.belongsToBlockNamed = closestBlock.name;
+        self.nodePressedAtTouchBegins.position = closestBlock.position;
+
+    } else {
+        if (![powerUp.belongsToBlockNamed isEqualToString:@""]) {
+            BlockSprite *oldBlock = [(BlockSprite *)[self childNodeWithName:blockNodeNameSearch]
+                                     childNodeWithName:powerUp.belongsToBlockNamed];
+            oldBlock.powerUpName = @"";
+            oldBlock.powerUpType = @"";
+            powerUp.belongsToBlockNamed = @"";
+
+        } else {
+            powerUp.belongsToBlockNamed = @"";
+        }
+
+        self.nodePressedAtTouchBegins.position = touchLocation;
+    }
 }
 
 
@@ -818,23 +940,23 @@ static NSString * const saveButtonName = @"save";
     
 }
 
--(NSString*)nameBlock
+
+
+-(NSString *)nameSpriteWithType:(NSString *)type
 {
-    int count = (int)[self childNodeWithName:blockNodeNameSearch].children.count;
-    return [NSString stringWithFormat:@"block%d",count];
+    int count = 0;
     
-}
-
--(NSString *)nameBall
-{
-    int count = (int)[self childNodeWithName:ballNodeNameSearch].children.count;
-    return [NSString stringWithFormat:@"ball%d",count];
-}
-
--(NSString *)namePaddle
-{
-    int count = (int)[self childNodeWithName:paddleNodeNameSearch].children.count;
-    return [NSString stringWithFormat:@"paddle%d",count];
+    if ([type isEqualToString:blockName]) {
+        count = (int)[self childNodeWithName:blockNodeNameSearch].children.count;
+    } else if ([type isEqualToString:ballName]) {
+        count = (int)[self childNodeWithName:ballNodeNameSearch].children.count;
+    } else if ([type isEqualToString:paddleName]) {
+        count = (int)[self childNodeWithName:paddleNodeNameSearch].children.count;
+    } else if ([type isEqualToString:powerUpName]) {
+        count = (int)[self childNodeWithName:powerUpNodeNameSearch].children.count;
+    }
+    
+    return [NSString stringWithFormat:@"%@%d",type, count];
 }
 
 -(void)switchToMainScene
@@ -860,14 +982,29 @@ static NSString * const saveButtonName = @"save";
 -(void)prepareForSceneChange
 {
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
-        [[GameData sharedGameData].saveFile.blocks removeObject:node];
+        //[[GameData sharedGameData].saveFile.blocks removeObject:node];
         BlockSprite *block = (BlockSprite *)node;
         //block.isEditable = NO;
-        [block updateSelf];
+        block.showPowerUp = NO;
         block.canBeEdited = NO;
-        [[GameData sharedGameData].saveFile.blocks addObject:block];
+        block.physicsBody.dynamic = NO;
+        [block updateSelf];
+
+        //[[GameData sharedGameData].saveFile.blocks addObject:block];
         [block removeFromParent];
 
+    }];
+    
+    
+    [[self childNodeWithName:powerUpNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
+        PowerUpSprite *powerUp = (PowerUpSprite *)node;
+        powerUp.physicsBody.dynamic = NO;
+        if (![powerUp.belongsToBlockNamed isEqualToString:@""]) {
+            [[GameData sharedGameData].saveFile.powerUps removeObject:powerUp];
+            [powerUp removeFromParent];
+        }
+
+        
     }];
     
     [[self childNodeWithName:ballNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
@@ -882,6 +1019,9 @@ static NSString * const saveButtonName = @"save";
     [[self childNodeWithName:paddleNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
         [[GameData sharedGameData].saveFile.paddles removeObject:node];
         PaddleSprite *paddle = (PaddleSprite *)node;
+        paddle.physicsBody.dynamic = NO;
+        paddle.isRotatable = NO;
+        [paddle updateSelf];
         [[GameData sharedGameData].saveFile.paddles addObject:paddle];
         [paddle removeFromParent];
 
@@ -938,7 +1078,7 @@ static NSString * const saveButtonName = @"save";
             
             BlockSprite *block            = [[BlockSprite alloc] initWithLocation:locationForNewBlock
                                                                         hitPoints:1
-                                                                             name:[self nameBlock]
+                                                                             name:[self nameSpriteWithType:blockName]
                                                                        hasPowerupType:@""
                                                                       currentSize:@"normal"
                                                                       canBeEdited:YES];

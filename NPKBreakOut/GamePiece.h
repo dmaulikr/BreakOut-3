@@ -10,7 +10,10 @@
 
 @interface GamePiece : SKSpriteNode
 
--(void)updateSizeWithImageNamed:(NSString *)imageName currentSize:(NSString *)currentSize;
+-(void)updateSize;
+-(void)updateSelf;
+-(void)adjustRotationWithTouches:(NSSet *)touches;
+
 
 
 @end

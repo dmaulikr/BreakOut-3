@@ -13,7 +13,7 @@
 
 - (instancetype)init
 {
-    self = [super initWithTexture:[SKTexture textureWithImageNamed:@"powerUp.png"]];
+    self = [super initWithTexture:[SKTexture textureWithImageNamed:@"powerUpRed.png"]];
     if (self) {
         self.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:self.frame.size];
         self.physicsBody.dynamic = NO;

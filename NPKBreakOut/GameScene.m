@@ -52,6 +52,7 @@
     optionsNode.position    = origin;
     
     overlayNode.zPosition    = 1.0;
+    powerUpNode.zPosition = 1.0;
     
     [contentNode addChild:blockNode];
     [contentNode addChild:ballNode];

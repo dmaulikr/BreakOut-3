@@ -25,11 +25,15 @@ extern NSString * const powerUpButtonName;
 extern NSString * const powerUpBigBall;
 extern NSString * const powerUpDoubleBall;
 
+extern NSString * const orientationHorizontal;
+extern NSString * const orientationVertical;
+
 extern uint32_t const ballCategory;
 extern uint32_t const blockCategory;
 extern uint32_t const paddleCategory;
 extern uint32_t const bottomCategory;
 extern uint32_t const powerUpCategory;
+extern uint32_t const borderCategory;
 
 extern NSString * const gameTitleName;
 extern NSString * const playLabelName;

@@ -25,28 +25,22 @@ static NSString * const shouldMoveKey     = @"shouldMove";
 -(PowerUpSprite *)initWithLocation:(CGPoint)location type:(NSString *)type name:(NSString*)name shouldMove:(BOOL)shouldMove
 {
     
-    NSString *imageName = @"";
-    if ([type isEqualToString:powerUpBigBall]) {
-        imageName = @"powerUpBlue.png";
-
-
-    } else if ([type isEqualToString:powerUpDoubleBall]) {
-        imageName = @"powerUpRed.png";
-
-    }
     
-    if (self == [super initWithImageNamed:imageName]) {
+    if (self == [super initWithImageNamed:[NSString stringWithFormat:@"powerUp%@.png",[self getImageColorFromType:type]]]) {
+
         self.position = location;
         self.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:self.size.width/2];
         self.physicsBody.allowsRotation = NO;
         self.physicsBody.usesPreciseCollisionDetection = YES;
+        self.physicsBody.categoryBitMask = powerUpCategory;
         self.physicsBody.friction = 0.0;
+        self.belongsToBlockNamed = @"";
         //testing
         self.physicsBody.linearDamping = 0.0;
         self.physicsBody.restitution = 1.0;
         self.shouldMove = shouldMove;
 
-        //self.physicsBody.dynamic = NO;
+        self.physicsBody.dynamic = NO;
         self.name = name;
         self.type = type;
         if (self.shouldMove) {
@@ -54,6 +48,17 @@ static NSString * const shouldMoveKey     = @"shouldMove";
         }
     }
     return self;
+}
+
+-(NSString *)getImageColorFromType:(NSString *)type
+{
+    NSString *imageName = @"";
+    if ([type isEqualToString:powerUpBigBall]) {
+        imageName = @"Blue";
+    } else if ([type isEqualToString:powerUpDoubleBall]) {
+        imageName = @"Red";
+    }
+    return imageName;
 }
 
 -(instancetype)initWithCoder:(NSCoder *)aDecoder
@@ -80,9 +85,11 @@ static NSString * const shouldMoveKey     = @"shouldMove";
     [aCoder encodeBool:self.shouldMove forKey:shouldMoveKey];
     
 }
+
 -(void)createAnimation
 {
     [self removeAllChildren];
+    self.texture = [SKTexture textureWithImageNamed:[NSString stringWithFormat:@"powerUpCircle%@.png", [self getImageColorFromType:self.type]]];
     SKSpriteNode *letterP = [SKSpriteNode spriteNodeWithImageNamed:@"powerUpP.png"];
     SKAction *blink = [SKAction sequence:@[
                                            [SKAction fadeOutWithDuration:0.4],

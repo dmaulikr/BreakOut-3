@@ -12,6 +12,7 @@
 
 @property (nonatomic) NSString *type;
 @property (nonatomic) BOOL shouldMove;
+@property (nonatomic) NSString *belongsToBlockNamed;
 
 -(PowerUpSprite *)initWithLocation:(CGPoint)location type:(NSString *)type name:(NSString*)name shouldMove:(BOOL)shouldMove;
 

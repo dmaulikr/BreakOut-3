@@ -24,8 +24,8 @@ static NSString * const outlinedRotateImageName   = @"rotateOutline.png";
             self.colorBlendFactor = 1;
         }
         self.name = name;
-        self.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:self.frame.size];
-        self.physicsBody.dynamic = NO;
+        //self.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:self.frame.size];
+        //self.physicsBody.dynamic = NO;
         //self.anchorPoint = CGPointMake(self.frame.size.width/2, self.frame.size.height/2 + 1);
         self.isPressed = NO;
     }
@@ -57,7 +57,10 @@ static NSString * const outlinedRotateImageName   = @"rotateOutline.png";
     NSLog(@"stop rotate");
     self.isPressed = NO;
     [self removeAllActions];
-    [self setTexture:[SKTexture textureWithImageNamed:rotateImageName]];
+    SKAction *rotateToNeutral = [SKAction rotateToAngle:0 duration:.3];
+    [self runAction:rotateToNeutral completion:^{
+        [self setTexture:[SKTexture textureWithImageNamed:rotateImageName]];
+    }];
     
     
 }
