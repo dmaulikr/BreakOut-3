@@ -46,20 +46,22 @@ static NSString * const pausedScreenName = @"pausedScreen";
         [self addChild:[super createNodeTree]];
         [super setupSaveFile];
 
+        /*
         self.testing1 = [SKSpriteNode spriteNodeWithImageNamed:@"powerUpRed.png"];
         self.testing1.size = CGSizeMake(25, 25);
         self.testing2 = [SKSpriteNode spriteNodeWithImageNamed:@"powerUpBlue.png"];
         self.testing2.size = CGSizeMake(25, 25);
         self.testing1.position = CGPointZero;
+        self.testing1.zPosition = 100;
+        self.testing2.zPosition = 100;
+        [self addChild:self.testing1];
+        [self addChild:self.testing2]; */
+        
         
         self.paddleHorizontalBuffer = 2;
         self.paddleVerticleBuffer = 2;
         
-        self.testing1.zPosition = 100;
-        self.testing2.zPosition = 100;
-        [self addChild:self.testing1];
-        [self addChild:self.testing2];
-        
+
         SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
         borderBody.categoryBitMask = borderCategory;
         SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
@@ -118,6 +120,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     //NSLog(@"create blocks from data");
     for (BlockSprite *block in [GameData sharedGameData].saveFile.blocks) {
         block.physicsBody.categoryBitMask = blockCategory;
+        block.zPosition = 1.0;
         
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
     }
@@ -369,6 +372,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     pausedScreen.anchorPoint    = CGPointZero;
     pausedScreen.alpha          = 0.5;
     pausedScreen.name           = pausedScreenName;
+    pausedScreen.zPosition = 2;
     
     SKLabelNode *saveLabel = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
     saveLabel.text = @"Save And Quit";
@@ -473,29 +477,20 @@ static NSString * const pausedScreenName = @"pausedScreen";
         }
 
     } else if (self.nodesPressedAtTouchBegins.count == 2) {
-        NSLog(@"more then one pressed");
         /*
+        NSLog(@"more then one pressed");
+        SKSpriteNode *spriteOne = [self.nodesPressedAtTouchBegins objectAtIndex:0];
+        SKSpriteNode *spriteTwo = [self.nodesPressedAtTouchBegins objectAtIndex:1];
         
         for (UITouch *touch in touches) {
-            CGPoint touchLocation = [touch locationInNode:self];
-            CGPoint previousLocation = [touch previousLocationInNode:self];
-            SKNode *nodeTouched = [self nodeAtPoint:touchLocation];
-            //NSLog(@"node touched %@",nodeTouched.name);
+            [self movePaddle:(PaddleSprite *)spriteOne withTouches:touches];
+            [self movePaddle:(PaddleSprite *)spriteTwo withTouches:touches];
+            NSLog(@"we got a match");
             
-            for (SKNode *touchBeginsNode in self.nodesPressedAtTouchBegins) {
-                NSLog(@"node touched at begin %@ node touched %@",touchBeginsNode.name, nodeTouched.name);
+        }
+*/
+        
 
-                if ([nodeTouched.name isEqualToString:touchBeginsNode.name]) {
-                    int paddleX              = touchBeginsNode.position.x + (touchLocation.x - previousLocation.x);
-                    
-                    paddleX = MAX(paddleX, touchBeginsNode.frame.size.width/2);
-                    paddleX = MIN(paddleX, self.size.width - touchBeginsNode.frame.size.width/2);
-                    
-                    touchBeginsNode.position = CGPointMake(paddleX, touchBeginsNode.position.y);
-                    
-                }
-            }
-        } */
     }
 
 }

@@ -155,20 +155,6 @@ static NSString * const blockKey         = @"block";
         self.texture = [SKTexture textureWithImageNamed:@"block.png"];
     }
     
-    /*
-    SKLabelNode *hitPointLabel = (SKLabelNode *)[self childNodeWithName:hitPointsLabelName];
-    
-    if (self.hitPointsCanBeChanged) {
-        if (!hitPointLabel) {
-            [self createHitPointLabel];
-        } else {
-            hitPointLabel.text = [NSString stringWithFormat:@"%d",self.hitPoints];
-        }
-    } else {
-        if (hitPointLabel) {
-            [hitPointLabel removeFromParent];
-        }
-    } */
 }
 
 
