@@ -56,7 +56,6 @@
 		50FDABCF1AE5B25500EA1E7C /* powerUpCircleRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 50FDABCD1AE5B25500EA1E7C /* powerUpCircleRed.png */; };
 		50FDABD31AE5B41A00EA1E7C /* powerUpBlue.png in Resources */ = {isa = PBXBuildFile; fileRef = 50FDABD21AE5B41A00EA1E7C /* powerUpBlue.png */; };
 		50FDABD71AE5B8B300EA1E7C /* powerUpRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 50FDABD61AE5B8B300EA1E7C /* powerUpRed.png */; };
-		50FDABD91AE5B90B00EA1E7C /* powerUpRe.png in Resources */ = {isa = PBXBuildFile; fileRef = 50FDABD81AE5B90B00EA1E7C /* powerUpRe.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -146,7 +145,6 @@
 		50FDABCD1AE5B25500EA1E7C /* powerUpCircleRed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpCircleRed.png; sourceTree = "<group>"; };
 		50FDABD21AE5B41A00EA1E7C /* powerUpBlue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpBlue.png; sourceTree = "<group>"; };
 		50FDABD61AE5B8B300EA1E7C /* powerUpRed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpRed.png; sourceTree = "<group>"; };
-		50FDABD81AE5B90B00EA1E7C /* powerUpRe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = powerUpRe.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -257,7 +255,6 @@
 				50FDABCC1AE5B25500EA1E7C /* powerUpCircleBlue.png */,
 				50FDABCD1AE5B25500EA1E7C /* powerUpCircleRed.png */,
 				50813EE01A709B9F00FCB418 /* powerUpP.png */,
-				50FDABD81AE5B90B00EA1E7C /* powerUpRe.png */,
 				50FDABD61AE5B8B300EA1E7C /* powerUpRed.png */,
 				50FDABD21AE5B41A00EA1E7C /* powerUpBlue.png */,
 				50DAFBA51AAFC68900912F7C /* trashIcon.png */,
@@ -340,6 +337,7 @@
 				TargetAttributes = {
 					50813E651A648F8000FCB418 = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = 8LLV4BQDR3;
 					};
 					50813E811A648F8000FCB418 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -388,7 +386,6 @@
 				500D6B821ADC5AB300628A95 /* GridRed.png in Resources */,
 				50813EA91A6DC75B00FCB418 /* paddle.png in Resources */,
 				50813EE11A709B9F00FCB418 /* powerUpP.png in Resources */,
-				50FDABD91AE5B90B00EA1E7C /* powerUpRe.png in Resources */,
 				500D6B841ADC5ABB00628A95 /* Grid.png in Resources */,
 				50FDABCE1AE5B25500EA1E7C /* powerUpCircleBlue.png in Resources */,
 				500D6B801AD72B7600628A95 /* hitPointsButton.png in Resources */,
@@ -557,9 +554,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = NPKBreakOut/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -567,9 +567,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = NPKBreakOut/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

@@ -62,13 +62,13 @@
 {
     NSString *filePath = [GameData filePathWithName:self.saveFile.saveFileName];
     
-    //BOOL success = [NSKeyedArchiver archiveRootObject:self.saveFile toFile:filePath];
-    /*
+    BOOL success = [NSKeyedArchiver archiveRootObject:self.saveFile toFile:filePath];
+    
     if (success) {
         //NSLog(@"saved %@ ", self.saveFile.saveFileName);
     } else {
         NSLog(@"couldnt save");
-    }*/
+    }
     
 }
 

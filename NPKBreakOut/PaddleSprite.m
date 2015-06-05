@@ -150,16 +150,10 @@ static NSString *currentSizeKey = @"currentSizeKey";
     
 }
 
--(void)adjustRotationWithTouches:(NSSet *)touches
+-(void)adjustRotation
 {
 
-    [self runAction:[SKAction rotateByAngle:-M_PI/4 duration:0]completion:^{
-        //NSLog(@"after rotation %f", self.zRotation);
-        //NSLog(@"rounded rotate %f", roundf(self.zRotation *100)/100);
-        //NSLog(@"rounded pie %f", -roundf((M_PI/2) * 100)/100);
-        
-
-    }];
+    [self runAction:[SKAction rotateByAngle:-M_PI/4 duration:0]];
     
 
 }

@@ -447,7 +447,7 @@ static NSString * const saveButtonName = @"save";
         
         if ([self.nodePressedAtTouchBegins.parent.name containsString:paddleName]) {
             PaddleSprite *paddle = (PaddleSprite *)self.nodePressedAtTouchBegins.parent;
-            [paddle adjustRotationWithTouches:touches];            
+            [paddle adjustRotation];
         }
     }
     
@@ -984,14 +984,16 @@ static NSString * const saveButtonName = @"save";
     [[self childNodeWithName:blockNodeNameSearch] enumerateChildNodesWithName:@"*" usingBlock:^(SKNode *node, BOOL *stop) {
         //[[GameData sharedGameData].saveFile.blocks removeObject:node];
         BlockSprite *block = (BlockSprite *)node;
-        //block.isEditable = NO;
+        
         block.showPowerUp = NO;
         block.canBeEdited = NO;
+        
         block.physicsBody.dynamic = NO;
         [block updateSelf];
 
-        //[[GameData sharedGameData].saveFile.blocks addObject:block];
         [block removeFromParent];
+        //[[GameData sharedGameData].saveFile.blocks addObject:block];
+
 
     }];
     

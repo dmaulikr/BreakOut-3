@@ -51,18 +51,19 @@ NSString * const mainNodeName       = @"mainNode";
 NSString * const overlayNodeName    = @"overlayNode";
 NSString * const backgroundNodeName = @"backgroundNode";
 NSString * const contentNodeName    = @"contentNode";
-NSString * const blockNodeName      = @"blockNode";
-NSString * const ballNodeName       = @"ballNode";
-NSString * const paddleNodeName     = @"paddleNode";
-NSString * const powerUpNodeName    = @"powerUpNode";
+NSString * const blockNodeName      = @"sqaureNode";
+NSString * const ballNodeName       = @"circleNode";
+NSString * const paddleNodeName     = @"greyNode";
+NSString * const powerUpNodeName    = @"strongNode";
 NSString * const optionsNodeName    = @"optionsNode";
 
 NSString * const mainNodeNameSearch       = @"//mainNode";
 NSString * const overlayNodeNameSearch    = @"//overlayNode";
 NSString * const backgroundNodeNameSearch = @"//backgroundNode";
 NSString * const contentNodeNameSearch    = @"//contentNode";
-NSString * const blockNodeNameSearch      = @"//blockNode";
-NSString * const ballNodeNameSearch       = @"//ballNode";
-NSString * const paddleNodeNameSearch     = @"//paddleNode";
-NSString * const powerUpNodeNameSearch    = @"//powerUpNode";
+NSString * const blockNodeNameSearch      = @"//sqaureNode";
+NSString * const ballNodeNameSearch       = @"//circleNode";
+NSString * const paddleNodeNameSearch     = @"//greyNode";
+NSString * const powerUpNodeNameSearch    = @"//strongNode";
 NSString * const optionsNodeNameSearch    = @"//optionsNode";
+

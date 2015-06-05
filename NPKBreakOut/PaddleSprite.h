@@ -17,6 +17,7 @@
 @property (nonatomic) BOOL isMoving;
 
 -(PaddleSprite *)initWithCurrentSize:(NSString *)currentSize position:(CGPoint)position status:(NSString *)status name:(NSString *)name;
+-(void)adjustRotation;
 
 
 @end

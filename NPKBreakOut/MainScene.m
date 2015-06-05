@@ -28,6 +28,10 @@ static NSString * const pausedScreenName = @"pausedScreen";
 @property (nonatomic) BOOL isGamePlaying;
 @property (nonatomic) int doubleBallDuration;
 @property (nonatomic) NSMutableArray *nodesPressedAtTouchBegins;
+@property (nonatomic) int paddleHorizontalBuffer;
+@property (nonatomic) int paddleVerticleBuffer;
+@property (nonatomic) SKSpriteNode *testing1;
+@property (nonatomic) SKSpriteNode *testing2;
 
 
 @end
@@ -42,9 +46,22 @@ static NSString * const pausedScreenName = @"pausedScreen";
         [self addChild:[super createNodeTree]];
         [super setupSaveFile];
 
+        self.testing1 = [SKSpriteNode spriteNodeWithImageNamed:@"powerUpRed.png"];
+        self.testing1.size = CGSizeMake(25, 25);
+        self.testing2 = [SKSpriteNode spriteNodeWithImageNamed:@"powerUpBlue.png"];
+        self.testing2.size = CGSizeMake(25, 25);
+        self.testing1.position = CGPointZero;
+        
+        self.paddleHorizontalBuffer = 2;
+        self.paddleVerticleBuffer = 2;
+        
+        self.testing1.zPosition = 100;
+        self.testing2.zPosition = 100;
+        [self addChild:self.testing1];
+        [self addChild:self.testing2];
         
         SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
-        //borderBody.categoryBitMask = borderCategory;
+        borderBody.categoryBitMask = borderCategory;
         SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
         CGRect bottomRect         = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 1);
         SKNode *bottom            = [SKNode node];
@@ -124,33 +141,16 @@ static NSString * const pausedScreenName = @"pausedScreen";
 -(void)createPaddlesFromData
 {
     
-    CGVector movingAngle;
     
     for (PaddleSprite *paddle in [GameData sharedGameData].saveFile.paddles) {
         
         paddle.physicsBody.contactTestBitMask = powerUpCategory;
         paddle.physicsBody.collisionBitMask   = blockCategory;
-        paddle.physicsBody.dynamic = YES;
+        paddle.physicsBody.dynamic = NO;
         
         [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
-        
-        if (paddle.zRotation == 0.00 || roundf(paddle.zRotation*100)/100 == roundf(M_PI)) {
-            NSLog(@"horizontal paddle");
-            movingAngle = CGVectorMake(50, 0);
-            
-        } else if (roundf(paddle.zRotation *100)/100 == -roundf((M_PI/2)*100)/100
-                   || roundf(self.zRotation *100)/100 == roundf((M_PI/2)*100)/100) {
-            NSLog(@"vertical paddle");
-            movingAngle = CGVectorMake(0, 50);
-        }
-        
-        SKPhysicsJointSliding *joint = [SKPhysicsJointSliding jointWithBodyA:paddle.physicsBody
-                                                                       bodyB:self.physicsBody
-                                                                      anchor:CGPointZero
-                                                                        axis:CGVectorMake(50, -50)];
-        [self.physicsWorld addJoint:joint];
-        
-        
+
+
     }
     
 }
@@ -245,7 +245,11 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
     paddle.physicsBody.contactTestBitMask = powerUpCategory;
     paddle.physicsBody.collisionBitMask   = blockCategory;
-    paddle.physicsBody.dynamic = YES;
+    paddle.physicsBody.dynamic = NO;
+    /*
+    paddle.position = CGPointMake(self.scene.size.width/2, paddle.size.height + 50);
+    [paddle adjustRotation];
+    [paddle adjustRotation];*/
 
     
     [[self childNodeWithName:paddleNodeNameSearch] addChild:paddle];
@@ -405,8 +409,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
         } else {
             node = [self nodeAtPoint:touchLocation];
         }
-        
-        
+
         
         if ([node.name containsString:backgroundName]) {
             [self pauseGame];
@@ -501,12 +504,11 @@ static NSString * const pausedScreenName = @"pausedScreen";
 {
     
     if (paddle.zRotation == 0.00 || roundf(paddle.zRotation*100)/100 == roundf(M_PI)) {
-        NSLog(@"horizontal paddle");
         [self movePaddle:paddle horizontallyWithTouches:touches];
         
     } else if (roundf(paddle.zRotation *100)/100 == -roundf((M_PI/2)*100)/100
                || roundf(self.zRotation *100)/100 == roundf((M_PI/2)*100)/100) {
-        NSLog(@"vertical paddle");
+        [self movePaddle:paddle verticallyWithTouches:touches];
     }
     
 
@@ -516,74 +518,100 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 -(void)movePaddle:(PaddleSprite *)paddle horizontallyWithTouches:(NSSet *)touches
 {
+    NSLog(@"horizontal");
     CGPoint touchLocation = [[touches anyObject] locationInNode:self];
+    CGPoint touchInPaddle = [[touches anyObject] locationInNode:paddle];
     CGPoint previousTouch = [[touches anyObject] previousLocationInNode:self];
+    
+    float travelDistance =  touchLocation.x - previousTouch.x;
+    float xOffset = touchLocation.x - touchInPaddle.x;
+    
+    NSArray *nodesAtRight;
+    NSArray *nodesAtLeft;
+    
+    BOOL shouldMove = YES;
 
-    if (touchLocation.x > paddle.size.width/2
-        && touchLocation.x < self.scene.size.width - paddle.size.width/2) {
+    CGPoint rightOfPaddle;
+    CGPoint leftOfPaddle;
+    
+    rightOfPaddle = CGPointMake(paddle.position.x + (paddle.size.width/2) + self.paddleHorizontalBuffer + travelDistance, paddle.position.y);
+    leftOfPaddle = CGPointMake(paddle.position.x - (paddle.size.width/2) - self.paddleHorizontalBuffer + travelDistance, paddle.position.y);
+    
+    if (leftOfPaddle.x > 0 && rightOfPaddle.x < self.scene.size.width) {
         
-        // within the scene so ok to move
-        paddle.position =  CGPointMake(touchLocation.x, paddle.position.y);
-
+        nodesAtRight = [self nodesAtPoint:rightOfPaddle];
+        nodesAtLeft = [self nodesAtPoint:leftOfPaddle];
         
-        for (BlockSprite *block in [self childNodeWithName:blockNodeNameSearch].children) {
-            // checking to see if there is a block in the way
-            
-            if ((paddle.position.y + paddle.size.height/2) > (block.position.y - block.size.height/2)
-                && paddle.position.y - paddle.size.height/2 < (block.position.y + block.size.height/2)) {
-                //on the same line as a block
-
-                float touchTravelDistance =  previousTouch.x - touchLocation.x;
-                //NSLog(@"were to move to %f", (touchTravelDistance + (paddle.position.x + paddle.size.width/2))+ 10);
-                //NSLog(@"where paddle is %f", paddle.position.x + paddle.size.width/2);
-                //NSLog(@"where block is %f", (block.position.x - block.size.width/2));
-                if ((touchTravelDistance + (paddle.position.x + paddle.size.width/2)) < (block.position.x - block.size.width/2)) {
-                    NSLog(@"moving paddle");
-                    paddle.position =  CGPointMake(touchLocation.x, paddle.position.y);
-            
-                    
+        if (travelDistance > 0) {
+            NSLog(@"check the right");
+            for (SKNode *sprite in nodesAtRight) {
+                NSLog(@"%@", sprite.name);
+                if ([sprite.name containsString:blockName] || [sprite.name containsString:paddleName]) {
+                    shouldMove = NO;
                 }
-                    //paddle.position = CGPointMake(touchLocation.x, paddle.position.y);
-
-                
-                
-                //touchTravelDistance + (paddle.position.x - paddle.size.width/2) - 10 < (block.position.x + block.size.width/2)
-                
-                /*
-                if (paddle.position.x + paddle.size.width/2 < ((block.position.x - block.size.width/2)+ 5)
-                    || paddle.position.x - paddle.size.width/2 > ((block.position.x + block.size.width/2) +3)) {
-                    
-                    NSLog(@"block inline but not to close");
-                    
-                    paddle.position = CGPointMake(touchLocation.x, paddle.position.y);
-
-
-                } else  {
-                    NSLog(@"block inline but way to close");
-                    if (paddle.position.x + paddle.size.width/2 < ((block.position.x - block.size.width/2) + 10)
-                        ||paddle.position.x + paddle.size.width/2 < ((block.position.x - block.size.width/2) - 10)) {
-                        //should only move paddle to the left -x value
-                        if ((touchLocation.x - previousTouch.x) <= 0) {
-                            paddle.position = CGPointMake(touchLocation.x, paddle.position.y);
-
-                        }
-                    }
-                } */
+            }
+            
+        } else if (travelDistance < 0) {
+            NSLog(@"check the left");
+            for (SKNode *sprite in nodesAtLeft) {
+                if ([sprite.name containsString:blockName] || [sprite.name containsString:paddleName]) {
+                    shouldMove = NO;
+                }
             }
         }
-        if (touchLocation.x) {
-            
+        
+        if (shouldMove) {
+            paddle.position =  CGPointMake(xOffset + travelDistance, paddle.position.y);
         }
+        
     }
 }
 
 -(void)movePaddle:(PaddleSprite *)paddle verticallyWithTouches:(NSSet *)touches
 {
     CGPoint touchLocation = [[touches anyObject] locationInNode:self];
+    CGPoint touchInPaddle = [[touches anyObject] locationInNode:paddle];
+    CGPoint previousTouch = [[touches anyObject] previousLocationInNode:self];
+    
+    float travelDistance =  touchLocation.y - previousTouch.y;
+    float yOffset = touchLocation.y + touchInPaddle.x;
+    
+    NSArray *nodesAtTop;
+    NSArray *nodesAtBottom;
+    
+    BOOL shouldMove = YES;
+    
+    CGPoint topOfPaddle;
+    CGPoint bottomOfPaddle;
+    
+    topOfPaddle    = CGPointMake(paddle.position.x, paddle.position.y + (paddle.size.width/2) + self.paddleVerticleBuffer + travelDistance);
+    bottomOfPaddle = CGPointMake(paddle.position.x, paddle.position.y - (paddle.size.width/2) - self.paddleVerticleBuffer + travelDistance);
+    
 
-    if (touchLocation.y > paddle.size.width/2
-        && touchLocation.y < self.size.height - paddle.size.width/2) {
-        paddle.position = CGPointMake(paddle.position.x, touchLocation.y);
+    if (topOfPaddle.y < self.scene.size.height && bottomOfPaddle.y > 0) {
+        
+        nodesAtTop    = [self nodesAtPoint:topOfPaddle];
+        nodesAtBottom = [self nodesAtPoint:bottomOfPaddle];
+        
+        if (travelDistance > 0) {
+            for (SKNode *node in nodesAtTop) {
+                if ([node.name containsString:blockName] || [node.name containsString:paddleName]) {
+                    shouldMove = NO;
+                }
+            }
+        } else if (travelDistance < 0) {
+            for (SKNode *node in nodesAtBottom) {
+                if ([node.name containsString:blockName] || [node.name containsString:paddleName]) {
+                    shouldMove = NO;
+                }
+            }
+        }
+        
+        if (shouldMove) {
+            paddle.position = CGPointMake(paddle.position.x, yOffset + travelDistance);
+        }
+        
+        
         
     }
     
