@@ -38,7 +38,7 @@ static NSString * const velocityDyKey     = @"velocityDy";
         self.physicsBody.linearDamping                 = 0.0;
         self.physicsBody.allowsRotation                = NO;
         self.physicsBody.usesPreciseCollisionDetection = YES;
-        //self.physicsBody.categoryBitMask               = ballCategory;
+        self.physicsBody.categoryBitMask               = ballCategory;
                 
     }
     return self;

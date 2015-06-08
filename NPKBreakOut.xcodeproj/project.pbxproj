@@ -189,6 +189,25 @@
 			isa = PBXGroup;
 			children = (
 				50813E6D1A648F8000FCB418 /* AppDelegate.h */,
+				50813ECB1A707B6700FCB418 /* GamePiece.h */,
+				50813ECC1A707B6700FCB418 /* GamePiece.m */,
+				50813ED11A707D9200FCB418 /* BlockSprite.h */,
+				50813ED21A707D9200FCB418 /* BlockSprite.m */,
+				50813ED41A70883D00FCB418 /* PaddleSprite.h */,
+				50813ED51A70883D00FCB418 /* PaddleSprite.m */,
+				50813ED71A708BE400FCB418 /* BallSprite.h */,
+				50813ED81A708BE400FCB418 /* BallSprite.m */,
+				50813EDA1A7094D800FCB418 /* PowerUpSprite.h */,
+				50813EDB1A7094D800FCB418 /* PowerUpSprite.m */,
+				500D6B701AD6F82300628A95 /* RotateSprite.h */,
+				500D6B711AD6F82300628A95 /* RotateSprite.m */,
+				500D6B781AD720C200628A95 /* HitPointSprite.h */,
+				500D6B791AD720C200628A95 /* HitPointSprite.m */,
+				500D6B851ADC5BE800628A95 /* GridSprite.h */,
+				500D6B861ADC5BE800628A95 /* GridSprite.m */,
+				50FDABC91AE595E400EA1E7C /* PowerUpButton.h */,
+				50FDABCA1AE595E400EA1E7C /* PowerUpButton.m */,
+				50FCAB5A1B260874009330F1 /* Sprites */,
 				50813E6E1A648F8000FCB418 /* AppDelegate.m */,
 				500D6B671AC0B19C00628A95 /* ViewController.h */,
 				500D6B681AC0B19C00628A95 /* ViewController.m */,
@@ -214,24 +233,6 @@
 				5058D6B81A9D387A00025597 /* EditGameScene.m */,
 				50813E9D1A6B0F4600FCB418 /* GameOverScene.h */,
 				50813E9E1A6B0F4600FCB418 /* GameOverScene.m */,
-				50813ECB1A707B6700FCB418 /* GamePiece.h */,
-				50813ECC1A707B6700FCB418 /* GamePiece.m */,
-				50813ED11A707D9200FCB418 /* BlockSprite.h */,
-				50813ED21A707D9200FCB418 /* BlockSprite.m */,
-				50813ED41A70883D00FCB418 /* PaddleSprite.h */,
-				50813ED51A70883D00FCB418 /* PaddleSprite.m */,
-				50813ED71A708BE400FCB418 /* BallSprite.h */,
-				50813ED81A708BE400FCB418 /* BallSprite.m */,
-				50813EDA1A7094D800FCB418 /* PowerUpSprite.h */,
-				50813EDB1A7094D800FCB418 /* PowerUpSprite.m */,
-				500D6B701AD6F82300628A95 /* RotateSprite.h */,
-				500D6B711AD6F82300628A95 /* RotateSprite.m */,
-				500D6B781AD720C200628A95 /* HitPointSprite.h */,
-				500D6B791AD720C200628A95 /* HitPointSprite.m */,
-				500D6B851ADC5BE800628A95 /* GridSprite.h */,
-				500D6B861ADC5BE800628A95 /* GridSprite.m */,
-				50FDABC91AE595E400EA1E7C /* PowerUpButton.h */,
-				50FDABCA1AE595E400EA1E7C /* PowerUpButton.m */,
 				50813E761A648F8000FCB418 /* Main.storyboard */,
 				50813E791A648F8000FCB418 /* Images.xcassets */,
 				50813E7B1A648F8000FCB418 /* LaunchScreen.xib */,
@@ -286,6 +287,13 @@
 				50813E871A648F8000FCB418 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		50FCAB5A1B260874009330F1 /* Sprites */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Sprites;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

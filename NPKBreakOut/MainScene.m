@@ -296,7 +296,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
                                                        currentSize:@"normal"
                                                        canBeEdited:NO];
         
-        
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
         [[GameData sharedGameData].saveFile.blocks addObject:block];
     }
@@ -635,11 +634,13 @@ static NSString * const pausedScreenName = @"pausedScreen";
         secondBody = contact.bodyA;
     }
     
+    NSLog(@"contact! first %u second %u", firstBody.categoryBitMask, secondBody.categoryBitMask);
+
     if (firstBody.categoryBitMask == ballCategory && secondBody.categoryBitMask == bottomCategory)
     {
         GameOverScene *gameOverScene = [[GameOverScene alloc] initWithSize:self.frame.size playerWon:NO];
         
-        //[self.view presentScene:gameOverScene];
+        [self.view presentScene:gameOverScene];
     }
     
     if (firstBody.categoryBitMask == bottomCategory && secondBody.categoryBitMask == powerUpCategory) {
@@ -667,7 +668,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
     
     if (firstBody.categoryBitMask == ballCategory && secondBody.categoryBitMask == blockCategory) {
-        
+        NSLog(@"ball hit block");
         BlockSprite *block = (BlockSprite *)secondBody.node;
         
         if (block.hitPoints == 3) {
