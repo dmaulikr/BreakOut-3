@@ -13,7 +13,7 @@
 
 
 
-@interface MainScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate>
+@interface MainScene : GameScene <SKPhysicsContactDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate>
 
 
 @end

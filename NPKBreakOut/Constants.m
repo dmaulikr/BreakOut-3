@@ -14,6 +14,7 @@ NSString * const blockName          = @"block";
 NSString * const ballName           = @"ball";
 NSString * const paddleName         = @"paddle";
 NSString * const powerUpName        = @"powerUp";
+NSString * const pauseButtonName    = @"pauseButton";
 NSString * const backgroundName     = @"background";
 NSString * const bottomOptionsName  = @"bottomOptions";
 NSString * const rightOptionsName   = @"rightOptions";

@@ -118,6 +118,11 @@ static NSString * const saveButtonName = @"save";
     [[self view] addGestureRecognizer:longPressRecognizer];
 }
 
+-(void)createHUD
+{
+    
+}
+
 -(void)createContents
 {
     if ([GameData sharedGameData].saveFile.blocks.count > 0)  [self createBlocksFromData];
@@ -162,6 +167,7 @@ static NSString * const saveButtonName = @"save";
     SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
     background.position       = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
     background.name           = backgroundName;
+    background.zPosition = -1;
     
     [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
 }
@@ -171,17 +177,26 @@ static NSString * const saveButtonName = @"save";
     SKSpriteNode *rightOptions = [SKSpriteNode spriteNodeWithImageNamed:@"rightOptions"];
     rightOptions.anchorPoint = CGPointZero;
     rightOptions.position = CGPointMake(self.frame.size.width, 0);
+    rightOptions.zPosition = 1;
     rightOptions.name = rightOptionsName;
     //NSLog(@"screen %f x %f", self.frame.size.width, rightOptions.position.x);
     
     [[self childNodeWithName: optionsNodeNameSearch] addChild:rightOptions];
+    [self createRightOptionsOverlayObjects];
     
+}
+
+-(void)createRightOptionsOverlayObjects
+{
+    SKSpriteNode *rightOptions = (SKSpriteNode *) [self childNodeWithName:[NSString stringWithFormat:@"//%@", rightOptionsName]];
+
     SKLabelNode *play        = [SKLabelNode labelNodeWithFontNamed:@"arial"];
     play.text                = @"play";
     play.fontSize            = 30;
     play.name                = playButtonName;
     play.physicsBody         = [SKPhysicsBody bodyWithRectangleOfSize:play.frame.size];
     play.position            = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height/10);
+    play.zPosition = 2;
     play.physicsBody.dynamic = NO;
     [rightOptions addChild:play];
     
@@ -191,25 +206,29 @@ static NSString * const saveButtonName = @"save";
     save.name   = saveButtonName;
     save.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:save.frame.size];
     save.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height/5.5);
+    save.zPosition = 2;
     save.physicsBody.dynamic = NO;
     [rightOptions addChild:save];
     
     RotateSprite *rotateButton = [[RotateSprite alloc] initWithColor:nil size:CGSizeMake(50, 50) name:rotateButtonName];
     rotateButton.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height - rotateButton.frame.size.height - 30);
+    rotateButton.zPosition = 2;
     [rightOptions addChild:rotateButton];
     
     HitPointSprite *hitPointsButton = [[HitPointSprite alloc] init];
     hitPointsButton.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height - 170);
+    hitPointsButton.zPosition = 2;
     [rightOptions addChild:hitPointsButton];
     
     GridSprite *gridButton = [[GridSprite alloc] init];
     gridButton.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height- 230);
+    gridButton.zPosition = 2;
     [rightOptions addChild:gridButton];
     
     PowerUpButton *power = [[PowerUpButton alloc] init];
     power.position = CGPointMake(rightOptions.frame.size.width/3, rightOptions.frame.size.height - 330);
+    power.zPosition = 2;
     [rightOptions addChild:power];
-    
     
     
 }
@@ -221,6 +240,7 @@ static NSString * const saveButtonName = @"save";
     
     bottomOptions.anchorPoint = CGPointMake(0,0);
     bottomOptions.position = CGPointMake(0,bottomOptions.frame.size.height * -1);
+    bottomOptions.zPosition = 1;
     bottomOptions.name = bottomOptionsName;
     
     
@@ -305,7 +325,7 @@ static NSString * const saveButtonName = @"save";
     self.nodePressedAtTouchBegins = node;
 
     
-    //NSLog(@"touch begins pressed %@", node.name);
+    NSLog(@"touch begins pressed %@", node.name);
     
 
     
@@ -468,7 +488,7 @@ static NSString * const saveButtonName = @"save";
     CGPoint touchLocation     = [touch locationInNode:self];
     SKNode  *nodeAtTouch      = [self.physicsWorld bodyAtPoint:touchLocation].node;
  
-    //NSLog(@"node named %@", self.nodePressedAtTouchBegins.name);
+    NSLog(@"node named %@", self.nodePressedAtTouchBegins.name);
     if ([self.nodePressedAtTouchBegins.name isEqualToString:overlayBlockName] && self.nodePressedAtTouchBegins != nodeAtTouch) {
         BlockSprite *block            = [[BlockSprite alloc] initWithLocation:touchLocation
                                                                     hitPoints:1
@@ -580,7 +600,7 @@ static NSString * const saveButtonName = @"save";
         [self adjustOptionMenusToRest];
     }
     [[GameData sharedGameData]  archiveSaveFile];
-    
+     
     if ([self.nodePressedAtTouchBegins.name containsString:blockName] || [self.nodePressedAtTouchBegins.name containsString:ballName]
         || [self.nodePressedAtTouchBegins.name containsString:paddleName]) {
         NSLog(@"reseting node dynamics");
@@ -937,7 +957,7 @@ static NSString * const saveButtonName = @"save";
     else if (yPosition) blockPressed.position = CGPointMake(touchLocation.x, yPosition);
     //SKShapeNode *line = [SKShapeNode shapeNodeWithPath:CGPathRef ]
         
-    
+    //UIAlertView
 }
 
 

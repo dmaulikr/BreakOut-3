@@ -13,6 +13,7 @@ extern NSString * const blockName;
 extern NSString * const ballName;
 extern NSString * const paddleName;
 extern NSString * const powerUpName;
+extern NSString * const pauseButtonName;
 extern NSString * const backgroundName;
 extern NSString * const bottomOptionsName;
 extern NSString * const rightOptionsName;

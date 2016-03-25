@@ -26,12 +26,14 @@ static NSString * const pausedScreenName = @"pausedScreen";
 @interface MainScene ()
 
 @property (nonatomic) BOOL isGamePlaying;
+@property (nonatomic) int hudHeight;
+@property (nonatomic) int hudItemsHeight;
 @property (nonatomic) int doubleBallDuration;
 @property (nonatomic) NSMutableArray *nodesPressedAtTouchBegins;
 @property (nonatomic) int paddleHorizontalBuffer;
 @property (nonatomic) int paddleVerticleBuffer;
-@property (nonatomic) SKSpriteNode *testing1;
-@property (nonatomic) SKSpriteNode *testing2;
+// @property (nonatomic) SKSpriteNode *testing1;
+//@property (nonatomic) SKSpriteNode *testing2;
 
 
 @end
@@ -57,14 +59,19 @@ static NSString * const pausedScreenName = @"pausedScreen";
         [self addChild:self.testing1];
         [self addChild:self.testing2]; */
         
-        
+        self.hudHeight = 50;
+        self.hudItemsHeight = -10;
         self.paddleHorizontalBuffer = 2;
         self.paddleVerticleBuffer = 2;
         
-
-        SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
+        CGRect frame = self.frame;
+        frame = CGRectMake(frame.origin.x, frame.origin.y, self.frame.size.width,
+                           (self.frame.size.height - self.hudHeight));
+        
+        SKPhysicsBody *borderBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:frame];
         borderBody.categoryBitMask = borderCategory;
         SKSpriteNode *background  = [SKSpriteNode spriteNodeWithImageNamed:@"bg.png"];
+        background.zPosition = -5;
         CGRect bottomRect         = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 1);
         SKNode *bottom            = [SKNode node];
         
@@ -90,6 +97,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
         [[self childNodeWithName:backgroundNodeNameSearch] addChild:background];
         
         [self createContents];
+        [self createHud];
         [self startGameIsFirstTime:YES];
         
     }
@@ -97,7 +105,20 @@ static NSString * const pausedScreenName = @"pausedScreen";
 }
 
 
-
+-(void)createHud
+{
+    SKSpriteNode *hud = [[SKSpriteNode alloc] init];
+    hud = [SKSpriteNode spriteNodeWithColor:[UIColor grayColor] size:CGSizeMake(self.size.width, self.hudHeight)];
+    hud.position = CGPointMake((self.size.width/2), (self.size.height - (hud.size.height/2)));
+    hud.zPosition = 10;
+    SKSpriteNode *pauseButton = [SKSpriteNode spriteNodeWithImageNamed:@"pauseButtonBlack.png"];
+    pauseButton.size = CGSizeMake(28, 28);
+    pauseButton.position = CGPointMake((self.size.width/2) - (pauseButton.size.width/2) - 10,self.hudItemsHeight);
+    pauseButton.name = pauseButtonName;
+    [hud addChild:pauseButton];
+    [[self childNodeWithName:overlayNodeNameSearch] addChild:hud];
+    
+}
 
 -(void)createContents
 {
@@ -171,7 +192,9 @@ static NSString * const pausedScreenName = @"pausedScreen";
 {
     float padding          = 5.0;
     float blockHeight      = [SKSpriteNode spriteNodeWithImageNamed:@"block.png"].size.height;
-    float currentLocationY = self.frame.size.height - (blockHeight/2) - padding;
+    //float currentLocationY = self.frame.size.height - (blockHeight/2) - padding;
+    float currentLocationY = (self.frame.size.height - self.hudHeight) - (blockHeight/2) - padding;
+
     
     for (int  i = 0; i < 5; i++) {
         [self createLineOfBlocksWithLocationY:currentLocationY
@@ -190,6 +213,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
                                                 currentSize:@"normal"
                                                      status:@"normal"
                                                        name:[self nameSpriteWithType:ballName]];
+    ball.zPosition = 1;
     
     
     ball.physicsBody.contactTestBitMask = bottomCategory | blockCategory;
@@ -241,10 +265,12 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 -(void)createDefaultPaddle
 {
+    NSLog(@"creating default paddle");
     PaddleSprite *paddle = [[PaddleSprite alloc] initWithCurrentSize:@"normal"
                                                             position:CGPointMake(self.frame.size.width/2, self.frame.size.height * 0.05)
                                                               status:@"normal"
                                                                 name:[self nameSpriteWithType:paddleName]];
+    paddle.zPosition = 1;
     
     paddle.physicsBody.contactTestBitMask = powerUpCategory;
     paddle.physicsBody.collisionBitMask   = blockCategory;
@@ -295,6 +321,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
                                                         hasPowerupType:hasPowerUpType
                                                        currentSize:@"normal"
                                                        canBeEdited:NO];
+        block.zPosition = 1;
         
         [[self childNodeWithName:blockNodeNameSearch] addChild:block];
         [[GameData sharedGameData].saveFile.blocks addObject:block];
@@ -365,8 +392,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
 -(void)pauseGame
 {
     
-    //NSLog(@"pausing");
-    
     SKSpriteNode *pausedScreen     = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:self.frame.size];
     pausedScreen.anchorPoint    = CGPointZero;
     pausedScreen.alpha          = 0.5;
@@ -414,7 +439,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
         }
 
         
-        if ([node.name containsString:backgroundName]) {
+        if ([node.name containsString:pauseButtonName]) {
             [self pauseGame];
         }
         
@@ -444,12 +469,7 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
 
         if ([node.name isEqualToString:saveAndQuitLabelName]) {
-            [[GameData sharedGameData] archiveSaveFile];
-            [self removeAllChildren];
-            [GameData sharedGameData].saveFile = [[GameSaveFile alloc] init];
-            
-            StartScene *startScene = [[StartScene alloc] initWithSize:self.size];
-            [self.view presentScene:startScene];
+            [self saveAndQuit];
             
         }
         
@@ -492,6 +512,36 @@ static NSString * const pausedScreenName = @"pausedScreen";
 
     }
 
+}
+
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    PaddleSprite *paddle = (PaddleSprite *)[self.nodesPressedAtTouchBegins firstObject];
+    self.nodesPressedAtTouchBegins = [[NSMutableArray alloc] init];
+    
+    
+}
+
+
+-(void)saveAndQuit
+{
+    SKSpriteNode *pauseNode = (SKSpriteNode*)[self childNodeWithName:pausedScreenName];
+    
+    
+}
+
+- (UIImage *) screenshot {
+    
+    CGSize size = CGSizeMake(self.size.width, self.size.height);
+    
+    UIGraphicsBeginImageContextWithOptions(size, NO, [UIScreen mainScreen].scale);
+    
+    CGRect rec = CGRectMake(0, 0, self.size.width, self.size.height);
+    [self.view drawViewHierarchyInRect:rec afterScreenUpdates:YES];
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
 }
 
 -(void)movePaddle:(PaddleSprite*)paddle withTouches:(NSSet *)touches
@@ -611,13 +661,6 @@ static NSString * const pausedScreenName = @"pausedScreen";
     
 }
 
--(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    PaddleSprite *paddle = (PaddleSprite *)[self.nodesPressedAtTouchBegins firstObject];
-    self.nodesPressedAtTouchBegins = [[NSMutableArray alloc] init];
-    
-    
-}
 
 -(void)didBeginContact:(SKPhysicsContact *)contact
 {
